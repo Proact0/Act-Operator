@@ -1,7 +1,7 @@
 [project]
-name = "{{ cookiecutter.act_slug }}"
+name = "new"
 version = "0.1.0"
-description = "{{ cookiecutter.act_name }}"
+description = "New"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -25,7 +25,7 @@ include = ["casts", "tests"]
 exclude = ["**/__pycache__/*", "**/node_modules/*", ".venv", "**/.venv"]
 
 [tool.uv.workspace]
-members = ["casts/{{ cookiecutter.cast_slug }}"]
+members = ["casts/newone"]
 
 [tool.ruff]
 exclude = [

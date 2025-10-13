@@ -10,7 +10,7 @@ readme = "README.md"
 authors = [
     { name = "Proact0" }
 ]
-license = { file = "LICENSE" }
+license = "Apache-2.0"
 requires-python = ">=3.11"
 dependencies = [
     "typer>=0.12.3",
@@ -23,7 +23,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "License :: OSI Approved :: Apache License 2.0",
     "Operating System :: OS Independent",
     "Environment :: Console"
 ]
@@ -42,12 +41,13 @@ Repository = "https://github.com/Act-Operator/act-operator"
 act-operator = "act_operator.cli:main"
 act = "act_operator.cli:main"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["act_operator*"]
+[tool.setuptools]
+package-dir = { "act_operator" = "src" }
+packages = ["act_operator"]
+include-package-data = true
 
 [tool.setuptools.package-data]
-"act_operator" = ["scaffold/**/*", "py.typed"]
+act_operator = ["scaffold/**/*"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"

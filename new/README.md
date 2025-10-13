@@ -1,4 +1,4 @@
-# Act: {{ cookiecutter.act_name }}
+# Act: New
 
 Proact0의 Act 프로젝트 청사진을 기반으로 한 LangChain Eco System Agentic AI 템플릿입니다.
 
@@ -27,8 +27,8 @@ Proact0의 Act 프로젝트 청사진을 기반으로 한 LangChain Eco System A
 #### 1. 저장소 클론
 
 ```bash
-$ git clone https://github.com/Proact0/{{ cookiecutter.act_slug }}.git
-$ cd {{ cookiecutter.act_slug }}
+$ git clone https://github.com/Proact0/new.git
+$ cd new
 ```
 
 #### 2. uv 설치 (아직 설치되지 않은 경우)
@@ -57,20 +57,20 @@ $ uv sync --all-packages
 $ uv sync --package <PACKAGE NAME>
 ```
 
-> ex) {{ cookiecutter.cast_slug }}의 경우
+> ex) newone의 경우
 >
 > ```bash
-> $ uv sync --package {{ cookiecutter.cast_slug }}
+> $ uv sync --package newone
 > ```
 
-- langgraph.json에 노드 수정 (예: {{ cookiecutter.cast_slug }}만 설치할 경우)
+- langgraph.json에 노드 수정 (예: newone만 설치할 경우)
 
 ```json
 {
   "dependencies": ["."],
   "graphs": {
     "main": "./casts/workflow.py:main_workflow",
-    "{{ cookiecutter.cast_slug }}": "./casts/{{ cookiecutter.cast_slug }}/workflow.py:{{ cookiecutter.cast_snake }}_workflow"
+    "newone": "./casts/newone/workflow.py:newone_workflow"
   },
   "env": ".env"
 }
@@ -97,7 +97,7 @@ $ uv run langgraph dev
 ### 변수에 따른 값 입력 후 실행
 
 - 각 cast 별 `State`에 정의된 Attribute에 따라 변수를 입력합니다.
-- `GraphState`는 `casts/{{ cookiecutter.cast_slug }}/modules/state.py:{{ cookiecutter.cast_snake }}_state`에서 개별 관리됩니다.
+- `GraphState`는 `casts/newone/modules/state.py:newone_state`에서 개별 관리됩니다.
 
 **실행 화면**
 ![](media/LangGraph_Studio_after_invoke.png)
