@@ -1,0 +1,4 @@
+include README.md
+include LICENSE
+recursive-include src/act_operator/scaffold *
+include src/act_operator/py.typed

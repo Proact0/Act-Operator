@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=69", "wheel", "build"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "act-operator"
+version = "0.1.0"
+description = "Proact0 Act 프로젝트 청사진을 CLI로 생성하는 Act Operator"
+readme = "README.md"
+authors = [
+    { name = "Proact0" }
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.12.3",
+    "cookiecutter>=2.6",
+    "langgraph-cli[inmem]>=0.4.2",
+]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: Apache License 2.0",
+    "Operating System :: OS Independent",
+    "Environment :: Console"
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8",
+    "pytest-subprocess>=1.5"
+]
+
+[project.urls]
+Homepage = "https://github.com/Act-Operator/act-operator"
+Repository = "https://github.com/Act-Operator/act-operator"
+
+[project.scripts]
+act-operator = "act_operator.cli:main"
+act = "act_operator.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["act_operator*"]
+
+[tool.setuptools.package-data]
+"act_operator" = ["scaffold/**/*", "py.typed"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]

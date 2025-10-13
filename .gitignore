@@ -1,0 +1,33 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Packaging artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+.python-version
+
+# uv lock file
+uv.lock
+
+# Test and coverage outputs
+.pytest_cache/
+.coverage*
+htmlcov/
+
+# Cookiecutter logs
+cookiecutter.log
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
