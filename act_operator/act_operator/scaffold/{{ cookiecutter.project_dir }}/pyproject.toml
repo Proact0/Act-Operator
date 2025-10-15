@@ -1,0 +1,42 @@
+[project]
+name = "{{ cookiecutter.act_slug }}"
+version = "0.1.0"
+description = "{{ cookiecutter.act_name }}"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "langchain>=0.3.27",
+  "langgraph>=0.6.10",
+  "langchain-community>=0.3.31",
+  "python-dotenv>=1.1.1",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.0.0",
+    "pre-commit>=4.3.0",
+    "langgraph-api>=0.4.39",
+    "langgraph-cli[inmem]>=0.4.3",
+    "pytest>=8.4.2",
+]
+
+[tool.pyright]
+include = ["casts", "tests"]
+exclude = ["**/__pycache__/*", "**/node_modules/*", ".venv", "**/.venv"]
+
+[tool.uv.workspace]
+members = ["casts/{{ cookiecutter.cast_slug }}"]
+
+[tool.ruff]
+exclude = [
+    "(^|/)(.venv|venv|node_modules|__pycache__|migrations|static|templates|.git|.github|.langgraph_api|media)(/|$)",
+    "^tests(/|$)",
+    "^unit_tests(/|$)",
+    ".env",
+    ".env.example",
+    ".gitignore",
+    "LICENSE",
+    "README.md",
+    "langgraph.json",
+    "uv.lock"
+]

@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "act-operator"
+dynamic = ["version"]
+description = "Cookiecutter-based CLI for Act project scaffolding"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "Proact0" }
+]
+dependencies = [
+    "typer>=0.19.2",
+    "rich>=13.9.4",
+    "cookiecutter>=2.6.0",
+]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.4.2",
+    "pytest-subprocess>=1.5.3",
+]
+
+[project.urls]
+Repository = "https://github.com/Act-Operator/act-operator"
+Homepage = "https://github.com/Act-Operator/act-operator"
+
+[project.scripts]
+act-operator = "act_operator.cli:main"
+act = "act_operator.cli:main"
+
+[tool.hatch.version]
+path = "__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+include = ["act_operator"]
+force-include = { "act_operator" = "act_operator" }
+
+[tool.hatch.build.targets.sdist]
+include = ["act_operator", "tests", "README.md", "LICENSE", ".gitignore"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.5.7",
+    "mypy>=1.11.2",
+    "pytest>=8.4.2",
+    "pytest-mock>=3.14.0",
+]
+test = [
+    "pytest>=8.4.2",
+    "pytest-subprocess>=1.5.3",
+]
+
+[tool.uv]
+default-groups = ["dev", "test"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.ruff]
+lint.select = [
+    "E",
+    "F",
+    "I",
+    "B",
+]
+lint.ignore = [
+    "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B905"]
