@@ -47,18 +47,17 @@ my-act/
     ├── __init__.py
     ├── base_node.py
     ├── base_workflow.py
-    ├── main-cast/
-    │   ├── modules/
-    │   │   ├── chains.py
-    │   │   ├── conditions.py
-    │   │   ├── models.py
-    │   │   ├── nodes.py
-    │   │   ├── prompts.py
-    │   │   ├── tools.py
-    │   │   └── utils.py
-    │   ├── state.py
-    │   └── workflow.py
-    └── workflow.py
+    └── main-cast/
+        ├── modules/
+        │   ├── chains.py
+        │   ├── conditions.py
+        │   ├── models.py
+        │   ├── nodes.py
+        │   ├── prompts.py
+        │   ├── tools.py
+        │   └── utils.py
+        ├── state.py
+        └── workflow.py
 ```
 
 ## Development with uv

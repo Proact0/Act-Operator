@@ -7,19 +7,22 @@ name = "act-operator"
 dynamic = ["version"]
 description = "Cookiecutter-based CLI for Act project scaffolding"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 authors = [
     { name = "Proact0" }
 ]
 dependencies = [
     "typer>=0.19.2",
-    "rich>=13.9.4",
+    "rich>=14.1.0",
     "cookiecutter>=2.6.0",
 ]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 
 [project.optional-dependencies]
+dev = [
+    "ruff>=0.5.7"
+]
 test = [
     "pytest>=8.4.2",
     "pytest-subprocess>=1.5.3",
@@ -34,7 +37,7 @@ act-operator = "act_operator.cli:main"
 act = "act_operator.cli:main"
 
 [tool.hatch.version]
-path = "__init__.py"
+path = "act_operator/__init__.py"
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -48,7 +51,7 @@ include = ["act_operator", "tests", "README.md", "LICENSE", ".gitignore"]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.5.7",
+    "ruff>=0.14.0",
     "mypy>=1.11.2",
     "pytest>=8.4.2",
     "pytest-mock>=3.14.0",
@@ -66,6 +69,9 @@ addopts = "-ra"
 testpaths = ["tests"]
 
 [tool.ruff]
+extend-exclude = [
+    "act_operator/scaffold",
+]
 lint.select = [
     "E",
     "F",

@@ -8,7 +8,12 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from .utils import build_name_variants, render_cookiecutter_template
+from .utils import (
+    build_name_variants,
+    render_cookiecutter_template,
+    update_langgraph_registry,
+    update_workspace_members,
+)
 
 console = Console()
 app = typer.Typer(help="Act Operator", invoke_without_command=True)
@@ -170,17 +175,36 @@ def new_command(
 
 
 def _ensure_act_project(act_path: Path) -> None:
-    expected = [
-        act_path / "pyproject.toml",
-        act_path / "casts",
-        act_path / "casts" / "workflow.py",
-    ]
-    for path in expected:
-        if not path.exists():
-            console.print(
-                f"[red]The path does not look like a valid Act project: {path}[/red]"
-            )
-            raise typer.Exit(code=1)
+    missing: list[str] = []
+
+    project_file = act_path / "pyproject.toml"
+    casts_dir = act_path / "casts"
+    langgraph_file = act_path / "langgraph.json"
+
+    if not project_file.exists():
+        missing.append(str(project_file))
+
+    if not casts_dir.exists():
+        missing.append(str(casts_dir))
+
+    if not langgraph_file.exists():
+        missing.append(str(langgraph_file))
+
+    node_file = list(casts_dir.glob("base_node.py")) if casts_dir.exists() else []
+    if not node_file:
+        missing.append(str(casts_dir / "<cast-slug>" / "base_node.py"))
+
+    workflow_file = (
+        list(casts_dir.glob("base_workflow.py")) if casts_dir.exists() else []
+    )
+    if not workflow_file:
+        missing.append(str(casts_dir / "<cast-slug>" / "base_workflow.py"))
+
+    if missing:
+        console.print("[red]The path does not look like a valid Act project.[/red]")
+        for path in missing:
+            console.print(f"[red]- Missing: {path}[/red]")
+        raise typer.Exit(code=1)
 
 
 def _generate_cast_project(
@@ -221,6 +245,23 @@ def _generate_cast_project(
         },
     )
 
+    workspace_member = f"casts/{cast_variants.slug}"
+    try:
+        update_workspace_members(act_path / "pyproject.toml", workspace_member)
+    except RuntimeError as error:
+        console.print(f"[red]Failed to update pyproject.toml: {error}[/red]")
+        raise typer.Exit(code=1) from error
+
+    try:
+        update_langgraph_registry(
+            act_path / "langgraph.json",
+            cast_variants.slug,
+            cast_variants.snake,
+        )
+    except RuntimeError as error:
+        console.print(f"[red]Failed to update langgraph.json: {error}[/red]")
+        raise typer.Exit(code=1) from error
+
     console.print(
         f"[bold green]Cast '{cast_variants.title}' added successfully![/bold green]"
     )
@@ -236,3 +277,7 @@ def cast_command(
 
     cast_raw = _resolve_name("🌟 Please enter a name for the new Cast", cast_name)
     _generate_cast_project(act_path=act_path, cast_name=cast_raw)
+
+
+def main() -> None:
+    app()

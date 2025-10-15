@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "rrrr": "./casts/rrrr/workflow.py:rrrr_workflow"
+  },
+  "env": ".env"
+}
