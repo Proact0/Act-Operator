@@ -30,7 +30,7 @@ def test_init_creates_scaffold(tmp_path: Path) -> None:
     assert result.exit_code == 0, result.stdout
 
     project_pyproject = target_dir / "pyproject.toml"
-    cast_readme = target_dir / "casts" / "primary-cast" / "README.md"
+    cast_readme = target_dir / "casts" / "primary_cast" / "README.md"
 
     assert project_pyproject.exists()
     assert cast_readme.exists()

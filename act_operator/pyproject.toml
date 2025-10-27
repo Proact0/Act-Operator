@@ -15,8 +15,9 @@ dependencies = [
     "typer>=0.19.2",
     "rich>=14.1.0",
     "cookiecutter>=2.6.0",
+    "langgraph-cli[inmem]>=0.4.4",
 ]
-license = "Apache-2.0"
+license = "MIT"
 license-files = ["LICENSE"]
 
 [project.optional-dependencies]

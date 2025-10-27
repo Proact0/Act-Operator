@@ -14,8 +14,8 @@ Guidelines:
 from langgraph.graph import StateGraph
 
 from casts.base_workflow import BaseWorkflow
-from casts.{{ cookiecutter.cast_slug }}.modules.nodes import SampleNode
-from casts.{{ cookiecutter.cast_slug }}.modules.state import InputState, OutputState, State
+from casts.{{ cookiecutter.cast_snake }}.modules.nodes import SampleNode
+from casts.{{ cookiecutter.cast_snake }}.modules.state import InputState, OutputState, State
 
 
 class {{ cookiecutter.cast_snake | title | replace(" ", "") }}Workflow(BaseWorkflow):

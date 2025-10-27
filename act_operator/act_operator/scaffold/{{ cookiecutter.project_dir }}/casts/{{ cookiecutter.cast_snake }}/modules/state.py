@@ -1,9 +1,8 @@
-"""[Required] State definition shared across Rrrr workflows."""
+"""[Required] State definition shared across {{ cookiecutter.cast_name }} workflows."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from 
 
 @dataclass(kw_only=True)
 class InputState:

@@ -10,6 +10,7 @@ from rich.table import Table
 
 from .utils import (
     build_name_variants,
+    render_cookiecutter_cast_subproject,
     render_cookiecutter_template,
     update_langgraph_registry,
     update_workspace_members,
@@ -129,7 +130,8 @@ def _generate_project(
         "act_slug": act.slug,
         "act_snake": act.snake,
         "cast_name": cast.title,
-        "cast_slug": cast.slug,
+        # 캐스트 디렉터리는 snake_case 사용
+        "cast_snake": cast.snake,
         "cast_snake": cast.snake,
     }
 
@@ -139,12 +141,45 @@ def _generate_project(
         console.print(f"[red]{error}[/red]")
         raise typer.Exit(code=1) from error
 
+    # 캐스트 디렉터리가 하이픈으로 생성된 경우 언더스코어로 교정
+    casts_dir = target_dir / "casts"
+    old_cast_dir = casts_dir / cast.slug
+    new_cast_dir = casts_dir / cast.snake
+    try:
+        if old_cast_dir.exists() and not new_cast_dir.exists():
+            old_cast_dir.rename(new_cast_dir)
+
+            # pyproject.toml 경로 교정
+            project_pyproject = target_dir / "pyproject.toml"
+            if project_pyproject.exists():
+                content = project_pyproject.read_text(encoding="utf-8")
+                content = content.replace(f"casts/{cast.slug}", f"casts/{cast.snake}")
+                project_pyproject.write_text(content, encoding="utf-8")
+
+            # langgraph.json 경로 및 그래프 키 교정
+            project_langgraph = target_dir / "langgraph.json"
+            if project_langgraph.exists():
+                lg = project_langgraph.read_text(encoding="utf-8")
+                lg = lg.replace(f'"{cast.slug}"', f'"{cast.snake}"')
+                lg = lg.replace(f"/casts/{cast.slug}/", f"/casts/{cast.snake}/")
+                project_langgraph.write_text(lg, encoding="utf-8")
+    except OSError as error:
+        console.print(f"[red]Failed to normalize cast directory: {error}[/red]")
+        raise typer.Exit(code=1) from error
+
     table = Table(show_header=False)
     table.add_row("Act", act.title)
     table.add_row("Cast", cast.title)
     table.add_row("Location", str(target_dir))
     console.print(table)
     console.print("[bold green]Act project created successfully![/bold green]")
+    try:
+        casts_dir = target_dir / "casts"
+        if casts_dir.exists():
+            entries = ", ".join(sorted(p.name for p in casts_dir.iterdir()))
+            console.print(f"[dim]casts dir entries: {entries}[/dim]")
+    except Exception:
+        pass
 
 
 @app.callback()
@@ -175,36 +210,19 @@ def new_command(
 
 
 def _ensure_act_project(act_path: Path) -> None:
-    missing: list[str] = []
-
-    project_file = act_path / "pyproject.toml"
-    casts_dir = act_path / "casts"
-    langgraph_file = act_path / "langgraph.json"
-
-    if not project_file.exists():
-        missing.append(str(project_file))
-
-    if not casts_dir.exists():
-        missing.append(str(casts_dir))
-
-    if not langgraph_file.exists():
-        missing.append(str(langgraph_file))
-
-    node_file = list(casts_dir.glob("base_node.py")) if casts_dir.exists() else []
-    if not node_file:
-        missing.append(str(casts_dir / "<cast-slug>" / "base_node.py"))
-
-    workflow_file = (
-        list(casts_dir.glob("base_workflow.py")) if casts_dir.exists() else []
-    )
-    if not workflow_file:
-        missing.append(str(casts_dir / "<cast-slug>" / "base_workflow.py"))
-
-    if missing:
-        console.print("[red]The path does not look like a valid Act project.[/red]")
-        for path in missing:
-            console.print(f"[red]- Missing: {path}[/red]")
-        raise typer.Exit(code=1)
+    expected = [
+        act_path / "pyproject.toml",
+        act_path / "langgraph.json",
+        act_path / "casts",
+        act_path / "casts" / "base_node.py",
+        act_path / "casts" / "base_workflow.py",
+    ]
+    for path in expected:
+        if not path.exists():
+            console.print(
+                f"[red]The path does not look like a valid Act project: {path}[/red]"
+            )
+            raise typer.Exit(code=1)
 
 
 def _generate_cast_project(
@@ -215,7 +233,8 @@ def _generate_cast_project(
     act_variants = build_name_variants(act_path.name)
     casts_dir = act_path / "casts"
     cast_variants = build_name_variants(cast_name)
-    target_dir = casts_dir / cast_variants.slug
+    # 캐스트 디렉터리는 snake_case로 강제
+    target_dir = casts_dir / cast_variants.snake
 
     if target_dir.exists() and any(target_dir.iterdir()):
         console.print(
@@ -225,27 +244,22 @@ def _generate_cast_project(
         raise typer.Exit(code=1)
 
     scaffold_root = Path(__file__).resolve().parent / "scaffold"
-    template_dir = (
-        scaffold_root
-        / "{{ cookiecutter.project_dir }}"
-        / "casts"
-        / "{{ cookiecutter.cast_slug }}"
-    )
+    template_root = scaffold_root
 
-    render_cookiecutter_template(
-        template_dir,
+    render_cookiecutter_cast_subproject(
+        template_root,
         target_dir,
         {
             "act_name": act_variants.title,
             "act_slug": act_variants.slug,
             "act_snake": act_variants.snake,
             "cast_name": cast_variants.title,
-            "cast_slug": cast_variants.slug,
+            "cast_snake": cast_variants.snake,
             "cast_snake": cast_variants.snake,
         },
     )
 
-    workspace_member = f"casts/{cast_variants.slug}"
+    workspace_member = f"casts/{cast_variants.snake}"
     try:
         update_workspace_members(act_path / "pyproject.toml", workspace_member)
     except RuntimeError as error:
@@ -255,7 +269,6 @@ def _generate_cast_project(
     try:
         update_langgraph_registry(
             act_path / "langgraph.json",
-            cast_variants.slug,
             cast_variants.snake,
         )
     except RuntimeError as error:
@@ -263,7 +276,7 @@ def _generate_cast_project(
         raise typer.Exit(code=1) from error
 
     console.print(
-        f"[bold green]Cast '{cast_variants.title}' added successfully![/bold green]"
+        f"[bold green]Cast '{cast_variants.snake}' added successfully![/bold green]"
     )
 
 

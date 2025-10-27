@@ -1,8 +1,8 @@
-# Rrrr 모듈 (Rrrr Module)
+# {{ cookiecutter.cast_name }} 모듈 ({{ cookiecutter.cast_name }} Module)
 
 ## 개요
 
-이 모듈은 Rrr 의 Rrrr 진행 및 통찰 추출을 담당하는 LangGraph Workflow입니다. 조직 환경에 맞게 질문 준비, 응답 분석, 핵심 통찰 추출 기능 등을 확장할 수 있습니다.
+이 모듈은 {{ cookiecutter.act_name }} 의 {{ cookiecutter.cast_name }} 진행 및 통찰 추출을 담당하는 LangGraph Workflow입니다. 조직 환경에 맞게 질문 준비, 응답 분석, 핵심 통찰 추출 기능 등을 확장할 수 있습니다.
 
 ## 주요 노드
 
@@ -11,7 +11,7 @@
 ## 구조
 
 ```
-rrrr/
+{{ cookiecutter.cast_snake }}/
 ├── modules/            # 모듈 구성 요소
 │   ├── chains.py      # LangChain 체인 정의
 │   ├── conditions.py  # 조건부 라우팅 함수
@@ -23,15 +23,15 @@ rrrr/
 │   └── utils.py       # 유틸리티 함수
 ├── pyproject.toml     # 프로젝트 관리자
 ├── README.md          # 이 문서
-└── workflow.py        # Rrrr Workflow 정의
+└── workflow.py        # {{ cookiecutter.cast_name }} Workflow 정의
 ```
 
 ## 사용 방법
 
-Rrrr Workflow는 다음과 같이 사용할 수 있습니다:
+{{ cookiecutter.cast_name }} Workflow는 다음과 같이 사용할 수 있습니다:
 
 ```python
-from casts.rrrr.workflow import rrrr_workflow
+from casts.{{ cookiecutter.cast_snake }}.workflow import {{ cookiecutter.cast_snake }}_workflow
 
 # 초기 상태 설정
 initial_state = {
@@ -44,7 +44,7 @@ initial_state = {
 }
 
 # Workflow 실행
-result = rrrr_workflow().invoke(initial_state)
+result = {{ cookiecutter.cast_snake }}_workflow().invoke(initial_state)
 ```
 
 ## 확장 방법

@@ -58,20 +58,20 @@ $ uv sync --all-packages
 $ uv sync --package <PACKAGE NAME>
 ```
 
-> ex) {{ cookiecutter.cast_slug }}의 경우
+> ex) {{ cookiecutter.cast_snake }}의 경우
 >
 > ```bash
-> $ uv sync --package {{ cookiecutter.cast_slug }}
+> $ uv sync --package {{ cookiecutter.cast_snake }}
 > ```
 
-- langgraph.json에 노드 수정 (예: {{ cookiecutter.cast_slug }}만 설치할 경우)
+- langgraph.json에 노드 수정 (예: {{ cookiecutter.cast_snake }}만 설치할 경우)
 
 ```json
 {
   "dependencies": ["."],
   "graphs": {
     "main": "./casts/workflow.py:main_workflow",
-    "{{ cookiecutter.cast_slug }}": "./casts/{{ cookiecutter.cast_slug }}/workflow.py:{{ cookiecutter.cast_snake }}_workflow"
+    "{{ cookiecutter.cast_snake }}": "./casts/{{ cookiecutter.cast_snake }}/workflow.py:{{ cookiecutter.cast_snake }}_workflow"
   },
   "env": ".env"
 }
@@ -98,7 +98,7 @@ $ uv run langgraph dev
 ### 변수에 따른 값 입력 후 실행
 
 - 각 cast 별 `State`에 정의된 Attribute에 따라 변수를 입력합니다.
-- `GraphState`는 `casts/{{ cookiecutter.cast_slug }}/modules/state.py:{{ cookiecutter.cast_snake }}_state`에서 개별 관리됩니다.
+- `GraphState`는 `casts/{{ cookiecutter.cast_snake }}/modules/state.py:{{ cookiecutter.cast_snake }}_state`에서 개별 관리됩니다.
 
 **실행 화면**
 ![](media/LangGraph_Studio_after_invoke.png)

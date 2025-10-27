@@ -1,7 +1,7 @@
 {
   "dependencies": ["."],
   "graphs": {
-    "{{ cookiecutter.cast_slug }}": "./casts/{{ cookiecutter.cast_slug }}/workflow.py:{{ cookiecutter.cast_snake }}_workflow"
+    "{{ cookiecutter.cast_snake }}": "./casts/{{ cookiecutter.cast_snake }}/workflow.py:{{ cookiecutter.cast_snake }}_workflow"
   },
   "env": ".env"
 }
