@@ -1,0 +1,123 @@
+name: release
+run-name: Release act_operator by @${{ github.actor }}
+on:
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.12"
+  WORKING_DIRECTORY: "act_operator"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      pkg-name: ${{ steps.check-version.outputs.pkg-name }}
+      version: ${{ steps.check-version.outputs.version }}
+      tag: ${{ steps.check-version.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+          cache-suffix: "release"
+
+      - name: Build distribution
+        run: uv build
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: ${{ env.WORKING_DIRECTORY }}/dist/
+
+      - name: Check Version
+        id: check-version
+        shell: bash
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: |
+          PKG_NAME=$(grep -m 1 "^name = " pyproject.toml | cut -d '"' -f 2)
+          if grep -q 'dynamic.*=.*\[.*"version".*\]' pyproject.toml; then
+            VERSION=$(grep -m 1 '^__version__' act_operator/__init__.py | cut -d '"' -f 2)
+          else
+            VERSION=$(grep -m 1 "^version = " pyproject.toml | cut -d '"' -f 2)
+          fi
+          TAG="v${VERSION}"
+          echo pkg-name="$PKG_NAME" >> $GITHUB_OUTPUT
+          echo version="$VERSION" >> $GITHUB_OUTPUT
+          echo tag="$TAG" >> $GITHUB_OUTPUT
+
+  publish:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+          cache-suffix: "release"
+
+      - uses: actions/download-artifact@v5
+        with:
+          name: dist
+          path: ${{ env.WORKING_DIRECTORY }}/dist/
+
+      - name: Publish to PyPI (trusted publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: ${{ env.WORKING_DIRECTORY }}/dist/
+          verbose: true
+          print-hash: true
+          attestations: false
+
+  create-release:
+    needs:
+      - build
+      - publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Generate release notes
+        id: generate-release-body
+        shell: bash
+        run: |
+          REGEX="^v[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?$"
+          PREV_TAG=$(git tag --sort=-creatordate | grep -P "$REGEX" | head -1 || echo "")
+          {
+            echo 'release-body<<EOF'
+            if [ -z "$PREV_TAG" ]; then
+              echo "Initial release"
+            else
+              echo "Changes since $PREV_TAG"
+              echo
+              git log --format="%s" "$PREV_TAG"..HEAD -- $WORKING_DIR | awk '{print "* " $0}'
+            fi
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ env.WORKING_DIRECTORY }}/dist/*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: false
+          tag: ${{ needs.build.outputs.tag }}
+          body: ${{ steps.generate-release-body.outputs.release-body }}
+          commit: ${{ github.sha }}

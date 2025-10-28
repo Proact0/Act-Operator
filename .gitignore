@@ -13,9 +13,6 @@ dist/
 .venv/
 .python-version
 
-# uv lock file
-uv.lock
-
 # Test and coverage outputs
 .pytest_cache/
 .coverage*

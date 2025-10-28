@@ -1,0 +1,49 @@
+name: UV Lock Upgrade
+
+on:
+  schedule:
+    # run at midnight every Sunday
+    - cron: "0 0 * * 0"
+  # allow manual triggering
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: "3.12"
+  WORKING_DIRECTORY: "act_operator"
+
+jobs:
+  upgrade-dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+          cache-suffix: "uv-lock-upgrade"
+
+      - name: Upgrade lock file
+        run: uv lock --upgrade
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(deps): upgrade dependencies with `uv lock --upgrade`"
+          title: "chore(deps): upgrade dependencies with `uv lock --upgrade`"
+          body: |
+            This PR updates the dependencies in the Act Operator package using `uv lock --upgrade`.
+
+            This is an automated PR created by the UV Lock Upgrade workflow.
+          branch: deps/uv-lock-upgrade
+          delete-branch: true
+          labels: |
+            dependencies

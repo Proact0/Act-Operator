@@ -16,7 +16,7 @@ Act Operator is Proact0’s CLI for bootstrapping LangGraph-based “Act” blue
 uv add act-operator
 ```
 
-Act Operator requires Python 3.11 or newer. The project ships with `pyproject.toml` so `uv` manages dependencies reproducibly.
+Act Operator requires Python 3.12 or newer. The project ships with `pyproject.toml` so `uv` manages dependencies reproducibly.
 
 ## Usage
 
@@ -31,10 +31,10 @@ You can omit any option to trigger interactive prompts. When `--path` points to 
 ### Add an additional cast
 
 ```bash
-uv run act cast --act-path ./my-act --cast-name "Support Cast"
+uv run act cast --path ./my-act --cast-name "Sub Cast"
 ```
 
-The command validates that `--act-path` is an Act project (presence of `pyproject.toml`, `casts/`, and `casts/graph.py`) before rendering the new cast.
+The command validates that `--path` is an Act project (presence of `pyproject.toml`, `casts/`, and `casts/graph.py`) before rendering the new cast.
 
 ### Resulting layout
 

@@ -5,35 +5,32 @@ build-backend = "hatchling.build"
 [project]
 name = "act-operator"
 dynamic = ["version"]
-description = "Cookiecutter-based CLI for Act project scaffolding"
-readme = "README.md"
+description = "Proact0’s CLI for bootstrapping LangGraph-based “Act” blueprints with `cookiecutter`."
 requires-python = ">=3.12"
 authors = [
-    { name = "Proact0" }
+    { name = "Joongheon Park" }
 ]
 dependencies = [
     "typer>=0.19.2",
     "rich>=14.1.0",
     "cookiecutter>=2.6.0",
 ]
-license = "MIT"
+license = "Apache-2.0"
 license-files = ["LICENSE"]
 
 [dependency-groups]
 dev = [
     "ruff>=0.14.0",
-    "mypy>=1.11.2",
     "pytest>=8.4.2",
     "pytest-mock>=3.15.0",
     "pytest-subprocess>=1.5.3",
 ]
 
 [project.urls]
-Repository = "https://github.com/Act-Operator/act-operator"
-Homepage = "https://github.com/Act-Operator/act-operator"
+Repository = "https://github.com/Proact0/act-operator"
+Homepage = "https://github.com/Proact0/act-operator"
 
 [project.scripts]
-act-operator = "act_operator.cli:main"
 act = "act_operator.cli:main"
 
 [tool.hatch.version]
@@ -47,7 +44,7 @@ include = ["act_operator"]
 force-include = { "act_operator" = "act_operator" }
 
 [tool.hatch.build.targets.sdist]
-include = ["act_operator", "tests", "README.md", "LICENSE", ".gitignore"]
+include = ["act_operator", "tests", "LICENSE", ".gitignore"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"
