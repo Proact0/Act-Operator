@@ -27,8 +27,8 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/Proact0/act-operator"
-Homepage = "https://github.com/Proact0/act-operator"
+Repository = "https://github.com/Proact0/Act-Operator"
+Homepage = "https://github.com/Proact0/Act-Operator"
 
 [project.scripts]
 act = "act_operator.cli:main"
@@ -44,7 +44,7 @@ include = ["act_operator"]
 force-include = { "act_operator" = "act_operator" }
 
 [tool.hatch.build.targets.sdist]
-include = ["act_operator", "tests", "LICENSE", ".gitignore"]
+include = ["act_operator", "tests", "README.md", "LICENSE", ".gitignore"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"

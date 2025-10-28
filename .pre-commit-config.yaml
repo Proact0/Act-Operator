@@ -1,4 +1,4 @@
-exclude: '(^|/)(\.venv|venv|__pycache__|\.git|\.github)(/|$)|\.(env(\.example)?|gitignore)$|uv\.lock'
+exclude: '(^|/)(\.venv|venv|node_modules|__pycache__|\.git|\.github)(/|$)|(^|/)act_operator/act_operator/scaffold(/|$)|\.(env(\.example)?|gitignore)$|uv\.lock'
 
 repos:
   - repo: https://github.com/astral-sh/uv-pre-commit

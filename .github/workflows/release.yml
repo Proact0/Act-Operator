@@ -107,7 +107,7 @@ jobs:
             else
               echo "Changes since $PREV_TAG"
               echo
-              git log --format="%s" "$PREV_TAG"..HEAD -- $WORKING_DIR | awk '{print "* " $0}'
+              git log --format="%s" "$PREV_TAG"..HEAD -- $WORKING_DIRECTORY | awk '{print "* " $0}'
             fi
             echo EOF
           } >> "$GITHUB_OUTPUT"

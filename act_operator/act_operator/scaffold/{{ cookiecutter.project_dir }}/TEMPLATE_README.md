@@ -4,11 +4,11 @@ Proact0의 Act 프로젝트 청사진을 기반으로 한 LangGraph 기반 Monol
 
 ## 프로젝트 소개
 
-이 템플릿은 LangGraph와 LangChain을 활용한 AI 기반 프로젝트를 빠르게 시작할 수 있도록 AI-Friendly하게 설계되었습니다. 모듈화화/계층화된 구조와 확장 가능한 그래프를 제공하여 다양한 Agentic AI 애플리케이션을 쉽게 개발할 수 있습니다.
+이 템플릿은 LangGraph와 LangChain을 활용한 AI 기반 프로젝트를 빠르게 시작할 수 있도록 AI-Friendly하게 설계되었습니다. 모듈화/계층화된 구조와 확장 가능한 그래프를 제공하여 다양한 Agentic AI 애플리케이션을 쉽게 개발할 수 있습니다.
 
 ### 주요 기능
 
-- LangGraph를 활용한 모듈화화/계층화된 그래프 구조
+- LangGraph를 활용한 모듈화/계층화된 그래프 구조
 - 확장 가능한 에이전트 시스템
 - 타입 힌팅과 문서화가 잘 된 코드베이스
 - 개발 환경 자동화 도구 (pre-commit 등)
@@ -30,7 +30,7 @@ Proact0의 Act 프로젝트 청사진을 기반으로 한 LangGraph 기반 Monol
 
 #### 2. 개발 환경 셋팅
 
-* 전체 패키지를 전부 설치하고 싶을 때
+* 전체 Cast 패키지를 전부 설치하고 싶을 때
 
 ```bash
 $ uv sync --all-packages
@@ -39,7 +39,7 @@ $ uv sync --all-packages
 * 특정 Cast 패키지만 설치하고 싶을 때
 
 ```bash
-# 해당 Cast 폴더에 있는 pyproject.toml의 name을 PACKAGE_NAME에 기입
+# 해당 Cast 폴더에 있는 pyproject.toml의 project name을 PACKAGE_NAME에 기입
 $ uv sync --package <PACKAGE_NAME>
 ```
 
@@ -88,12 +88,12 @@ $ uv run langgraph dev --kernel
 ### 변수에 따른 값 입력 후 실행
 
 - 각 cast 별 `State`에 정의된 Attribute에 따라 변수를 입력합니다.
-- `GraphState`는 `casts/{{ cookiecutter.cast_snake }}/modules/state.py:{{ cookiecutter.cast_snake }}_state`에서 개별 관리됩니다.
+- `GraphState`는 `casts/{{ cookiecutter.cast_snake }}/modules/state.py`에서 개별 관리됩니다.
 
 **실행 화면**
 ![](media/LangGraph_Studio_after_invoke.png)
 
-4. 터미널에서 종료
+1. 터미널에서 종료
 
 - window: `ctrl + c`, macOS: `cmd + c`
 

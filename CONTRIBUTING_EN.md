@@ -1,4 +1,6 @@
-## Contributing Guide
+## Contributing Guide (EN)
+
+- Read this in Korean: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 Thank you for your interest in contributing to Act Operator! We welcome all forms of contribution — bug reports, documentation improvements, tests, feature proposals/implementations, and developer experience enhancements. Small, clear changes with kind explanations and sufficient tests make for great collaboration.
 
@@ -18,13 +20,13 @@ Thank you for your interest in contributing to Act Operator! We welcome all form
 
 Installation guide: [uv Installation](https://docs.astral.sh/uv/getting-started/installation/)
 
-```powershell
+```bash
 # Install uv
 pip install uv
 ```
 
 ### Clone the repository and set up development
-```powershell
+```bash
 # Clone repository
 git clone https://github.com/Proact0/Act-Operator.git
 cd act-operator
@@ -37,7 +39,7 @@ uv add --editable .
 ```
 
 ### Run tests and CLI locally
-```powershell
+```bash
 # Run the full test suite
 uv run pytest
 
@@ -72,7 +74,7 @@ This project uses **ruff** and **pytest**.
 ### Lint (ruff)
 Configuration in `pyproject.toml` checks general errors (E/F), imports (I), and Bugbear (B). Line length (E501) is ignored, but keep readability in mind.
 
-```powershell
+```bash
 # Lint checks
 uv run ruff check .
 
@@ -85,7 +87,7 @@ Note: the `act_operator/scaffold` path is excluded from linting.
 ### Tests (pytest)
 Tests live under `tests/` as unit/integration tests. Add appropriate tests for new or modified behavior.
 
-```powershell
+```bash
 uv run pytest -q
 ```
 
@@ -125,5 +127,3 @@ uv run pytest -q
 ## Community & Questions
 - For questions, please use our Discord: https://discord.gg/4GTNbEy5EB
 - We welcome constructive feedback and collaboration.
-
-

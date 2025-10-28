@@ -1,5 +1,7 @@
 ## 컨트리뷰팅 가이드
 
+- 영어로 읽기: [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md)
+
 Act Operator 오픈소스 프로젝트에 관심 가져주셔서 감사합니다! 버그 리포트, 문서 개선, 테스트 추가, 기능 제안/구현 등 **모든 형태의 기여**를 환영합니다. 작고 명확한 변경과 친절한 설명, 충분한 테스트가 좋은 협업을 만듭니다.
 
 ## 기여 유형
@@ -19,13 +21,13 @@ Act Operator 오픈소스 프로젝트에 관심 가져주셔서 감사합니다
 설치 안내: `uv` 공식 문서를 참고하세요.
 - 설치 가이드: https://docs.astral.sh/uv/getting-started/installation/
 
-```powershell
+```bash
 # uv 설치
 pip install uv
 ```
 
 ### 리포지토리 클론 및 개발 환경 구성
-```powershell
+```bash
 # 리포지토리 클론
 git clone https://github.com/Proact0/Act-Operator.git
 cd act-operator
@@ -35,7 +37,7 @@ uv sync --dev
 ```
 
 ### 로컬에서 테스트/실행
-```powershell
+```bash
 # 전체 테스트 실행
 uv run pytest
 
@@ -43,7 +45,7 @@ uv run pytest
 uv run act new --path ./my-act --act-name "My Act" --cast-name "Main Cast"
 
 # CLI 사용 예시: 기존 프로젝트에 Cast 추가
-uv run act cast --act-path ./my-act --cast-name "Support Cast"
+uv run act cast --path ./my-act --cast-name "Support Cast"
 
 # 빌드 산출물 생성 (배포 전 점검용)
 uv build
@@ -70,7 +72,7 @@ uv build
 ### 린트(ruff)
 `pyproject.toml` 설정에 따라 일반 오류(E/F), import(I), Bugbear(B)를 확인합니다. 길이 제한(E501)은 제외되지만, 가독성을 위해 적절히 줄바꿈을 권장합니다.
 
-```powershell
+```bash
 # 코드 린트 검사
 uv run ruff check .
 
@@ -83,7 +85,7 @@ uv run ruff format .
 ### 테스트(pytest)
 테스트는 `tests/` 하위에 통합/단위 테스트로 구성되어 있습니다. 새 기능/수정 사항에는 적절한 테스트를 추가하세요.
 
-```powershell
+```bash
 uv run pytest -q
 ```
 
@@ -123,5 +125,3 @@ uv run pytest -q
 ## 커뮤니티/질문
 - 기여와 관련된 질문은 디스코드에 남겨주세요: https://discord.gg/4GTNbEy5EB
 - 건설적인 피드백과 협업을 환영합니다.
-
-

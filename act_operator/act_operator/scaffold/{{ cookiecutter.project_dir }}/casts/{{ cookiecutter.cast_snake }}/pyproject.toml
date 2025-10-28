@@ -1,7 +1,7 @@
 # 프로젝트 설정 파일
 # 이 파일은 패키지의 의존성과 메타데이터를 정의합니다.
 # Python 패키지 관리 도구(uv)가 이 파일을 사용하여 필요한 패키지를 설치합니다.
-# 이 패키지에 종속성을 추가하시려면 `uv add --project casts/{{ cookiecutter.cast_slug }} <<package_name>>`를 사용합니다.
+# 이 패키지에 종속성을 추가하시려면 `uv add <<package_name>> --package {{ cookiecutter.cast_slug }}`를 사용합니다.
 
 [project]
 name = "{{ cookiecutter.cast_slug }}"

@@ -1,6 +1,6 @@
 # Act: {{ cookiecutter.act_name }}
 
-Proact0의 Act 프로젝트 청사진을 기반으로 한 LangGraph 기반 Agentic AI Cast입니다.
+Proact0의 Act 프로젝트 청사진을 기반으로 한 {{ cookiecutter.act_name }}입니다.
 
 ## 프로젝트 소개
 
