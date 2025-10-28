@@ -1,4 +1,4 @@
-"""[Optional] Helper utilities used across the {{ cookiecutter.cast_name }} graph.
+"""[Optional] Helper utilities used across the New Enw graph.
 
 Guidelines:
     - Extract reusable data processing or formatting logic.

@@ -1,4 +1,4 @@
-"""[Optional] LLM tools or MCP Tools for the {{ cookiecutter.cast_name }} graph.
+"""[Optional] LLM tools or MCP Tools for the New Enw graph.
 
 Guidelines:
     - Wrap side-effecting operations (API calls, filesystem access, etc.).

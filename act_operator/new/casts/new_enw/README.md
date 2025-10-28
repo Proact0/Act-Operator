@@ -1,8 +1,8 @@
-# {{ cookiecutter.cast_name }} 모듈 ({{ cookiecutter.cast_name }} Module)
+# New Enw 모듈 (New Enw Module)
 
 ## 개요
 
-이 모듈은 {{ cookiecutter.act_name }} 의 {{ cookiecutter.cast_name }} 진행 및 통찰 추출을 담당하는 LangGraph Graph입니다. 조직 환경에 맞게 질문 준비, 응답 분석, 핵심 통찰 추출 기능 등을 확장할 수 있습니다.
+이 모듈은 New 의 New Enw 진행 및 통찰 추출을 담당하는 LangGraph Graph입니다. 조직 환경에 맞게 질문 준비, 응답 분석, 핵심 통찰 추출 기능 등을 확장할 수 있습니다.
 
 ## 주요 노드
 
@@ -11,7 +11,7 @@
 ## 구조
 
 ```
-{{ cookiecutter.cast_snake }}/
+new_enw/
 ├── modules/            # 모듈 구성 요소
 │   ├── chains.py      # LangChain 체인 정의
 │   ├── conditions.py  # 조건부 라우팅 함수
@@ -23,15 +23,15 @@
 │   └── utils.py       # 유틸리티 함수
 ├── pyproject.toml     # 프로젝트 관리자
 ├── README.md          # 이 문서
-└── graph.py        # {{ cookiecutter.cast_name }} Graph 정의
+└── graph.py        # New Enw Graph 정의
 ```
 
 ## 사용 방법
 
-{{ cookiecutter.cast_name }} Graph는 다음과 같이 사용할 수 있습니다:
+New Enw Graph는 다음과 같이 사용할 수 있습니다:
 
 ```python
-from casts.{{ cookiecutter.cast_snake }}.graph import {{ cookiecutter.cast_snake }}_graph
+from casts.new_enw.graph import new_enw_graph
 
 # 초기 상태 설정
 initial_state = {
@@ -44,7 +44,7 @@ initial_state = {
 }
 
 # Graph 실행
-result = {{ cookiecutter.cast_snake }}_graph().invoke(initial_state)
+result = new_enw_graph().invoke(initial_state)
 ```
 
 ## 확장 방법

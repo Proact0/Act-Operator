@@ -1,4 +1,4 @@
-"""[Optional] Conditional routing functions for {{ cookiecutter.cast_name }} graphs.
+"""[Optional] Conditional routing functions for New Enw graphs.
 
 Guidelines:
     - Each function accepts the current state and returns the next node key.

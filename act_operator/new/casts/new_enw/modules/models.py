@@ -1,4 +1,4 @@
-"""[Optional] Model configuration helpers for the {{ cookiecutter.cast_name }} graph.
+"""[Optional] Model configuration helpers for the New Enw graph.
 
 Guidelines:
     - Provide factory functions for LLMs or embeddings.

@@ -7,7 +7,7 @@ name = "act-operator"
 dynamic = ["version"]
 description = "Cookiecutter-based CLI for Act project scaffolding"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 authors = [
     { name = "Proact0" }
 ]
@@ -15,17 +15,16 @@ dependencies = [
     "typer>=0.19.2",
     "rich>=14.1.0",
     "cookiecutter>=2.6.0",
-    "langgraph-cli[inmem]>=0.4.4",
 ]
 license = "MIT"
 license-files = ["LICENSE"]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "ruff>=0.5.7"
-]
-test = [
+    "ruff>=0.14.0",
+    "mypy>=1.11.2",
     "pytest>=8.4.2",
+    "pytest-mock>=3.15.0",
     "pytest-subprocess>=1.5.3",
 ]
 
@@ -49,21 +48,6 @@ force-include = { "act_operator" = "act_operator" }
 
 [tool.hatch.build.targets.sdist]
 include = ["act_operator", "tests", "README.md", "LICENSE", ".gitignore"]
-
-[dependency-groups]
-dev = [
-    "ruff>=0.14.0",
-    "mypy>=1.11.2",
-    "pytest>=8.4.2",
-    "pytest-mock>=3.14.0",
-]
-test = [
-    "pytest>=8.4.2",
-    "pytest-subprocess>=1.5.3",
-]
-
-[tool.uv]
-default-groups = ["dev", "test"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"

@@ -1,4 +1,4 @@
-# Act: {{ cookiecutter.act_name }}
+# Act: New
 
 Proact0의 Act 프로젝트 청사진을 기반으로 한 LangGraph 기반 Agentic AI Cast입니다.
 
@@ -27,8 +27,8 @@ Proact0의 Act 프로젝트 청사진을 기반으로 한 LangGraph 기반 Agent
 #### 1. 저장소 클론
 
 ```bash
-$ git clone https://github.com/`Your Path`/{{ cookiecutter.act_slug }}.git
-$ cd {{ cookiecutter.act_slug }}
+$ git clone https://github.com/`Your Path`/new.git
+$ cd new
 ```
 
 #### 2. uv 설치 (아직 설치되지 않은 경우)
@@ -50,20 +50,20 @@ $ uv sync --all-packages
 $ uv sync --package <WORKSPACE_MEMBER_NAME>
 ```
 
-> ex) {{ cookiecutter.cast_snake }}의 경우
+> ex) new_enw의 경우
 >
 > ```bash
-> $ uv sync --package {{ cookiecutter.cast_snake }}
+> $ uv sync --package new_enw
 > ```
 
-- langgraph.json에 노드 수정 (예: {{ cookiecutter.cast_snake }}만 설치할 경우)
+- langgraph.json에 노드 수정 (예: new_enw만 설치할 경우)
 
 ```json
 {
   "dependencies": ["."],
   "graphs": {
     "main": "./casts/graph.py:main_graph",
-    "{{ cookiecutter.cast_snake }}": "./casts/{{ cookiecutter.cast_snake }}/graph.py:{{ cookiecutter.cast_snake }}_graph"
+    "new_enw": "./casts/new_enw/graph.py:new_enw_graph"
   },
   "env": ".env"
 }
@@ -90,7 +90,7 @@ $ uv run langgraph dev
 ### 변수에 따른 값 입력 후 실행
 
 - 각 cast 별 `State`에 정의된 Attribute에 따라 변수를 입력합니다.
-- `GraphState`는 `casts/{{ cookiecutter.cast_snake }}/modules/state.py:{{ cookiecutter.cast_snake }}_state`에서 개별 관리됩니다.
+- `GraphState`는 `casts/new_enw/modules/state.py:new_enw_state`에서 개별 관리됩니다.
 
 **실행 화면**
 ![](media/LangGraph_Studio_after_invoke.png)

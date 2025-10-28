@@ -164,8 +164,8 @@ def update_langgraph_registry(
         dependencies.sort()
 
     graphs = payload.setdefault("graphs", {})
-    workflow_reference = f"./casts/{cast_snake}/workflow.py:{cast_snake}_workflow"
-    graphs.setdefault(cast_snake, workflow_reference)
+    graph_reference = f"./casts/{cast_snake}/graph.py:{cast_snake}_graph"
+    graphs.setdefault(cast_snake, graph_reference)
 
     langgraph_path.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",

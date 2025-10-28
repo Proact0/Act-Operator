@@ -1,17 +1,18 @@
 # Act: {{ cookiecutter.act_name }}
 
-Proact0의 Act 프로젝트 청사진을 기반으로 한 LangGraph 기반 Agentic AI Cast입니다.
+Proact0의 Act 프로젝트 청사진을 기반으로 한 LangGraph 기반 Monolithic Agentic AI System입니다.
 
 ## 프로젝트 소개
 
-이 템플릿은 LangGraph와 LangChain을 활용한 AI 기반 프로젝트를 빠르게 시작할 수 있도록 설계되었습니다. 모듈화된 구조와 확장 가능한 그래프를 제공하여 다양한 AI 애플리케이션을 쉽게 개발할 수 있습니다.
+이 템플릿은 LangGraph와 LangChain을 활용한 AI 기반 프로젝트를 빠르게 시작할 수 있도록 설계되었습니다. 모듈화화/계층화된 구조와 확장 가능한 그래프를 제공하여 다양한 Agentic AI 애플리케이션을 쉽게 개발할 수 있습니다.
 
 ### 주요 기능
 
-- LangGraph를 활용한 모듈화된 그래프 구조
+- LangGraph를 활용한 모듈화화/계층화된 그래프 구조
 - 확장 가능한 에이전트 시스템
 - 타입 힌팅과 문서화가 잘 된 코드베이스
 - 개발 환경 자동화 도구 (pre-commit 등)
+- AI-Friendly Template
 - 테스트 프레임워크 통합
 
 ## 설치 방법
@@ -24,18 +25,11 @@ Proact0의 Act 프로젝트 청사진을 기반으로 한 LangGraph 기반 Agent
 
 ### 설치 절차
 
-#### 1. 저장소 클론
-
-```bash
-$ git clone https://github.com/`Your Path`/{{ cookiecutter.act_slug }}.git
-$ cd {{ cookiecutter.act_slug }}
-```
-
-#### 2. uv 설치 (아직 설치되지 않은 경우)
+#### 1. uv 설치 (아직 설치되지 않은 경우)
 
 [🔗 uv 설치 방법 링크](https://docs.astral.sh/uv/getting-started/installation/)
 
-#### 3. 개발 환경 셋팅
+#### 2. 개발 환경 셋팅
 
 * 전체 패키지를 전부 설치하고 싶을 때
 
@@ -50,20 +44,20 @@ $ uv sync --all-packages
 $ uv sync --package <WORKSPACE_MEMBER_NAME>
 ```
 
-> ex) {{ cookiecutter.cast_snake }}의 경우
+> ex) {{ cookiecutter.cast_slug }}의 경우
 >
 > ```bash
 > $ uv sync --package {{ cookiecutter.cast_snake }}
 > ```
 
-- langgraph.json에 노드 수정 (예: {{ cookiecutter.cast_snake }}만 설치할 경우)
+- langgraph.json에 노드 수정 (예: {{ cookiecutter.cast_snake }}만 설치한 경우)
 
 ```json
 {
   "dependencies": ["."],
   "graphs": {
     "main": "./casts/graph.py:main_graph",
-    "{{ cookiecutter.cast_snake }}": "./casts/{{ cookiecutter.cast_snake }}/graph.py:{{ cookiecutter.cast_snake }}_graph"
+    "{{ cookiecutter.cast_slug }}": "./casts/{{ cookiecutter.cast_snake }}/graph.py:{{ cookiecutter.cast_snake }}_graph"
   },
   "env": ".env"
 }

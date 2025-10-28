@@ -1,4 +1,4 @@
-"""[Required] State definition shared across {{ cookiecutter.cast_name }} graphs."""
+"""[Required] State definition shared across New Enw graphs."""
 
 from __future__ import annotations
 

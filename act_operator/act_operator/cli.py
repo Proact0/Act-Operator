@@ -131,7 +131,7 @@ def _generate_project(
         "act_snake": act.snake,
         "cast_name": cast.title,
         # 캐스트 디렉터리는 snake_case 사용
-        "cast_snake": cast.snake,
+        "cast_slug": cast.slug,
         "cast_snake": cast.snake,
     }
 
@@ -215,7 +215,7 @@ def _ensure_act_project(act_path: Path) -> None:
         act_path / "langgraph.json",
         act_path / "casts",
         act_path / "casts" / "base_node.py",
-        act_path / "casts" / "base_workflow.py",
+        act_path / "casts" / "base_graph.py",
     ]
     for path in expected:
         if not path.exists():

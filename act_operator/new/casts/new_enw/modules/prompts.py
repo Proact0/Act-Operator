@@ -1,4 +1,4 @@
-"""[Optional] Prompt templates tailored to the {{ cookiecutter.cast_name }} graph.
+"""[Optional] Prompt templates tailored to the New Enw graph.
 
 Guidelines:
     - Create LangChain `PromptTemplate` or LCEL prompt definitions.

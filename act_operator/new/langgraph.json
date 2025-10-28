@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "new_enw": "./casts/new_enw/graph.py:new_enw_graph"
+  },
+  "env": ".env"
+}

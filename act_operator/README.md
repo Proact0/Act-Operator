@@ -34,7 +34,7 @@ You can omit any option to trigger interactive prompts. When `--path` points to 
 uv run act cast --act-path ./my-act --cast-name "Support Cast"
 ```
 
-The command validates that `--act-path` is an Act project (presence of `pyproject.toml`, `casts/`, and `casts/workflow.py`) before rendering the new cast.
+The command validates that `--act-path` is an Act project (presence of `pyproject.toml`, `casts/`, and `casts/graph.py`) before rendering the new cast.
 
 ### Resulting layout
 
@@ -46,7 +46,7 @@ my-act/
 └── casts/
     ├── __init__.py
     ├── base_node.py
-    ├── base_workflow.py
+    ├── base_graph.py
     └── main-cast/
         ├── modules/
         │   ├── chains.py
@@ -57,7 +57,7 @@ my-act/
         │   ├── tools.py
         │   └── utils.py
         ├── state.py
-        └── workflow.py
+        └── graph.py
 ```
 
 ## Development with uv
@@ -65,7 +65,8 @@ my-act/
 ```bash
 uv sync --dev
 uv run pytest
-uv run act new --cast-name "Demo Cast"
+uv run act new
+uv run act cast
 uv build
 ```
 
