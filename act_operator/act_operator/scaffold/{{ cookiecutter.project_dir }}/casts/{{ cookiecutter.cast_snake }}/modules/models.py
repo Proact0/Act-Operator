@@ -7,5 +7,15 @@ Guidelines:
 Official document URL: 
     - Models: https://docs.langchain.com/oss/python/langchain/models
     - Chat Models: https://docs.langchain.com/oss/python/integrations/chat
-    - Embeddings: https://docs.langchain.com/oss/python/integrations/text_embedding
+    - Embedding Models: https://docs.langchain.com/oss/python/integrations/text_embedding
 """
+
+# from langchain.chat_models import init_chat_model
+# from langchain_openai import ChatOpenAI
+
+def get_sample_model():
+    # return init_chat_model(
+    #     model="",
+    #     model_provider="openai",
+    # )
+    pass

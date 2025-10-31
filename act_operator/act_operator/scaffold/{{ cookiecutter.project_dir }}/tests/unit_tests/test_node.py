@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from casts.{{ cookiecutter.cast_snake }}.modules.nodes import SampleNode, AsyncSampleNode
 
+
 def test_base_node_calls_execute() -> None:
     node = SampleNode(verbose=True)
     result = node()

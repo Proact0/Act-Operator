@@ -23,7 +23,13 @@ from casts.{{ cookiecutter.cast_snake }}.modules.state import InputState, Output
 
 
 class {{ cookiecutter.cast_snake | title | replace(" ", "") }}Graph(BaseGraph):
-    """Graph definition for {{ cookiecutter.cast_name }}."""
+    """Graph definition for {{ cookiecutter.cast_name }}.
+    
+    Attributes:
+        input: Input schema for the graph.
+        output: Output schema for the graph.
+        state: State schema for the graph.
+    """
 
     def __init__(self) -> None:
         super().__init__()
@@ -39,9 +45,9 @@ class {{ cookiecutter.cast_snake | title | replace(" ", "") }}Graph(BaseGraph):
         """
         builder = StateGraph(self.state, input_schema=self.input, output_schema=self.output)
 
-        builder.add_node("sample", SampleNode)
-        builder.add_edge(START, "sample")
-        builder.add_edge("sample", END)
+        builder.add_node(SampleNode)
+        builder.add_edge(START, "SampleNode")
+        builder.add_edge("SampleNode", END)
 
         graph = builder.compile()
         graph.name = self.name

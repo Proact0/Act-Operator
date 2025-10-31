@@ -39,7 +39,13 @@ CAST_NAME_OPTION = typer.Option(
     None,
     "--cast-name",
     "-c",
-    help="Display name of the initial Cast",
+    help="Display name of the initial Cast Graph",
+)
+LANG_OPTION = typer.Option(
+    None,
+    "--lang",
+    "-l",
+    help="Language for scaffolded docs (en|kr)",
 )
 
 CAST_ACT_PATH_OPTION = typer.Option(
@@ -57,6 +63,12 @@ NEW_CAST_NAME_OPTION = typer.Option(
     "--cast-name",
     "-c",
     help="Display name of the Cast to add",
+)
+NEW_CAST_LANG_OPTION = typer.Option(
+    "en",
+    "--lang",
+    "-l",
+    help="Language for scaffolded cast docs (en|kr)",
 )
 
 
@@ -83,11 +95,54 @@ def _resolve_name(prompt_message: str, value: str | None) -> str:
         console.print("[red]A value is required.[/red]")
 
 
+def _normalize_lang(value: str | None) -> str:
+    if not value:
+        return "en"
+    val = value.strip().lower()
+    if val in ("en", "kr"):
+        return val
+    console.print("[red]Unsupported language: '{val}'. Please use 'en' or 'kr'.[/red]")
+    raise typer.Exit(code=1)
+
+
+def _select_language_menu() -> str:
+    console.print(
+        "🌐 Choose template language - This option sets the language for the entire scaffolded template content.\n"
+        "1. English (EN)\n"
+        "2. 한국어 (KR)"
+    )
+    options = {1: "en", 2: "kr"}
+    while True:
+        choice: int = typer.prompt(
+            "Enter the number of your language choice (default is 1)",
+            default=1,
+            type=int,
+        )
+        if choice in options:
+            return options[choice]
+        console.print("[red]❌ Invalid choice. Please try again.[/red]")
+
+
+def _resolve_language(language: str | None) -> str:
+    if language in ("en", "kr"):
+        if language == "en":
+            return "English"
+        elif language == "kr":
+            return "한국어"
+    if language is None or not language.strip():
+        return _select_language_menu()
+    console.print(
+        f"[red]Unsupported language: '{language}'. Please use 'en' or 'kr'.[/red]"
+    )
+    raise typer.Exit(code=1)
+
+
 def _generate_project(
     *,
     path: Path | None,
     act_name: str | None,
     cast_name: str | None,
+    language: str | None,
 ) -> None:
     target_dir, path_was_custom = _resolve_path(path)
 
@@ -104,6 +159,7 @@ def _generate_project(
 
     act_raw = _resolve_name("🚀 Please enter a name for the new Act", act_name)
     cast_raw = _resolve_name("🌟 Please enter a name for the first Cast", cast_name)
+    lang = _resolve_language(language)
 
     try:
         act = build_name_variants(act_raw)
@@ -133,6 +189,7 @@ def _generate_project(
         # 캐스트 디렉터리는 snake_case 사용
         "cast_slug": cast.slug,
         "cast_snake": cast.snake,
+        "language": lang,
     }
 
     try:
@@ -170,14 +227,15 @@ def _generate_project(
     table = Table(show_header=False)
     table.add_row("Act", act.title)
     table.add_row("Cast", cast.title)
+    table.add_row("Language", lang)
     table.add_row("Location", str(target_dir))
     console.print(table)
     console.print("[bold green]Act project created successfully![/bold green]")
     try:
-        casts_dir = target_dir / "casts"
-        if casts_dir.exists():
-            entries = ", ".join(sorted(p.name for p in casts_dir.iterdir()))
-            console.print(f"[dim]casts dir entries: {entries}[/dim]")
+        act_dir = target_dir
+        if act_dir.exists():
+            entries = ", ".join(sorted(p.name for p in act_dir.iterdir()))
+            console.print(f"[dim]act project entries: {entries}[/dim]")
     except Exception:
         pass
 
@@ -188,11 +246,12 @@ def root(  # type: ignore[override]
     path: Path | None = PATH_OPTION,
     act_name: str | None = ACT_NAME_OPTION,
     cast_name: str | None = CAST_NAME_OPTION,
+    lang: str | None = LANG_OPTION,
 ) -> None:
-    ctx.obj = {"path": path, "act_name": act_name, "cast_name": cast_name}
+    ctx.obj = {"path": path, "act_name": act_name, "cast_name": cast_name, "lang": lang}
     if ctx.invoked_subcommand is not None:
         return
-    _generate_project(path=path, act_name=act_name, cast_name=cast_name)
+    _generate_project(path=path, act_name=act_name, cast_name=cast_name, language=lang)
 
 
 @app.command("new")
@@ -201,12 +260,14 @@ def new_command(
     path: Path | None = PATH_OPTION,
     act_name: str | None = ACT_NAME_OPTION,
     cast_name: str | None = CAST_NAME_OPTION,
+    lang: str | None = LANG_OPTION,
 ) -> None:
     parent = ctx.parent.obj if ctx.parent and ctx.parent.obj else {}
     path = path or parent.get("path")
     act_name = act_name or parent.get("act_name")
     cast_name = cast_name or parent.get("cast_name")
-    _generate_project(path=path, act_name=act_name, cast_name=cast_name)
+    lang = lang or parent.get("lang")
+    _generate_project(path=path, act_name=act_name, cast_name=cast_name, language=lang)
 
 
 def _ensure_act_project(act_path: Path) -> None:
@@ -229,6 +290,7 @@ def _generate_cast_project(
     *,
     act_path: Path,
     cast_name: str,
+    language: str,
 ) -> None:
     act_variants = build_name_variants(act_path.name)
     casts_dir = act_path / "casts"
@@ -255,7 +317,7 @@ def _generate_cast_project(
             "act_snake": act_variants.snake,
             "cast_name": cast_variants.title,
             "cast_snake": cast_variants.snake,
-            "cast_snake": cast_variants.snake,
+            "language": _normalize_lang(language),
         },
     )
 
@@ -284,12 +346,13 @@ def _generate_cast_project(
 def cast_command(
     act_path: Path = CAST_ACT_PATH_OPTION,
     cast_name: str | None = NEW_CAST_NAME_OPTION,
+    lang: str = NEW_CAST_LANG_OPTION,
 ) -> None:
     act_path = act_path.resolve()
     _ensure_act_project(act_path)
 
     cast_raw = _resolve_name("🌟 Please enter a name for the new Cast", cast_name)
-    _generate_cast_project(act_path=act_path, cast_name=cast_raw)
+    _generate_cast_project(act_path=act_path, cast_name=cast_raw, language=lang)
 
 
 def main() -> None:

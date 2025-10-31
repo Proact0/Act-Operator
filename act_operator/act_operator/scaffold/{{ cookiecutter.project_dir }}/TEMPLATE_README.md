@@ -1,115 +1,171 @@
 # Act: {{ cookiecutter.act_name }}
 
-Proact0의 Act 프로젝트 청사진을 기반으로 한 LangGraph 기반 Monolithic Agentic AI System입니다.
+이 문서는 본 스캐폴드(템플릿)로 생성된 프로젝트를 빠르게 이해하고, 올바르게 사용하는 방법을 안내합니다.
 
-## 프로젝트 소개
+- 템플릿 이름: {{ cookiecutter.act_name }} (slug: {{ cookiecutter.act_slug }}, snake: {{ cookiecutter.act_snake }})
+- 워크스페이스 구성: `uv` 멀티 패키지(workspace) – `[tool.uv.workspace].members = ["casts/*"]`
+- 그래프 레지스트리: `langgraph.json`의 `graphs` 키를 통해 그래프 엔트리 등록
 
-이 템플릿은 LangGraph와 LangChain을 활용한 AI 기반 프로젝트를 빠르게 시작할 수 있도록 AI-Friendly하게 설계되었습니다. 모듈화/계층화된 구조와 확장 가능한 그래프를 제공하여 다양한 Agentic AI 애플리케이션을 쉽게 개발할 수 있습니다.
+## 템플릿 개요
 
-### 주요 기능
+- LangGraph 기반의 모듈화/계층화된 그래프 구조를 제공합니다.
+- `casts/` 디렉터리에 개별 Cast를 패키지로 관리합니다(`pyproject.toml` 포함).
+- 공통 베이스는 `casts/base_node.py`, `casts/base_graph.py`에서 가져옵니다.
+- 각 Cast는 `modules/`(체인/조건/모델/노드/프롬프트/상태/툴/유틸), `graph.py`로 구성됩니다.
 
-- LangGraph를 활용한 모듈화/계층화된 그래프 구조
-- 확장 가능한 에이전트 시스템
-- 타입 힌팅과 문서화가 잘 된 코드베이스
-- 개발 환경 자동화 도구 (pre-commit 등)
-- 테스트 프레임워크 통합
+### 디렉터리 구조(요약)
 
-## 설치 방법
+```
+{{ cookiecutter.act_slug }}/
+├── pyproject.toml
+├── README.md
+├── langgraph.json
+└── casts/
+    ├── __init__.py
+    ├── base_node.py
+    ├── base_graph.py
+    └── {{ cookiecutter.cast_snake }}/
+        ├── modules/
+        │   ├── agents.py (선택)
+        │   ├── chains.py (선택)
+        │   ├── conditions.py (선택)
+        │   ├── models.py (선택)
+        │   ├── nodes.py (필수)
+        │   ├── prompts.py (선택)
+        │   ├── state.py (필수)
+        │   ├── tools.py (선택)
+        │   └── utils.py (선택)
+        └── graph.py
+```
+
+## 설치 및 준비
 
 ### 시스템 요구사항
 
 - Python 3.11 이상
-- uv (의존성 관리)
-- Ruff
+- `uv` (의존성/실행/빌드)
+- `ruff` (코드 품질/포맷)
 
-### 설치 절차
+### uv 설치(미설치 시)
 
-#### 1. uv 설치 (아직 설치되지 않은 경우)
-
-[🔗 uv 설치 방법 링크](https://docs.astral.sh/uv/getting-started/installation/)
-
-#### 2. 개발 환경 셋팅
-
-* 전체 Cast 패키지를 전부 설치하고 싶을 때
+- 공식 가이드: https://docs.astral.sh/uv/getting-started/installation/
 
 ```bash
-$ uv sync --all-packages
+pip install uv
 ```
 
-* 특정 Cast 패키지만 설치하고 싶을 때
+### 의존성 설치
+
+- 전체 워크스페이스(모든 Cast 패키지) 설치
 
 ```bash
-# 해당 Cast 폴더에 있는 pyproject.toml의 project name을 PACKAGE_NAME에 기입
-$ uv sync --package <PACKAGE_NAME>
+uv sync --all-packages
 ```
 
-> ex) {{ cookiecutter.cast_slug }}의 경우
->
-> ```bash
-> $ uv sync --package {{ cookiecutter.cast_slug }}
-> ```
+- 특정 Cast 패키지 설치(워크스페이스 멤버명 사용)
 
-- langgraph.json에 노드 수정 (예: {{ cookiecutter.cast_slug }}만 설치한 경우)
+```bash
+# 예: {{ cookiecutter.cast_snake }} 만 설치
+uv sync --package {{ cookiecutter.cast_snake }}
+```
+
+> 멤버명은 `casts/<cast_name>` 하위의 각 `pyproject.toml`의 `[project].name`과 일치합니다.
+
+## 그래프 레지스트리(langgraph.json)
+
+`langgraph.json`에서 노출할 그래프를 선언합니다. 기본 예시는 다음과 같습니다.
 
 ```json
 {
   "dependencies": ["."],
   "graphs": {
     "main": "./casts/graph.py:main_graph",
-    "{{ cookiecutter.cast_slug }}": "./casts/{{ cookiecutter.cast_snake }}/graph.py:{{ cookiecutter.cast_snake }}_graph"
+    "{{ cookiecutter.cast_snake }}": "./casts/{{ cookiecutter.cast_snake }}/graph.py:{{ cookiecutter.cast_snake }}_graph"
   },
   "env": ".env"
 }
 ```
 
-#### 5. LangGraph 서버 실행
+- 특정 Cast만 사용한다면 해당 Cast 키만 남겨도 됩니다.
+- `.env` 경로는 환경변수 파일을 가리킵니다(필요 시 수정).
+
+## 개발 서버 실행(LangGraph CLI)
+
+개발/디버깅을 위해 인메모리 서버를 실행합니다.
 
 ```bash
-$ uv run langgraph dev
+uv run langgraph dev
 ```
+
+- 크롬 이외 브라우저 사용 시(터널 모드):
 
 ```bash
-# Chrome 브라우저가 아닌 다른 브라우저에서 실행할 경우
-$ uv run langgraph dev --kernel
+uv run langgraph dev --tunnel
 ```
 
-### 서버가 실행되면 다음 URL에서 접근할 수 있습니다:
+서버 실행 후 접속 URL
 
 - API: http://127.0.0.1:2024
 - Studio UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
 - API 문서: http://127.0.0.1:2024/docs
 
-> 참고: 이 서버는 개발 및 테스트용으로 설계된 인메모리 서버입니다. 프로덕션 환경에서는 LangGraph Cloud를 사용하는 것이 권장됩니다.
+> 참고: 본 서버는 개발/테스트용 인메모리 서버입니다. 프로덕션은 LangGraph Cloud 사용을 권장합니다.
 
-**실행 화면**
+종료 방법: 터미널에서 `Ctrl + C`(Windows), `Cmd + C`(macOS)
 
-![](media/LangGraph_Studio_after_invoke.png)
+## 입력/상태 관리
 
-### 변수에 따른 값 입력 후 실행
+- 각 Cast의 입력 스키마 및 상태는 `casts/{{ cookiecutter.cast_snake }}/state.py`와 `modules/state.py`에서 정의/관리됩니다.
+- 실행 시 Studio UI 좌측 패널에 표시되는 입력 필드에 값을 지정한 뒤 Invoke 하십시오.
 
-- 각 cast 별 `State`에 정의된 Attribute에 따라 변수를 입력합니다.
-- `GraphState`는 `casts/{{ cookiecutter.cast_snake }}/modules/state.py`에서 개별 관리됩니다.
+## 새 Cast 추가
 
-**실행 화면**
-![](media/LangGraph_Studio_after_invoke.png)
+새로운 그래프/기능을 별도 Cast로 추가하려면 Act Operator를 설치한 환경에서 프로젝트 루트 경로를 지정해 Cast를 스캐폴딩합니다.
 
-1. 터미널에서 종료
+```bash
+# (별도 환경에서) Act Operator 설치
+uv add act-operator
 
-- window: `ctrl + c`, macOS: `cmd + c`
+# 현재 프로젝트에 새 Cast 추가
+uv run act cast
+```
 
-### 코드 스타일 및 품질 관리
+> `act cast`를 사용하면 `langgraph.json`(그래프 레지스트리)이 자동 갱신됩니다.
 
-프로젝트는 pre-commit을 사용하여 코드 스타일과 품질을 관리합니다. 다음 툴들이 자동으로 실행됩니다:
+## 테스트 및 품질 관리
 
-- `ruff`: 코드 품질 검사, 코드 포맷팅, import 문 정렬
-- `uv-lock`: 의존성 파일 동기화
+### 테스트(pytest)
 
-> 참고:
->
-> - pre-commit은 커밋 전에 자동으로 실행되며, 검사에 실패하면 커밋이 중단됩니다. 모든 검사를 통과해야만 커밋이 완료됩니다.
-> - VSCode나 Cursor의 Git Graph를 사용하여 커밋할 때도 pre-commit이 자동으로 실행됩니다.
-> - Git 클라이언트와 관계없이 모든 커밋 시점에서 pre-commit이 동작합니다.
+```bash
+uv run pytest -q
+```
 
-### 💡 **NOTE**:
+### 품질 관리(ruff)
 
-- 템플릿 사용법, 설계 방법 등 프로젝트 관리에 필요한 모든 내용은 https://www.hon2yt2ch.life/proact0/guide 에서 확인 가능합니다.
+```bash
+uv run ruff check . --fix
+uv run ruff format .
+```
+
+### pre-commit(선택)
+
+본 템플릿은 pre-commit 구성을 포함합니다.
+
+- `ruff`: 코드 품질 점검/포맷/임포트 정리
+- `uv-lock`: 의존성 락 파일 동기화
+
+> 검사 실패 시 커밋이 차단됩니다. 모든 훅을 통과해야 커밋이 완료됩니다.
+
+## 자주 하는 질문(FAQ)
+
+- Q. 특정 Cast만 개발하려는데 의존성 설치를 최소화할 수 있나요?
+  - A. `uv sync --package <멤버명>`으로 필요한 Cast만 설치하세요.
+- Q. 새 그래프 키를 추가했는데 Studio UI에 보이지 않습니다.
+  - A. `langgraph.json`의 `graphs`에 올바른 경로(`path:callable`)로 등록했는지 확인하고, 서버를 재시작하세요.
+- Q. 포맷/린트 기준은 어디서 확인하나요?
+  - A. `pyproject.toml`의 `[tool.ruff]` 설정을 확인하세요.
+
+## 참고
+
+- LangGraph: https://docs.langchain.com/oss/python/langgraph/overview
+- uv: https://docs.astral.sh/uv/

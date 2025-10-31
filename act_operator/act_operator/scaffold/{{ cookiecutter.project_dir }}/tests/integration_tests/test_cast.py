@@ -13,10 +13,10 @@ def test_graph_produces_message() -> None:
     graph = getattr(module, "{{ cookiecutter.cast_snake }}_graph")
 
     # 최소 상태로 그래프 실행
-    result = graph.invoke({})
+    result = graph.invoke({"query": "I'm joining Act"})
 
     # SampleNode가 message 키를 생성하는지 확인
-    assert "message" in result
-    assert result["message"] == "Welcome to the Act!"
+    assert "messages" in result
+    assert result["messages"] == "Welcome to the Act!"
 
 
