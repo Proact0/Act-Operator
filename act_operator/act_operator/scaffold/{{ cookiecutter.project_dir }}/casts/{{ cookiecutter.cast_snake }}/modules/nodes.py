@@ -5,8 +5,7 @@ Guidelines:
     - Implement :meth:`execute` to mutate and return the graph state.
 """
 
-from casts.base_node import BaseNode
-from casts.base_node import AsyncBaseNode
+from casts.base_node import AsyncBaseNode, BaseNode
 
 class SampleNode(BaseNode):
     """Sample node for the {{ cookiecutter.cast_name }} graph.

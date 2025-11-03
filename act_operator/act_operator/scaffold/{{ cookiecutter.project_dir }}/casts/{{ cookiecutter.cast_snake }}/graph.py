@@ -15,7 +15,7 @@ Official document URL:
     - Graph API Usage: https://docs.langchain.com/oss/python/langgraph/use-graph-api
 """
 
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import END, START, StateGraph
 
 from casts.base_graph import BaseGraph
 from casts.{{ cookiecutter.cast_snake }}.modules.nodes import SampleNode

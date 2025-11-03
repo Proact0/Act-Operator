@@ -1,11 +1,13 @@
-"""[Required] State definition shared across {{ cookiecutter.cast_name }} graphs."""
+"""[Required] State definition shared across Test graphs."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Annotated
-from langgraph.graph.message import add_messages
+
 from langchain.messages import AnyMessage
+from langgraph.graph.message import add_messages
+
 
 @dataclass(kw_only=True)
 class InputState:
@@ -14,6 +16,7 @@ class InputState:
     Attributes:
         query: User query
     """
+
     query: str
 
 
@@ -24,6 +27,7 @@ class OutputState:
     Attributes:
         messages: Additional messages
     """
+
     messages: Annotated[list[AnyMessage], add_messages]
 
 
@@ -35,5 +39,6 @@ class State:
         query: User query
         messages: Additional messages
     """
+
     query: str
     messages: Annotated[list[AnyMessage], add_messages]
