@@ -45,7 +45,8 @@ class {{ cookiecutter.cast_snake | title | replace(" ", "") }}Graph(BaseGraph):
         """
         builder = StateGraph(self.state, input_schema=self.input, output_schema=self.output)
 
-        builder.add_node(SampleNode)
+        # Register node as an INSTANCE so it returns a dict update, not the class object
+        builder.add_node("SampleNode", SampleNode())
         builder.add_edge(START, "SampleNode")
         builder.add_edge("SampleNode", END)
 

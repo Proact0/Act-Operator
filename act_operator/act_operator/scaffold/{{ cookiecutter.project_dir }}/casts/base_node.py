@@ -49,7 +49,7 @@ class BaseNode(ABC):
         for key, value in kwargs.items():
             LOGGER.debug("%s: %r", key, value)
 
-    def __call__(self, state=None, config=None, runtime=None, **kwargs):
+    def __call__(self, state, **kwargs):
         """Allows instances to be invoked like callables.
 
         Args:
@@ -61,7 +61,7 @@ class BaseNode(ABC):
         Returns:
             dict: Result from :meth:`execute`.
         """
-        return self.execute(state, config=config, runtime=runtime, **kwargs)
+        return self.execute(state, **kwargs)
 
 
 class AsyncBaseNode(ABC):

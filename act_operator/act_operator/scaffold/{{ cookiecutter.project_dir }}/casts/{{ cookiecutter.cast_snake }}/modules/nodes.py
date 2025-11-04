@@ -5,10 +5,13 @@ Guidelines:
     - Implement :meth:`execute` to mutate and return the graph state.
 """
 
+from langchain_core.messages import AIMessage
+
 from casts.base_node import AsyncBaseNode, BaseNode
 
+
 class SampleNode(BaseNode):
-    """Sample node for the {{ cookiecutter.cast_name }} graph.
+    """Sync sample node for the {{ cookiecutter.cast_name }} graph.
     
     Attributes:
         name: Canonical name of the node (class name by default).
@@ -22,9 +25,10 @@ class SampleNode(BaseNode):
             state: Current graph state.
             
         Returns:
-            dict: Result from :meth:`execute`.
+            dict: State updates (must be a dict)
         """
-        return {"message": "Welcome to the Act! by Sync Node"}
+        return {"messages": [AIMessage(content="Welcome to the Act! by Sync Node")]}
+
 
 class AsyncSampleNode(AsyncBaseNode):
     """Async sample node for the {{ cookiecutter.cast_name }} graph.
@@ -41,6 +45,6 @@ class AsyncSampleNode(AsyncBaseNode):
             state: Current graph state.
             
         Returns:
-            dict: Result from :meth:`execute`.
+            dict: State updates (must be a dict)
         """
-        return {"message": "Welcome to the Act! by Async Node"}
+        return {"messages": [AIMessage(content="Welcome to the Act! by Async Node")]}

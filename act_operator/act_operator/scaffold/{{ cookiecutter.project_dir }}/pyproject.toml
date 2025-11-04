@@ -7,14 +7,11 @@ requires-python = ">=3.11"
 dependencies = [
     "langchain>=1.0.0",
     "langgraph>=1.0.0",
-    "python-dotenv>=1.1.1",
 ]
 
 [dependency-groups]
 dev = [
-    "ipykernel>=7.0.0",
     "pre-commit>=4.3.0",
-    "langgraph-api>=0.4.46",
     "langgraph-cli[inmem]>=0.4.3",
     "pytest>=8.4.2",
     "ruff>=0.5.7",
@@ -22,10 +19,19 @@ dev = [
 
 [tool.pyright]
 include = ["casts", "tests"]
-exclude = ["**/__pycache__/*", "**/node_modules/*", ".venv", "**/.venv"]
+exclude = [
+    "**/__pycache__/*", 
+    ".venv", 
+    "**/.venv"
+]
 
 [tool.uv.workspace]
 members = ["casts/*"]
+exclude = [
+    "casts/__pycache__",
+    "casts/**/__pycache__",
+    "casts/**/.venv",
+]
 
 [tool.ruff]
 exclude = [
