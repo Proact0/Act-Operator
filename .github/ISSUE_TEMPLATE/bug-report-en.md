@@ -7,7 +7,7 @@ body:
       value: |
         Thank you for taking the time to file a bug report.
 
-        Use this to report BUGS in Act Operator (CLI for bootstrapping LangGraph-based “Act” blueprints).
+        Use this to report BUGS in Act Operator (CLI for bootstrapping LangGraph-based “Act - AX Template” blueprints).
         For usage questions, feature requests and general design questions, please use our Discord.
 
         Before filing, please check the following resources to see if your issue has already been reported or solved:

@@ -7,7 +7,7 @@ body:
       value: |
         Thank you for contributing ideas to improve Act Operator!
 
-        Use this form to propose a feature or enhancement for Act Operator (CLI for bootstrapping LangGraph-based “Act” blueprints).
+        Use this form to propose a feature or enhancement for Act Operator (CLI for bootstrapping LangGraph-based “Act - AX Template” blueprints).
         For general questions or discussion, please use our Discord.
 
         Before filing, please check the following resources to see if a similar request already exists:

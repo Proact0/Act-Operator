@@ -7,7 +7,7 @@ body:
       value: |
         Act Operator 개선 아이디어를 공유해주셔서 감사합니다!
 
-        이 폼은 Act Operator( LangGraph 기반 “Act” 블루프린트를 스캐폴딩하는 CLI )의 **기능 제안/개선 요청**을 위한 것입니다.
+        이 폼은 Act Operator( LangGraph 기반 “Act - AX Template” 블루프린트를 스캐폴딩하는 CLI )의 **기능 제안/개선 요청**을 위한 것입니다.
         일반 질문이나 논의는 디스코드를 이용해주세요.
 
         제출 전, 유사한 요청이 이미 있는지 아래 리소스를 확인해주세요:
@@ -50,6 +50,7 @@ body:
       placeholder: |
         * 스캐폴딩 시 ..., ...이 필요합니다.
         * 캐스트 추가 시 ..., ...가 있으면 좋겠습니다.
+        * ...에 관련된 Claude Skill / Cursor Rule 등이 있으면 좋겠습니다.
   - type: textarea
     id: proposal
     validations:

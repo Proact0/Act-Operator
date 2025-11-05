@@ -1,5 +1,9 @@
 import logging
 from abc import ABC, abstractmethod
+from typing import Any, Optional
+
+from langchain_core.runnables import RunnableConfig
+from langgraph.runtime import Runtime
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,13 +26,20 @@ class BaseNode(ABC):
         self.verbose = kwargs.get("verbose", False)
 
     @abstractmethod
-    def execute(self, state, config=None, runtime=None) -> dict:
+    def execute(
+        self,
+        state: Any,
+        config: Optional[RunnableConfig] = None,
+        runtime: Optional[Runtime] = None,
+    ) -> dict:
         """Processes the incoming state and returns updates.
 
         Args:
             state: Mutable graph state passed between nodes.
-            config: Optional runnable config provided by LangGraph/LangChain runtime.
-            runtime: Optional runtime context if provided by the executor.
+            config: Optional RunnableConfig object containing configuration info
+                like thread_id and tracing information like tags.
+            runtime: Optional Runtime object containing runtime context like
+                store and stream_writer.
 
         Returns:
             dict: Key/value pairs containing state updates.
@@ -49,19 +60,25 @@ class BaseNode(ABC):
         for key, value in kwargs.items():
             LOGGER.debug("%s: %r", key, value)
 
-    def __call__(self, state, **kwargs):
+    def __call__(
+        self,
+        state: Any,
+        config: Optional[RunnableConfig] = None,
+        runtime: Optional[Runtime] = None,
+        **kwargs,
+    ) -> dict:
         """Allows instances to be invoked like callables.
 
         Args:
             state: Current graph state.
-            config: Optional runnable config.
-            runtime: Optional runtime context.
+            config: Optional RunnableConfig object.
+            runtime: Optional Runtime object.
             **kwargs: Extra keyword args forwarded to :meth:`execute` for flexibility.
 
         Returns:
             dict: Result from :meth:`execute`.
         """
-        return self.execute(state, **kwargs)
+        return self.execute(state, config=config, runtime=runtime, **kwargs)
 
 
 class AsyncBaseNode(ABC):
@@ -82,13 +99,20 @@ class AsyncBaseNode(ABC):
         self.verbose = kwargs.get("verbose", False)
 
     @abstractmethod
-    async def execute(self, state, config=None, runtime=None) -> dict:
+    async def execute(
+        self,
+        state: Any,
+        config: Optional[RunnableConfig] = None,
+        runtime: Optional[Runtime] = None,
+    ) -> dict:
         """Processes the incoming state asynchronously and returns updates.
 
         Args:
             state: Mutable graph state passed between nodes.
-            config: Optional runnable config provided by LangGraph/LangChain runtime.
-            runtime: Optional runtime context if provided by the executor.
+            config: Optional RunnableConfig object containing configuration info
+                like thread_id and tracing information like tags.
+            runtime: Optional Runtime object containing runtime context like
+                store and stream_writer.
 
         Returns:
             dict: Key/value pairs containing state updates.
@@ -109,13 +133,19 @@ class AsyncBaseNode(ABC):
         for key, value in kwargs.items():
             LOGGER.debug("%s: %r", key, value)
 
-    async def __call__(self, state=None, config=None, runtime=None, **kwargs):
+    async def __call__(
+        self,
+        state: Any,
+        config: Optional[RunnableConfig] = None,
+        runtime: Optional[Runtime] = None,
+        **kwargs,
+    ) -> dict:
         """Allows instances to be invoked like callables.
 
         Args:
             state: Current graph state.
-            config: Optional runnable config.
-            runtime: Optional runtime context.
+            config: Optional RunnableConfig object.
+            runtime: Optional Runtime object.
             **kwargs: Extra keyword args forwarded to :meth:`execute` for flexibility.
 
         Returns:
