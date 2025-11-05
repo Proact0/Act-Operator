@@ -22,7 +22,7 @@ from casts.{{ cookiecutter.cast_snake }}.modules.nodes import SampleNode
 from casts.{{ cookiecutter.cast_snake }}.modules.state import InputState, OutputState, State
 
 
-class {{ cookiecutter.cast_snake | title | replace(" ", "") }}Graph(BaseGraph):
+class {{ cookiecutter.cast_pascal }}Graph(BaseGraph):
     """Graph definition for {{ cookiecutter.cast_name }}.
     
     Attributes:
@@ -55,4 +55,4 @@ class {{ cookiecutter.cast_snake | title | replace(" ", "") }}Graph(BaseGraph):
         return graph
 
 
-{{ cookiecutter.cast_snake }}_graph = {{ cookiecutter.cast_snake | title | replace(" ", "") }}Graph()
+{{ cookiecutter.cast_snake }}_graph = {{ cookiecutter.cast_pascal }}Graph()

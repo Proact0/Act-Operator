@@ -25,6 +25,7 @@ class NameVariants:
     slug: str
     snake: str
     title: str
+    pascal: str
 
 
 def build_name_variants(raw: str) -> NameVariants:
@@ -35,11 +36,13 @@ def build_name_variants(raw: str) -> NameVariants:
     slug = _normalize(normalized, "-")
     snake = _normalize(normalized, "_")
     title = normalized.replace("_", " ").replace("-", " ").title()
+    # PascalCase: remove spaces, hyphens, underscores and capitalize each word
+    pascal = title.replace(" ", "")
 
     if not slug or not snake:
         raise ValueError("Please enter a name containing valid English characters.")
 
-    return NameVariants(raw=normalized, slug=slug, snake=snake, title=title)
+    return NameVariants(raw=normalized, slug=slug, snake=snake, title=title, pascal=pascal)
 
 
 def _normalize(value: str, sep: str) -> str:
@@ -57,16 +60,21 @@ def render_cookiecutter_template(
     *,
     directory: str | None = None,
 ) -> None:
+    """Render a cookiecutter template.
+
+    The template folder is named {{ cookiecutter.act_slug }}, which ensures
+    the output directory uses hyphens (e.g., 'my-act').
+    The target_dir should already be set to use act.slug in the calling code.
+    """
     if target_dir.exists():
         shutil.rmtree(target_dir)
 
     output_root = target_dir.parent
-    project_slug = target_dir.name
 
     rendered_path = cookiecutter(
         str(template_dir),
         no_input=True,
-        extra_context={"project_dir": project_slug, **context},
+        extra_context=context,
         output_dir=str(output_root),
         overwrite_if_exists=True,
         directory=directory,
@@ -74,6 +82,7 @@ def render_cookiecutter_template(
 
     rendered_path = Path(rendered_path)
 
+    # Normally rendered_path should equal target_dir, but rename if needed
     if rendered_path.resolve() != target_dir.resolve():
         rendered_path.rename(target_dir)
 

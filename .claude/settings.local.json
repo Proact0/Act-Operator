@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(uv pip install:*)",
+      "Bash(timeout /t 2)",
+      "Bash(nul)",
+      "Bash(uv run act:*)",
+      "Bash(.venv/Scripts/python.exe -m act_operator:*)",
+      "Bash(python -m act_operator:*)",
+      "Bash(uv sync:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

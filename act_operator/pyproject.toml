@@ -19,11 +19,22 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 
 [dependency-groups]
+test = [
+    "pytest",
+    "pytest-mock",
+    "pytest-subprocess",
+    "langgraph-cli; python_version < '3.14'",
+    "langgraph-cli[inmem]; python_version < '3.14'",
+]
+lint = [
+    "pre-commit",
+    "mypy",
+    "ruff",
+]
 dev = [
-    "ruff>=0.14.0",
-    "pytest>=8.4.2",
-    "pytest-mock>=3.15.0",
-    "pytest-subprocess>=1.5.3",
+    "ipykernel",
+    {include-group = "test"},
+    {include-group = "lint"},
 ]
 
 [project.urls]

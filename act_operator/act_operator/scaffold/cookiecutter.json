@@ -1,10 +1,10 @@
 {
-  "project_dir": "{{ cookiecutter.act_slug }}",
   "act_name": "Act Name",
   "act_slug": "act-name",
   "act_snake": "act_name",
   "cast_name": "Cast Name",
   "cast_slug": "cast-name",
   "cast_snake": "cast_name",
+  "cast_pascal": "CastName",
   "language": "en"
 }

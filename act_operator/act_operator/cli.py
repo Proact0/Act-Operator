@@ -144,17 +144,11 @@ def _generate_project(
     cast_name: str | None,
     language: str | None,
 ) -> None:
-    target_dir, path_was_custom = _resolve_path(path)
+    base_dir, path_was_custom = _resolve_path(path)
 
-    if target_dir.exists() and any(target_dir.iterdir()):
-        console.print(
-            "❌ The specified directory already exists and is not empty. Aborting to prevent overwriting files.",
-            style="red",
-        )
-        raise typer.Exit(code=1)
-
+    # If user provided a path as act name, use it as the display name
     if act_name is None and path_was_custom:
-        derived_name = target_dir.name or target_dir.resolve().name
+        derived_name = base_dir.name or base_dir.resolve().name
         act_name = derived_name
 
     act_raw = _resolve_name("🚀 Please enter a name for the new Act", act_name)
@@ -167,6 +161,21 @@ def _generate_project(
     except ValueError as error:
         console.print(f"[red]{error}[/red]")
         raise typer.Exit(code=1) from error
+
+    # Use act.slug (hyphenated) for the actual directory name
+    if path_was_custom and base_dir != Path.cwd():
+        # User specified a custom path - use parent and append slug
+        target_dir = base_dir.parent / act.slug
+    else:
+        # User used current directory - create subdirectory with slug
+        target_dir = Path.cwd() / act.slug
+
+    if target_dir.exists() and any(target_dir.iterdir()):
+        console.print(
+            "❌ The specified directory already exists and is not empty. Aborting to prevent overwriting files.",
+            style="red",
+        )
+        raise typer.Exit(code=1)
 
     try:
         target_dir.mkdir(parents=True, exist_ok=True)
@@ -189,6 +198,7 @@ def _generate_project(
         # 캐스트 디렉터리는 snake_case 사용
         "cast_slug": cast.slug,
         "cast_snake": cast.snake,
+        "cast_pascal": cast.pascal,
         "language": lang,
     }
 
@@ -317,6 +327,7 @@ def _generate_cast_project(
             "act_snake": act_variants.snake,
             "cast_name": cast_variants.title,
             "cast_snake": cast_variants.snake,
+            "cast_pascal": cast_variants.pascal,
             "language": _normalize_lang(language),
         },
     )

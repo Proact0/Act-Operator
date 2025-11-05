@@ -10,11 +10,21 @@ dependencies = [
 ]
 
 [dependency-groups]
+test = [
+    "pytest",
+    "langgraph-cli; python_version < '3.14'",
+    "langgraph-cli[inmem]; python_version < '3.14'",
+]
+lint = [
+    "pre-commit",
+    "mypy",
+    "ruff",
+]
 dev = [
-    "pre-commit>=4.3.0",
-    "langgraph-cli[inmem]>=0.4.3",
-    "pytest>=8.4.2",
-    "ruff>=0.5.7",
+    "pre-commit",
+    "ipykernel",
+    {include-group = "test"},
+    {include-group = "lint"},
 ]
 
 [tool.pyright]
