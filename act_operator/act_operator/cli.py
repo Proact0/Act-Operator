@@ -1,4 +1,4 @@
-"""Act Operator CLI entrypoints."""
+"""Act Operator CLI entrypoints for managing Act projects and Casts."""
 
 from __future__ import annotations
 
@@ -9,13 +9,25 @@ from rich.console import Console
 from rich.table import Table
 
 from .utils import (
+    CASTS_DIR,
+    LANGGRAPH_FILE,
+    PYPROJECT_FILE,
     Language,
+    NameVariants,
     build_name_variants,
     render_cookiecutter_cast_subproject,
     render_cookiecutter_template,
     update_langgraph_registry,
     update_workspace_members,
 )
+
+# Constants
+EXIT_CODE_ERROR = 1
+SCAFFOLD_DIR = "scaffold"
+BASE_NODE_FILE = "base_node.py"
+BASE_GRAPH_FILE = "base_graph.py"
+DEFAULT_LANGUAGE_CHOICE = 1
+ENCODING_UTF8 = "utf-8"
 
 console = Console()
 app = typer.Typer(help="Act Operator", invoke_without_command=True)
@@ -95,6 +107,43 @@ def _resolve_path(path_option: Path | None) -> tuple[Path, bool]:
     return path, is_custom
 
 
+def _validate_name(name: str) -> None:
+    """Validate a name using build_name_variants.
+
+    Args:
+        name: Name to validate.
+
+    Raises:
+        typer.Exit: If name is invalid.
+    """
+    try:
+        build_name_variants(name)
+    except ValueError as e:
+        console.print(f"[red]{e}[/red]")
+        raise typer.Exit(code=EXIT_CODE_ERROR) from e
+
+
+def _check_cast_conflict(cast_snake: str, act_snake: str, act_title: str) -> bool:
+    """Check if cast name conflicts with act name.
+
+    Args:
+        cast_snake: Snake case version of Cast name.
+        act_snake: Snake case version of Act name.
+        act_title: Title case version of Act name.
+
+    Returns:
+        True if there's a conflict, False otherwise.
+    """
+    if cast_snake == act_snake:
+        console.print(
+            f"[red]❌ Cast name conflicts with Act name '{act_title}'.[/red]\n"
+            f"[yellow]Both resolve to the same workspace member: '{cast_snake}'[/yellow]\n"
+            "[yellow]Please choose a different name for the Cast.[/yellow]"
+        )
+        return True
+    return False
+
+
 def _resolve_name(prompt_message: str, value: str | None) -> str:
     """Resolve Act or Cast name from option or prompt with validation.
 
@@ -107,13 +156,8 @@ def _resolve_name(prompt_message: str, value: str | None) -> str:
     """
     if value:
         value = value.strip()
-        # Validate immediately if provided via option
-        try:
-            build_name_variants(value)
-            return value
-        except ValueError as e:
-            console.print(f"[red]{e}[/red]")
-            raise typer.Exit(code=1) from e
+        _validate_name(value)
+        return value
 
     # Interactive prompt with immediate validation
     while True:
@@ -122,17 +166,20 @@ def _resolve_name(prompt_message: str, value: str | None) -> str:
             console.print("[red]A value is required.[/red]")
             continue
 
-        # Validate immediately after input
         try:
             build_name_variants(prompted)
             return prompted
         except ValueError as e:
             console.print(f"[red]❌ {e}[/red]")
             console.print("[yellow]Please try again with a valid name.[/yellow]")
-            # Continue loop to re-prompt
 
 
-def _resolve_cast_name(prompt_message: str, value: str | None, act_snake: str, act_title: str) -> str:
+def _resolve_cast_name(
+    prompt_message: str,
+    value: str | None,
+    act_snake: str,
+    act_title: str,
+) -> str:
     """Resolve Cast name with validation and conflict checking against Act name.
 
     Args:
@@ -146,20 +193,11 @@ def _resolve_cast_name(prompt_message: str, value: str | None, act_snake: str, a
     """
     if value:
         value = value.strip()
-        # Validate immediately if provided via option
-        try:
-            cast_variants = build_name_variants(value)
-            if cast_variants.snake == act_snake:
-                console.print(
-                    f"[red]❌ Cast name '{cast_variants.title}' conflicts with Act name '{act_title}'.[/red]\n"
-                    f"[yellow]Both resolve to the same workspace member name: '{cast_variants.snake}'[/yellow]\n"
-                    "[yellow]Please choose a different name for the Cast.[/yellow]"
-                )
-                raise typer.Exit(code=1)
-            return value
-        except ValueError as e:
-            console.print(f"[red]{e}[/red]")
-            raise typer.Exit(code=1) from e
+        _validate_name(value)
+        cast_variants = build_name_variants(value)
+        if _check_cast_conflict(cast_variants.snake, act_snake, act_title):
+            raise typer.Exit(code=EXIT_CODE_ERROR)
+        return value
 
     # Interactive prompt with immediate validation and conflict checking
     while True:
@@ -168,25 +206,14 @@ def _resolve_cast_name(prompt_message: str, value: str | None, act_snake: str, a
             console.print("[red]A value is required.[/red]")
             continue
 
-        # Validate immediately after input
         try:
             cast_variants = build_name_variants(prompted)
-
-            # Check for conflict with Act name
-            if cast_variants.snake == act_snake:
-                console.print(
-                    f"[red]❌ Cast name '{cast_variants.title}' conflicts with Act name '{act_title}'.[/red]\n"
-                    f"[yellow]Both resolve to the same workspace member name: '{cast_variants.snake}'[/yellow]\n"
-                    "[yellow]Please choose a different name for the Cast.[/yellow]"
-                )
-                # Continue loop to re-prompt
+            if _check_cast_conflict(cast_variants.snake, act_snake, act_title):
                 continue
-
             return prompted
         except ValueError as e:
             console.print(f"[red]❌ {e}[/red]")
             console.print("[yellow]Please try again with a valid name.[/yellow]")
-            # Continue loop to re-prompt
 
 
 def _normalize_lang(value: str | None) -> str:
@@ -203,7 +230,7 @@ def _normalize_lang(value: str | None) -> str:
         return lang.value
     except ValueError as e:
         console.print(f"[red]{e}[/red]")
-        raise typer.Exit(code=1) from e
+        raise typer.Exit(code=EXIT_CODE_ERROR) from e
 
 
 def _select_language_menu() -> str:
@@ -213,7 +240,8 @@ def _select_language_menu() -> str:
         Language code string ("en" or "kr").
     """
     console.print(
-        "🌐 Choose template language - This option sets the language for the entire scaffolded template content.\n"
+        "🌐 Choose template language - This option sets the language for "
+        "the entire scaffolded template content.\n"
         f"1. {Language.ENGLISH.display_name} ({Language.ENGLISH.value.upper()})\n"
         f"2. {Language.KOREAN.display_name} ({Language.KOREAN.value.upper()})"
     )
@@ -221,7 +249,7 @@ def _select_language_menu() -> str:
     while True:
         choice: int = typer.prompt(
             "Enter the number of your language choice (default is 1)",
-            default=1,
+            default=DEFAULT_LANGUAGE_CHOICE,
             type=int,
         )
         if choice in options:
@@ -245,12 +273,167 @@ def _resolve_language(language: str | None) -> str:
             return lang.display_name
         except ValueError as e:
             console.print(f"[red]{e}[/red]")
-            raise typer.Exit(code=1) from e
+            raise typer.Exit(code=EXIT_CODE_ERROR) from e
 
     # No language provided - show menu
     lang_code = _select_language_menu()
     lang = Language.from_string(lang_code)
     return lang.display_name
+
+
+def _determine_target_directory(
+    base_dir: Path, path_was_custom: bool, act_slug: str
+) -> Path:
+    """Determine the target directory for the new Act project.
+
+    Args:
+        base_dir: Base directory from user input.
+        path_was_custom: Whether user specified a custom path.
+        act_slug: Hyphenated slug version of Act name.
+
+    Returns:
+        Target directory path for the project.
+    """
+    if path_was_custom and base_dir != Path.cwd():
+        return base_dir.parent / act_slug
+    return Path.cwd() / act_slug
+
+
+def _validate_and_create_directory(target_dir: Path) -> None:
+    """Validate and create target directory.
+
+    Args:
+        target_dir: Directory to create.
+
+    Raises:
+        typer.Exit: If directory exists and is not empty, or creation fails.
+    """
+    if target_dir.exists() and any(target_dir.iterdir()):
+        console.print(
+            "❌ The specified directory already exists and is not empty. "
+            "Aborting to prevent overwriting files.",
+            style="red",
+        )
+        raise typer.Exit(code=EXIT_CODE_ERROR)
+
+    try:
+        target_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        console.print(f"[red]Unable to create target directory: {error}[/red]")
+        raise typer.Exit(code=EXIT_CODE_ERROR) from error
+
+
+def _get_scaffold_root() -> Path:
+    """Get the scaffold directory path.
+
+    Returns:
+        Path to scaffold directory.
+
+    Raises:
+        typer.Exit: If scaffold resources not found.
+    """
+    scaffold_root = Path(__file__).resolve().parent / SCAFFOLD_DIR
+    if not scaffold_root.exists():
+        console.print("[red]Scaffold resources not found.[/red]")
+        raise typer.Exit(code=EXIT_CODE_ERROR)
+    return scaffold_root
+
+
+def _build_template_context(
+    act: NameVariants, cast: NameVariants, language: str
+) -> dict[str, str]:
+    """Build the template context for cookiecutter.
+
+    Args:
+        act: Act name variants.
+        cast: Cast name variants.
+        language: Language display name.
+
+    Returns:
+        Dictionary of template context variables.
+    """
+    return {
+        "act_name": act.title,
+        "act_slug": act.slug,
+        "act_snake": act.snake,
+        "cast_name": cast.title,
+        # Cast directory uses snake_case
+        "cast_slug": cast.slug,
+        "cast_snake": cast.snake,
+        "cast_pascal": cast.pascal,
+        "language": language,
+    }
+
+
+def _normalize_cast_directory(target_dir: Path, cast: NameVariants) -> None:
+    """Normalize cast directory from hyphenated to snake_case if needed.
+
+    Args:
+        target_dir: Root directory of the Act project.
+        cast: Cast name variants.
+
+    Raises:
+        typer.Exit: If normalization fails.
+    """
+    casts_dir = target_dir / CASTS_DIR
+    old_cast_dir = casts_dir / cast.slug
+    new_cast_dir = casts_dir / cast.snake
+
+    if not (old_cast_dir.exists() and not new_cast_dir.exists()):
+        return
+
+    try:
+        old_cast_dir.rename(new_cast_dir)
+
+        # Fix pyproject.toml path references
+        project_pyproject = target_dir / PYPROJECT_FILE
+        if project_pyproject.exists():
+            content = project_pyproject.read_text(encoding=ENCODING_UTF8)
+            content = content.replace(
+                f"{CASTS_DIR}/{cast.slug}", f"{CASTS_DIR}/{cast.snake}"
+            )
+            project_pyproject.write_text(content, encoding=ENCODING_UTF8)
+
+        # Fix langgraph.json path and graph key references
+        project_langgraph = target_dir / LANGGRAPH_FILE
+        if project_langgraph.exists():
+            lg = project_langgraph.read_text(encoding=ENCODING_UTF8)
+            lg = lg.replace(f'"{cast.slug}"', f'"{cast.snake}"')
+            lg = lg.replace(
+                f"/{CASTS_DIR}/{cast.slug}/",
+                f"/{CASTS_DIR}/{cast.snake}/",
+            )
+            project_langgraph.write_text(lg, encoding=ENCODING_UTF8)
+    except OSError as error:
+        console.print(f"[red]Failed to normalize cast directory: {error}[/red]")
+        raise typer.Exit(code=EXIT_CODE_ERROR) from error
+
+
+def _display_project_summary(
+    act_title: str, cast_title: str, language: str, target_dir: Path
+) -> None:
+    """Display project creation summary table.
+
+    Args:
+        act_title: Act name in title case.
+        cast_title: Cast name in title case.
+        language: Language display name.
+        target_dir: Project directory path.
+    """
+    table = Table(show_header=False)
+    table.add_row("Act", act_title)
+    table.add_row("Cast", cast_title)
+    table.add_row("Language", language)
+    table.add_row("Location", str(target_dir))
+    console.print(table)
+    console.print("[bold green]Act project created successfully![/bold green]")
+
+    try:
+        if target_dir.exists():
+            entries = ", ".join(sorted(p.name for p in target_dir.iterdir()))
+            console.print(f"[dim]act project entries: {entries}[/dim]")
+    except Exception:
+        pass
 
 
 def _generate_project(
@@ -260,6 +443,17 @@ def _generate_project(
     cast_name: str | None,
     language: str | None,
 ) -> None:
+    """Generate a new Act project with initial Cast.
+
+    Args:
+        path: Optional path for project creation.
+        act_name: Optional Act name.
+        cast_name: Optional Cast name.
+        language: Optional language code.
+
+    Raises:
+        typer.Exit: If project creation fails.
+    """
     base_dir, path_was_custom = _resolve_path(path)
 
     # If user provided a path as act name, use it as the display name
@@ -267,118 +461,70 @@ def _generate_project(
         derived_name = base_dir.name or base_dir.resolve().name
         act_name = derived_name
 
+    # Resolve and validate names
     act_raw = _resolve_name("🚀 Please enter a name for the new Act", act_name)
-    # Build act variants first so we can check for conflicts with cast name
     act = build_name_variants(act_raw)
 
-    # Resolve cast name with immediate conflict checking
-    cast_raw = _resolve_cast_name("🌟 Please enter a name for the first Cast", cast_name, act.snake, act.title)
+    cast_raw = _resolve_cast_name(
+        "🌟 Please enter a name for the first Cast",
+        cast_name,
+        act.snake,
+        act.title,
+    )
     cast = build_name_variants(cast_raw)
 
     lang = _resolve_language(language)
 
-    # No need for conflict check here - it's done in _resolve_cast_name
-
-    # Use act.slug (hyphenated) for the actual directory name
-    if path_was_custom and base_dir != Path.cwd():
-        # User specified a custom path - use parent and append slug
-        target_dir = base_dir.parent / act.slug
-    else:
-        # User used current directory - create subdirectory with slug
-        target_dir = Path.cwd() / act.slug
-
-    if target_dir.exists() and any(target_dir.iterdir()):
-        console.print(
-            "❌ The specified directory already exists and is not empty. Aborting to prevent overwriting files.",
-            style="red",
-        )
-        raise typer.Exit(code=1)
-
-    try:
-        target_dir.mkdir(parents=True, exist_ok=True)
-    except OSError as error:
-        console.print(f"[red]Unable to create target directory: {error}[/red]")
-        raise typer.Exit(code=1) from error
-
-    scaffold_root = Path(__file__).resolve().parent / "scaffold"
-    if not scaffold_root.exists():
-        console.print("[red]Scaffold resources not found.[/red]")
-        raise typer.Exit(code=1)
+    # Prepare directories
+    target_dir = _determine_target_directory(base_dir, path_was_custom, act.slug)
+    _validate_and_create_directory(target_dir)
+    scaffold_root = _get_scaffold_root()
 
     console.print("[bold green]Starting Act project scaffolding...[/bold green]")
 
-    context = {
-        "act_name": act.title,
-        "act_slug": act.slug,
-        "act_snake": act.snake,
-        "cast_name": cast.title,
-        # 캐스트 디렉터리는 snake_case 사용
-        "cast_slug": cast.slug,
-        "cast_snake": cast.snake,
-        "cast_pascal": cast.pascal,
-        "language": lang,
-    }
-
+    # Render template
+    context = _build_template_context(act, cast, lang)
     try:
         render_cookiecutter_template(scaffold_root, target_dir, context)
     except FileExistsError as error:
         console.print(f"[red]{error}[/red]")
-        raise typer.Exit(code=1) from error
+        raise typer.Exit(code=EXIT_CODE_ERROR) from error
 
-    # 캐스트 디렉터리가 하이픈으로 생성된 경우 언더스코어로 교정
-    casts_dir = target_dir / "casts"
-    old_cast_dir = casts_dir / cast.slug
-    new_cast_dir = casts_dir / cast.snake
-    try:
-        if old_cast_dir.exists() and not new_cast_dir.exists():
-            old_cast_dir.rename(new_cast_dir)
+    # Normalize cast directory naming
+    _normalize_cast_directory(target_dir, cast)
 
-            # pyproject.toml 경로 교정
-            project_pyproject = target_dir / "pyproject.toml"
-            if project_pyproject.exists():
-                content = project_pyproject.read_text(encoding="utf-8")
-                content = content.replace(f"casts/{cast.slug}", f"casts/{cast.snake}")
-                project_pyproject.write_text(content, encoding="utf-8")
-
-            # langgraph.json 경로 및 그래프 키 교정
-            project_langgraph = target_dir / "langgraph.json"
-            if project_langgraph.exists():
-                lg = project_langgraph.read_text(encoding="utf-8")
-                lg = lg.replace(f'"{cast.slug}"', f'"{cast.snake}"')
-                lg = lg.replace(f"/casts/{cast.slug}/", f"/casts/{cast.snake}/")
-                project_langgraph.write_text(lg, encoding="utf-8")
-    except OSError as error:
-        console.print(f"[red]Failed to normalize cast directory: {error}[/red]")
-        raise typer.Exit(code=1) from error
-
-    table = Table(show_header=False)
-    table.add_row("Act", act.title)
-    table.add_row("Cast", cast.title)
-    table.add_row("Language", lang)
-    table.add_row("Location", str(target_dir))
-    console.print(table)
-    console.print("[bold green]Act project created successfully![/bold green]")
-    try:
-        act_dir = target_dir
-        if act_dir.exists():
-            entries = ", ".join(sorted(p.name for p in act_dir.iterdir()))
-            console.print(f"[dim]act project entries: {entries}[/dim]")
-    except Exception:
-        pass
+    # Display summary
+    _display_project_summary(act.title, cast.title, lang, target_dir)
 
 
 @app.callback()
-def root(  # type: ignore[override]
+def root(
     ctx: typer.Context,
     path: Path | None = PATH_OPTION,
     act_name: str | None = ACT_NAME_OPTION,
     cast_name: str | None = CAST_NAME_OPTION,
     lang: str | None = LANG_OPTION,
 ) -> None:
-    ctx.obj = {"path": path, "act_name": act_name, "cast_name": cast_name, "lang": lang}
+    """Act Operator root command callback.
+
+    Args:
+        ctx: Typer context for command invocation.
+        path: Optional path for project creation.
+        act_name: Optional Act name.
+        cast_name: Optional Cast name.
+        lang: Optional language code.
+    """
+    ctx.obj = {
+        "path": path,
+        "act_name": act_name,
+        "cast_name": cast_name,
+        "lang": lang,
+    }
     if ctx.invoked_subcommand is not None:
         return
-    _generate_project(path=path, act_name=act_name, cast_name=cast_name, language=lang)
+    _generate_project(
+        path=path, act_name=act_name, cast_name=cast_name, language=lang
+    )
 
 
 @app.command("new")
@@ -389,28 +535,65 @@ def new_command(
     cast_name: str | None = CAST_NAME_OPTION,
     lang: str | None = LANG_OPTION,
 ) -> None:
+    """Create a new Act project (explicit command).
+
+    Args:
+        ctx: Typer context for command invocation.
+        path: Optional path for project creation.
+        act_name: Optional Act name.
+        cast_name: Optional Cast name.
+        lang: Optional language code.
+    """
     parent = ctx.parent.obj if ctx.parent and ctx.parent.obj else {}
     path = path or parent.get("path")
     act_name = act_name or parent.get("act_name")
     cast_name = cast_name or parent.get("cast_name")
     lang = lang or parent.get("lang")
-    _generate_project(path=path, act_name=act_name, cast_name=cast_name, language=lang)
+    _generate_project(
+        path=path, act_name=act_name, cast_name=cast_name, language=lang
+    )
 
 
 def _ensure_act_project(act_path: Path) -> None:
+    """Validate that the path is a valid Act project.
+
+    Args:
+        act_path: Path to validate.
+
+    Raises:
+        typer.Exit: If path is not a valid Act project.
+    """
     expected = [
-        act_path / "pyproject.toml",
-        act_path / "langgraph.json",
-        act_path / "casts",
-        act_path / "casts" / "base_node.py",
-        act_path / "casts" / "base_graph.py",
+        act_path / PYPROJECT_FILE,
+        act_path / LANGGRAPH_FILE,
+        act_path / CASTS_DIR,
+        act_path / CASTS_DIR / BASE_NODE_FILE,
+        act_path / CASTS_DIR / BASE_GRAPH_FILE,
     ]
     for path in expected:
         if not path.exists():
             console.print(
                 f"[red]The path does not look like a valid Act project: {path}[/red]"
             )
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=EXIT_CODE_ERROR)
+
+
+def _validate_cast_directory(target_dir: Path) -> None:
+    """Validate that cast directory doesn't exist or is empty.
+
+    Args:
+        target_dir: Cast directory to validate.
+
+    Raises:
+        typer.Exit: If directory exists and is not empty.
+    """
+    if target_dir.exists() and any(target_dir.iterdir()):
+        console.print(
+            "❌ The specified cast directory already exists and is not empty. "
+            "Aborting to prevent overwriting files.",
+            style="red",
+        )
+        raise typer.Exit(code=EXIT_CODE_ERROR)
 
 
 def _generate_cast_project(
@@ -419,27 +602,29 @@ def _generate_cast_project(
     cast_name: str,
     language: str,
 ) -> None:
+    """Generate a new Cast within an existing Act project.
+
+    Args:
+        act_path: Path to the Act project.
+        cast_name: Name of the new Cast.
+        language: Language code for the Cast.
+
+    Raises:
+        typer.Exit: If Cast creation fails.
+    """
     act_variants = build_name_variants(act_path.name)
-    casts_dir = act_path / "casts"
     cast_variants = build_name_variants(cast_name)
 
-    # No need for conflict check here - it's done in _resolve_cast_name
-
-    # 캐스트 디렉터리는 snake_case로 강제
+    # Cast directory uses snake_case
+    casts_dir = act_path / CASTS_DIR
     target_dir = casts_dir / cast_variants.snake
 
-    if target_dir.exists() and any(target_dir.iterdir()):
-        console.print(
-            "❌ The specified cast directory already exists and is not empty. Aborting to prevent overwriting files.",
-            style="red",
-        )
-        raise typer.Exit(code=1)
+    _validate_cast_directory(target_dir)
 
-    scaffold_root = Path(__file__).resolve().parent / "scaffold"
-    template_root = scaffold_root
+    scaffold_root = _get_scaffold_root()
 
     render_cookiecutter_cast_subproject(
-        template_root,
+        scaffold_root,
         target_dir,
         {
             "act_name": act_variants.title,
@@ -452,21 +637,22 @@ def _generate_cast_project(
         },
     )
 
-    workspace_member = f"casts/{cast_variants.snake}"
+    # Update project configuration files
+    workspace_member = f"{CASTS_DIR}/{cast_variants.snake}"
     try:
-        update_workspace_members(act_path / "pyproject.toml", workspace_member)
+        update_workspace_members(act_path / PYPROJECT_FILE, workspace_member)
     except RuntimeError as error:
         console.print(f"[red]Failed to update pyproject.toml: {error}[/red]")
-        raise typer.Exit(code=1) from error
+        raise typer.Exit(code=EXIT_CODE_ERROR) from error
 
     try:
         update_langgraph_registry(
-            act_path / "langgraph.json",
+            act_path / LANGGRAPH_FILE,
             cast_variants.snake,
         )
     except RuntimeError as error:
         console.print(f"[red]Failed to update langgraph.json: {error}[/red]")
-        raise typer.Exit(code=1) from error
+        raise typer.Exit(code=EXIT_CODE_ERROR) from error
 
     console.print(
         f"[bold green]Cast '{cast_variants.snake}' added successfully![/bold green]"
@@ -479,6 +665,13 @@ def cast_command(
     cast_name: str | None = NEW_CAST_NAME_OPTION,
     lang: str = NEW_CAST_LANG_OPTION,
 ) -> None:
+    """Add a new Cast to an existing Act project.
+
+    Args:
+        act_path: Path to the existing Act project.
+        cast_name: Optional Cast name.
+        lang: Language code for the Cast.
+    """
     act_path = act_path.resolve()
     _ensure_act_project(act_path)
 
@@ -486,9 +679,15 @@ def cast_command(
     act_variants = build_name_variants(act_path.name)
 
     # Resolve cast name with immediate conflict checking
-    cast_raw = _resolve_cast_name("🌟 Please enter a name for the new Cast", cast_name, act_variants.snake, act_variants.title)
+    cast_raw = _resolve_cast_name(
+        "🌟 Please enter a name for the new Cast",
+        cast_name,
+        act_variants.snake,
+        act_variants.title,
+    )
     _generate_cast_project(act_path=act_path, cast_name=cast_raw, language=lang)
 
 
 def main() -> None:
+    """Entry point for the Act Operator CLI."""
     app()
