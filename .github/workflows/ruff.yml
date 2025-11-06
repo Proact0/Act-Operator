@@ -5,6 +5,9 @@ on: [push, pull_request]
 jobs:
   ruff:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: act_operator
     steps:
       - uses: actions/checkout@v5
 

@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.table import Table
 
 from .utils import (
+    Language,
     build_name_variants,
     render_cookiecutter_cast_subproject,
     render_cookiecutter_template,
@@ -73,8 +74,17 @@ NEW_CAST_LANG_OPTION = typer.Option(
 
 
 def _resolve_path(path_option: Path | None) -> tuple[Path, bool]:
+    """Resolve the target path for project creation.
+
+    Args:
+        path_option: Optional path provided via CLI option.
+
+    Returns:
+        Tuple of (resolved_path, is_custom_path).
+    """
     if path_option is not None:
         return path_option.expanduser().resolve(), True
+
     value = typer.prompt(
         "📂 Please specify the path to create the new Act project",
         default=".",
@@ -86,32 +96,128 @@ def _resolve_path(path_option: Path | None) -> tuple[Path, bool]:
 
 
 def _resolve_name(prompt_message: str, value: str | None) -> str:
+    """Resolve Act or Cast name from option or prompt with validation.
+
+    Args:
+        prompt_message: Message to display when prompting user.
+        value: Optional name value from CLI option.
+
+    Returns:
+        Validated name string.
+    """
     if value:
-        return value.strip()
+        value = value.strip()
+        # Validate immediately if provided via option
+        try:
+            build_name_variants(value)
+            return value
+        except ValueError as e:
+            console.print(f"[red]{e}[/red]")
+            raise typer.Exit(code=1) from e
+
+    # Interactive prompt with immediate validation
     while True:
         prompted = typer.prompt(prompt_message).strip()
-        if prompted:
+        if not prompted:
+            console.print("[red]A value is required.[/red]")
+            continue
+
+        # Validate immediately after input
+        try:
+            build_name_variants(prompted)
             return prompted
-        console.print("[red]A value is required.[/red]")
+        except ValueError as e:
+            console.print(f"[red]❌ {e}[/red]")
+            console.print("[yellow]Please try again with a valid name.[/yellow]")
+            # Continue loop to re-prompt
+
+
+def _resolve_cast_name(prompt_message: str, value: str | None, act_snake: str, act_title: str) -> str:
+    """Resolve Cast name with validation and conflict checking against Act name.
+
+    Args:
+        prompt_message: Message to display when prompting user.
+        value: Optional name value from CLI option.
+        act_snake: Snake case version of Act name.
+        act_title: Title case version of Act name.
+
+    Returns:
+        Validated Cast name string.
+    """
+    if value:
+        value = value.strip()
+        # Validate immediately if provided via option
+        try:
+            cast_variants = build_name_variants(value)
+            if cast_variants.snake == act_snake:
+                console.print(
+                    f"[red]❌ Cast name '{cast_variants.title}' conflicts with Act name '{act_title}'.[/red]\n"
+                    f"[yellow]Both resolve to the same workspace member name: '{cast_variants.snake}'[/yellow]\n"
+                    "[yellow]Please choose a different name for the Cast.[/yellow]"
+                )
+                raise typer.Exit(code=1)
+            return value
+        except ValueError as e:
+            console.print(f"[red]{e}[/red]")
+            raise typer.Exit(code=1) from e
+
+    # Interactive prompt with immediate validation and conflict checking
+    while True:
+        prompted = typer.prompt(prompt_message).strip()
+        if not prompted:
+            console.print("[red]A value is required.[/red]")
+            continue
+
+        # Validate immediately after input
+        try:
+            cast_variants = build_name_variants(prompted)
+
+            # Check for conflict with Act name
+            if cast_variants.snake == act_snake:
+                console.print(
+                    f"[red]❌ Cast name '{cast_variants.title}' conflicts with Act name '{act_title}'.[/red]\n"
+                    f"[yellow]Both resolve to the same workspace member name: '{cast_variants.snake}'[/yellow]\n"
+                    "[yellow]Please choose a different name for the Cast.[/yellow]"
+                )
+                # Continue loop to re-prompt
+                continue
+
+            return prompted
+        except ValueError as e:
+            console.print(f"[red]❌ {e}[/red]")
+            console.print("[yellow]Please try again with a valid name.[/yellow]")
+            # Continue loop to re-prompt
 
 
 def _normalize_lang(value: str | None) -> str:
-    if not value:
-        return "en"
-    val = value.strip().lower()
-    if val in ("en", "kr"):
-        return val
-    console.print("[red]Unsupported language: '{val}'. Please use 'en' or 'kr'.[/red]")
-    raise typer.Exit(code=1)
+    """Normalize language value to language code string.
+
+    Args:
+        value: Language code or None.
+
+    Returns:
+        Language code string ("en" or "kr").
+    """
+    try:
+        lang = Language.from_string(value)
+        return lang.value
+    except ValueError as e:
+        console.print(f"[red]{e}[/red]")
+        raise typer.Exit(code=1) from e
 
 
 def _select_language_menu() -> str:
+    """Display interactive language selection menu.
+
+    Returns:
+        Language code string ("en" or "kr").
+    """
     console.print(
         "🌐 Choose template language - This option sets the language for the entire scaffolded template content.\n"
-        "1. English (EN)\n"
-        "2. 한국어 (KR)"
+        f"1. {Language.ENGLISH.display_name} ({Language.ENGLISH.value.upper()})\n"
+        f"2. {Language.KOREAN.display_name} ({Language.KOREAN.value.upper()})"
     )
-    options = {1: "en", 2: "kr"}
+    options = {1: Language.ENGLISH, 2: Language.KOREAN}
     while True:
         choice: int = typer.prompt(
             "Enter the number of your language choice (default is 1)",
@@ -119,22 +225,32 @@ def _select_language_menu() -> str:
             type=int,
         )
         if choice in options:
-            return options[choice]
+            return options[choice].value
         console.print("[red]❌ Invalid choice. Please try again.[/red]")
 
 
 def _resolve_language(language: str | None) -> str:
-    if language in ("en", "kr"):
-        if language == "en":
-            return "English"
-        elif language == "kr":
-            return "한국어"
-    if language is None or not language.strip():
-        return _select_language_menu()
-    console.print(
-        f"[red]Unsupported language: '{language}'. Please use 'en' or 'kr'.[/red]"
-    )
-    raise typer.Exit(code=1)
+    """Resolve language to display name.
+
+    Args:
+        language: Language code string or None.
+
+    Returns:
+        Language display name ("English" or "한국어").
+    """
+    # If language is provided, validate and return display name
+    if language and language.strip():
+        try:
+            lang = Language.from_string(language)
+            return lang.display_name
+        except ValueError as e:
+            console.print(f"[red]{e}[/red]")
+            raise typer.Exit(code=1) from e
+
+    # No language provided - show menu
+    lang_code = _select_language_menu()
+    lang = Language.from_string(lang_code)
+    return lang.display_name
 
 
 def _generate_project(
@@ -152,15 +268,16 @@ def _generate_project(
         act_name = derived_name
 
     act_raw = _resolve_name("🚀 Please enter a name for the new Act", act_name)
-    cast_raw = _resolve_name("🌟 Please enter a name for the first Cast", cast_name)
+    # Build act variants first so we can check for conflicts with cast name
+    act = build_name_variants(act_raw)
+
+    # Resolve cast name with immediate conflict checking
+    cast_raw = _resolve_cast_name("🌟 Please enter a name for the first Cast", cast_name, act.snake, act.title)
+    cast = build_name_variants(cast_raw)
+
     lang = _resolve_language(language)
 
-    try:
-        act = build_name_variants(act_raw)
-        cast = build_name_variants(cast_raw)
-    except ValueError as error:
-        console.print(f"[red]{error}[/red]")
-        raise typer.Exit(code=1) from error
+    # No need for conflict check here - it's done in _resolve_cast_name
 
     # Use act.slug (hyphenated) for the actual directory name
     if path_was_custom and base_dir != Path.cwd():
@@ -305,6 +422,9 @@ def _generate_cast_project(
     act_variants = build_name_variants(act_path.name)
     casts_dir = act_path / "casts"
     cast_variants = build_name_variants(cast_name)
+
+    # No need for conflict check here - it's done in _resolve_cast_name
+
     # 캐스트 디렉터리는 snake_case로 강제
     target_dir = casts_dir / cast_variants.snake
 
@@ -362,7 +482,11 @@ def cast_command(
     act_path = act_path.resolve()
     _ensure_act_project(act_path)
 
-    cast_raw = _resolve_name("🌟 Please enter a name for the new Cast", cast_name)
+    # Build act variants first for conflict checking
+    act_variants = build_name_variants(act_path.name)
+
+    # Resolve cast name with immediate conflict checking
+    cast_raw = _resolve_cast_name("🌟 Please enter a name for the new Cast", cast_name, act_variants.snake, act_variants.title)
     _generate_cast_project(act_path=act_path, cast_name=cast_raw, language=lang)
 
 

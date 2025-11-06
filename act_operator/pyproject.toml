@@ -1,11 +1,11 @@
 [build-system]
-requires = ["hatchling>=1.26"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "act-operator"
 dynamic = ["version"]
-description = "Proact0’s CLI for bootstrapping LangGraph-based “Act” blueprints with `cookiecutter`."
+description = "Proact0’s CLI for bootstrapping LangGraph-based “Act - AX Template” blueprints with `cookiecutter`."
 requires-python = ">=3.12"
 authors = [
     { name = "Joongheon Park" }
@@ -23,8 +23,6 @@ test = [
     "pytest",
     "pytest-mock",
     "pytest-subprocess",
-    "langgraph-cli; python_version < '3.14'",
-    "langgraph-cli[inmem]; python_version < '3.14'",
 ]
 lint = [
     "pre-commit",
@@ -32,13 +30,12 @@ lint = [
     "ruff",
 ]
 dev = [
-    "ipykernel",
     {include-group = "test"},
     {include-group = "lint"},
 ]
 
 [project.urls]
-Repository = "https://github.com/Proact0/Act-Operator"
+Repository = "https://github.com/Proact0/act-operator"
 Homepage = "https://github.com/Proact0/Act-Operator"
 
 [project.scripts]

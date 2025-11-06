@@ -21,7 +21,6 @@ lint = [
     "ruff",
 ]
 dev = [
-    "pre-commit",
     "ipykernel",
     {include-group = "test"},
     {include-group = "lint"},

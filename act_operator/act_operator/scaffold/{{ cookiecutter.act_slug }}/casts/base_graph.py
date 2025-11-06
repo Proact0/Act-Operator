@@ -1,63 +1,40 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional
 
-from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 
 
 class BaseGraph(ABC):
     """Base class for LangGraph graphs.
 
+    This class provides a base implementation for LangGraph graphs.
+    Subclasses must implement the `build` method to define the graph structure.
+
     Attributes:
         name: Canonical name of the graph (class name by default).
     """
-
     def __init__(self) -> None:
         """Initializes the graph and assigns its canonical name."""
         self.name = self.__class__.__name__
 
     @abstractmethod
-    def build(
-        self,
-        checkpointer: Optional[BaseCheckpointSaver] = None,
-        interrupt_before: Optional[list[str]] = None,
-        interrupt_after: Optional[list[str]] = None,
-        debug: bool = False,
-    ) -> CompiledStateGraph:
-        """Constructs and compiles the graph with optional runtime configuration.
+    def build(self) -> CompiledStateGraph:
+        """Constructs the graph structure (nodes and edges only).
 
-        Args:
-            checkpointer: Optional checkpointer for persistence and state management.
-            interrupt_before: List of node names to interrupt before execution.
-            interrupt_after: List of node names to interrupt after execution.
-            debug: Enable debug mode for detailed execution tracing.
+        This method should:
+        1. Create a StateGraph instance with appropriate state schema
+        2. Add nodes using builder.add_node()
+        3. Add edges using builder.add_edge() or builder.add_conditional_edges()
+        4. Return the COMPILED StateGraph
 
         Returns:
-            CompiledStateGraph: Compiled state graph ready for execution.
+            CompiledStateGraph: Compiled state graph.
         """
         raise NotImplementedError
 
-    def __call__(
-        self,
-        checkpointer: Optional[BaseCheckpointSaver] = None,
-        interrupt_before: Optional[list[str]] = None,
-        interrupt_after: Optional[list[str]] = None,
-        debug: bool = False,
-    ) -> CompiledStateGraph:
+    def __call__(self) -> CompiledStateGraph:
         """Compiles the graph when invoked like a function.
-
-        Args:
-            checkpointer: Optional checkpointer for persistence and state management.
-            interrupt_before: List of node names to interrupt before execution.
-            interrupt_after: List of node names to interrupt after execution.
-            debug: Enable debug mode for detailed execution tracing.
 
         Returns:
             CompiledStateGraph: Result returned by :meth:`build`.
         """
-        return self.build(
-            checkpointer=checkpointer,
-            interrupt_before=interrupt_before,
-            interrupt_after=interrupt_after,
-            debug=debug,
-        )
+        return self.build()
