@@ -25,6 +25,8 @@ def test_init_creates_scaffold(tmp_path: Path) -> None:
             "Sample Act",
             "--cast-name",
             "Primary Cast",
+            "--lang",
+            "en",
         ],
     )
     assert result.exit_code == 0, result.stdout
@@ -48,6 +50,8 @@ def test_init_derives_act_name_from_path(tmp_path: Path) -> None:
             str(target_dir),
             "--cast-name",
             "Primary Cast",
+            "--lang",
+            "en",
         ],
     )
     assert result.exit_code == 0, result.stdout
@@ -68,6 +72,8 @@ def test_init_aborts_on_non_empty_dir(tmp_path: Path) -> None:
             str(target_dir),
             "--cast-name",
             "Primary Cast",
+            "--lang",
+            "en",
         ],
     )
 

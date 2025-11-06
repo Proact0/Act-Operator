@@ -1,10 +1,11 @@
-"""Act Operator 유틸리티 함수."""
+"""Act Operator utility functions for project scaffolding and management."""
 
 from __future__ import annotations
 
 import json
 import re
 import shutil
+import tempfile
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -15,9 +16,14 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - fallback for older versions
     import tomli as tomllib  # type: ignore
 
-import tempfile
-
 from cookiecutter.main import cookiecutter
+
+# Constants
+CASTS_DIR = "casts"
+CAST_PATH_PREFIX = "./casts/"
+PYPROJECT_FILE = "pyproject.toml"
+LANGGRAPH_FILE = "langgraph.json"
+ENCODING_UTF8 = "utf-8"
 
 
 class Language(str, Enum):
@@ -185,6 +191,29 @@ def render_cookiecutter_template(
         rendered_path.rename(target_dir)
 
 
+def _get_rendered_cast_dir(
+    rendered_path: Path, cast_snake: str
+) -> Path:
+    """Get the rendered cast directory path.
+
+    Args:
+        rendered_path: Root path of rendered project.
+        cast_snake: Snake-case name of the cast.
+
+    Returns:
+        Path to the rendered cast directory.
+
+    Raises:
+        FileNotFoundError: If rendered cast directory is not found.
+    """
+    source_cast_dir = rendered_path / CASTS_DIR / cast_snake
+    if not source_cast_dir.exists():
+        raise FileNotFoundError(
+            f"Rendered cast directory not found: {source_cast_dir}"
+        )
+    return source_cast_dir
+
+
 def render_cookiecutter_cast_subproject(
     template_root: Path,
     target_dir: Path,
@@ -218,16 +247,75 @@ def render_cookiecutter_cast_subproject(
         )
 
         rendered_path = Path(rendered_path)
+        source_cast_dir = _get_rendered_cast_dir(
+            rendered_path, context["cast_snake"]
+        )
 
-        source_cast_dir = rendered_path / "casts" / context["cast_snake"]
-        if not source_cast_dir.exists():
-            raise FileNotFoundError(
-                f"Rendered cast directory not found: {source_cast_dir}"
-            )
-
-        # Ensure parent exists
         output_root.mkdir(parents=True, exist_ok=True)
         shutil.move(str(source_cast_dir), str(target_dir))
+
+
+def _read_pyproject_members(pyproject_path: Path) -> list[str]:
+    """Read workspace members from pyproject.toml.
+
+    Args:
+        pyproject_path: Path to the pyproject.toml file.
+
+    Returns:
+        List of workspace member paths.
+
+    Raises:
+        RuntimeError: If pyproject.toml is not found.
+    """
+    if not pyproject_path.exists():
+        raise RuntimeError(f"pyproject.toml not found: {pyproject_path}")
+
+    content = pyproject_path.read_text(encoding=ENCODING_UTF8)
+    data = tomllib.loads(content)
+    workspace = data.get("tool", {}).get("uv", {}).get("workspace", {})
+    return list(workspace.get("members", []))
+
+
+def _format_workspace_members(members: list[str]) -> str:
+    """Format workspace members for TOML file.
+
+    Args:
+        members: List of workspace member paths.
+
+    Returns:
+        Formatted TOML members string.
+    """
+    member_lines = ",\n".join(f'    "{member}"' for member in members)
+    return f"members = [\n{member_lines}\n]"
+
+
+def _update_pyproject_content(
+    content: str, formatted_members: str
+) -> str:
+    """Update pyproject.toml content with new members.
+
+    Args:
+        content: Original pyproject.toml content.
+        formatted_members: Formatted members string.
+
+    Returns:
+        Updated pyproject.toml content.
+    """
+    workspace_section = "[tool.uv.workspace]"
+    pattern = re.compile(
+        r"(\[tool\.uv\.workspace\]\s*)(?:members\s*=\s*\[[^\]]*\])?",
+        re.DOTALL,
+    )
+
+    if workspace_section in content:
+        return pattern.sub(
+            lambda match: f"{match.group(1)}{formatted_members}",
+            content,
+            count=1,
+        )
+
+    block = f"\n\n{workspace_section}\n{formatted_members}\n"
+    return content.rstrip() + block + "\n"
 
 
 def update_workspace_members(pyproject_path: Path, new_member: str) -> None:
@@ -241,14 +329,7 @@ def update_workspace_members(pyproject_path: Path, new_member: str) -> None:
         RuntimeError: If pyproject.toml is not found.
         OSError: If file operations fail.
     """
-    if not pyproject_path.exists():
-        raise RuntimeError(f"pyproject.toml not found: {pyproject_path}")
-
-    content = pyproject_path.read_text(encoding="utf-8")
-    data = tomllib.loads(content)
-
-    workspace = data.get("tool", {}).get("uv", {}).get("workspace", {})
-    members: list[str] = list(workspace.get("members", []))
+    members = _read_pyproject_members(pyproject_path)
 
     if new_member in members:
         return
@@ -256,24 +337,34 @@ def update_workspace_members(pyproject_path: Path, new_member: str) -> None:
     members.append(new_member)
     members.sort()
 
-    member_lines = ",\n".join(f'    "{member}"' for member in members)
-    formatted_members = f"members = [\n{member_lines}\n]"
+    formatted_members = _format_workspace_members(members)
+    content = pyproject_path.read_text(encoding=ENCODING_UTF8)
+    updated_content = _update_pyproject_content(content, formatted_members)
+    pyproject_path.write_text(updated_content, encoding=ENCODING_UTF8)
 
-    pattern = re.compile(
-        r"(\[tool\.uv\.workspace\]\s*)(?:members\s*=\s*\[[^\]]*\])?", re.DOTALL
-    )
 
-    if "[tool.uv.workspace]" in content:
+def _build_cast_dependency(cast_snake: str) -> str:
+    """Build cast dependency path.
 
-        def replacer(match: re.Match[str]) -> str:
-            return f"{match.group(1)}{formatted_members}"
+    Args:
+        cast_snake: Snake-case name of the cast.
 
-        content = pattern.sub(replacer, content, count=1)
-    else:
-        block = f"\n\n[tool.uv.workspace]\n{formatted_members}\n"
-        content = content.rstrip() + block + "\n"
+    Returns:
+        Cast dependency path string.
+    """
+    return f"{CAST_PATH_PREFIX}{cast_snake}"
 
-    pyproject_path.write_text(content, encoding="utf-8")
+
+def _build_graph_reference(cast_snake: str) -> str:
+    """Build LangGraph graph reference path.
+
+    Args:
+        cast_snake: Snake-case name of the cast.
+
+    Returns:
+        Graph reference path string.
+    """
+    return f"{CAST_PATH_PREFIX}{cast_snake}/graph.py:{cast_snake}_graph"
 
 
 def update_langgraph_registry(
@@ -294,19 +385,21 @@ def update_langgraph_registry(
     if not langgraph_path.exists():
         raise RuntimeError(f"langgraph.json not found: {langgraph_path}")
 
-    payload: dict[str, Any] = json.loads(langgraph_path.read_text(encoding="utf-8"))
+    content = langgraph_path.read_text(encoding=ENCODING_UTF8)
+    payload: dict[str, Any] = json.loads(content)
 
+    # Update dependencies
     dependencies = payload.setdefault("dependencies", ["."])
-    cast_dependency = f"./casts/{cast_snake}"
+    cast_dependency = _build_cast_dependency(cast_snake)
     if cast_dependency not in dependencies:
         dependencies.append(cast_dependency)
         dependencies.sort()
 
+    # Update graphs
     graphs = payload.setdefault("graphs", {})
-    graph_reference = f"./casts/{cast_snake}/graph.py:{cast_snake}_graph"
+    graph_reference = _build_graph_reference(cast_snake)
     graphs.setdefault(cast_snake, graph_reference)
 
-    langgraph_path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    # Write updated content
+    updated_content = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+    langgraph_path.write_text(updated_content, encoding=ENCODING_UTF8)
