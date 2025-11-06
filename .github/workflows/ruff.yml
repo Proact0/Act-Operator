@@ -21,8 +21,11 @@ jobs:
       - name: Install dependencies (dev)
         run: uv sync --dev
 
-      - name: Ruff Lint
-        run: uv run ruff check .
+      - name: Ruff Lint with fix
+        run: uv run ruff check . --fix
 
-      - name: Ruff Format (check only)
+      - name: Ruff Format
+        run: uv run ruff format .
+
+      - name: Ruff Format Check
         run: uv run ruff format . --check
