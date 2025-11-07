@@ -18,7 +18,6 @@ from .utils import (
     render_cookiecutter_cast_subproject,
     render_cookiecutter_template,
     update_langgraph_registry,
-    update_workspace_members,
 )
 
 # Constants
@@ -294,7 +293,12 @@ def _determine_target_directory(
     Returns:
         Target directory path for the project.
     """
-    if path_was_custom and base_dir != Path.cwd():
+    # If user used default path ('.'), create project in current directory
+    if not path_was_custom:
+        return Path.cwd()
+
+    # For custom paths, create subdirectory with act-slug name
+    if base_dir != Path.cwd():
         return base_dir.parent / act_slug
     return Path.cwd() / act_slug
 
@@ -456,6 +460,16 @@ def _generate_project(
     """
     base_dir, path_was_custom = _resolve_path(path)
 
+    # If using current directory (.), check if it's empty before proceeding
+    if not path_was_custom:
+        if Path.cwd().exists() and any(Path.cwd().iterdir()):
+            console.print(
+                "❌ The current directory is not empty. "
+                "Please use an empty directory to create a new Act project.",
+                style="red",
+            )
+            raise typer.Exit(code=EXIT_CODE_ERROR)
+
     # If user provided a path as act name, use it as the display name
     if act_name is None and path_was_custom:
         derived_name = base_dir.name or base_dir.resolve().name
@@ -522,9 +536,7 @@ def root(
     }
     if ctx.invoked_subcommand is not None:
         return
-    _generate_project(
-        path=path, act_name=act_name, cast_name=cast_name, language=lang
-    )
+    _generate_project(path=path, act_name=act_name, cast_name=cast_name, language=lang)
 
 
 @app.command("new")
@@ -549,9 +561,7 @@ def new_command(
     act_name = act_name or parent.get("act_name")
     cast_name = cast_name or parent.get("cast_name")
     lang = lang or parent.get("lang")
-    _generate_project(
-        path=path, act_name=act_name, cast_name=cast_name, language=lang
-    )
+    _generate_project(path=path, act_name=act_name, cast_name=cast_name, language=lang)
 
 
 def _ensure_act_project(act_path: Path) -> None:
@@ -638,13 +648,8 @@ def _generate_cast_project(
     )
 
     # Update project configuration files
-    workspace_member = f"{CASTS_DIR}/{cast_variants.snake}"
-    try:
-        update_workspace_members(act_path / PYPROJECT_FILE, workspace_member)
-    except RuntimeError as error:
-        console.print(f"[red]Failed to update pyproject.toml: {error}[/red]")
-        raise typer.Exit(code=EXIT_CODE_ERROR) from error
-
+    # Note: workspace members and dependencies use wildcard patterns (casts/*)
+    # so we only need to update the graphs registry
     try:
         update_langgraph_registry(
             act_path / LANGGRAPH_FILE,

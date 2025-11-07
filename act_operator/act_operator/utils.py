@@ -158,7 +158,8 @@ def render_cookiecutter_template(
 
     The template folder is named {{ cookiecutter.act_slug }}, which ensures
     the output directory uses hyphens (e.g., 'my-act').
-    The target_dir should already be set to use act.slug in the calling code.
+
+    If target_dir already exists, the rendered contents will be moved into it.
 
     Args:
         template_dir: Path to the cookiecutter template directory.
@@ -170,30 +171,45 @@ def render_cookiecutter_template(
         FileNotFoundError: If template_dir doesn't exist.
         OSError: If rendering or moving files fails.
     """
-    if target_dir.exists():
-        shutil.rmtree(target_dir)
+    target_dir_exists = target_dir.exists()
+    output_root = target_dir.parent if not target_dir_exists else tempfile.mkdtemp(prefix="act_op_")
 
-    output_root = target_dir.parent
+    try:
+        rendered_path = cookiecutter(
+            str(template_dir),
+            no_input=True,
+            extra_context=context,
+            output_dir=str(output_root),
+            overwrite_if_exists=True,
+            directory=directory,
+        )
 
-    rendered_path = cookiecutter(
-        str(template_dir),
-        no_input=True,
-        extra_context=context,
-        output_dir=str(output_root),
-        overwrite_if_exists=True,
-        directory=directory,
-    )
+        rendered_path = Path(rendered_path)
 
-    rendered_path = Path(rendered_path)
+        # If target_dir exists (e.g., current directory), move contents into it
+        if target_dir_exists:
+            for item in rendered_path.iterdir():
+                dest = target_dir / item.name
+                if dest.exists():
+                    if dest.is_dir():
+                        shutil.rmtree(dest)
+                    else:
+                        dest.unlink()
+                shutil.move(str(item), str(dest))
+            shutil.rmtree(rendered_path)
+        # Otherwise, rename rendered directory to target
+        elif rendered_path.resolve() != target_dir.resolve():
+            rendered_path.rename(target_dir)
+    finally:
+        # Clean up temporary directory if we created one
+        if target_dir_exists and Path(output_root).exists():
+            try:
+                shutil.rmtree(output_root)
+            except Exception:
+                pass
 
-    # Normally rendered_path should equal target_dir, but rename if needed
-    if rendered_path.resolve() != target_dir.resolve():
-        rendered_path.rename(target_dir)
 
-
-def _get_rendered_cast_dir(
-    rendered_path: Path, cast_snake: str
-) -> Path:
+def _get_rendered_cast_dir(rendered_path: Path, cast_snake: str) -> Path:
     """Get the rendered cast directory path.
 
     Args:
@@ -208,9 +224,7 @@ def _get_rendered_cast_dir(
     """
     source_cast_dir = rendered_path / CASTS_DIR / cast_snake
     if not source_cast_dir.exists():
-        raise FileNotFoundError(
-            f"Rendered cast directory not found: {source_cast_dir}"
-        )
+        raise FileNotFoundError(f"Rendered cast directory not found: {source_cast_dir}")
     return source_cast_dir
 
 
@@ -247,9 +261,7 @@ def render_cookiecutter_cast_subproject(
         )
 
         rendered_path = Path(rendered_path)
-        source_cast_dir = _get_rendered_cast_dir(
-            rendered_path, context["cast_snake"]
-        )
+        source_cast_dir = _get_rendered_cast_dir(rendered_path, context["cast_snake"])
 
         output_root.mkdir(parents=True, exist_ok=True)
         shutil.move(str(source_cast_dir), str(target_dir))
@@ -289,9 +301,7 @@ def _format_workspace_members(members: list[str]) -> str:
     return f"members = [\n{member_lines}\n]"
 
 
-def _update_pyproject_content(
-    content: str, formatted_members: str
-) -> str:
+def _update_pyproject_content(content: str, formatted_members: str) -> str:
     """Update pyproject.toml content with new members.
 
     Args:
@@ -373,6 +383,9 @@ def update_langgraph_registry(
 ) -> None:
     """Update the LangGraph registry in langgraph.json.
 
+    Note: This function only updates the graphs section. Dependencies are
+    expected to use wildcard patterns like [".", "casts/*"] in the template.
+
     Args:
         langgraph_path: Path to the langgraph.json file.
         cast_snake: Snake-case name of the cast to register.
@@ -388,14 +401,7 @@ def update_langgraph_registry(
     content = langgraph_path.read_text(encoding=ENCODING_UTF8)
     payload: dict[str, Any] = json.loads(content)
 
-    # Update dependencies
-    dependencies = payload.setdefault("dependencies", ["."])
-    cast_dependency = _build_cast_dependency(cast_snake)
-    if cast_dependency not in dependencies:
-        dependencies.append(cast_dependency)
-        dependencies.sort()
-
-    # Update graphs
+    # Update graphs only (dependencies use wildcard patterns)
     graphs = payload.setdefault("graphs", {})
     graph_reference = _build_graph_reference(cast_snake)
     graphs.setdefault(cast_snake, graph_reference)
