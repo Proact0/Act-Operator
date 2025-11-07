@@ -5,5 +5,5 @@ Guidelines:
     - Use for branches that require multiple downstream paths.
 
 Official document URL: 
-    - Conditions: https://docs.langchain.com/oss/python/langgraph/conditions
+    - Conditions: https://docs.langchain.com/oss/python/langgraph/graph-api#conditional-edges
 """

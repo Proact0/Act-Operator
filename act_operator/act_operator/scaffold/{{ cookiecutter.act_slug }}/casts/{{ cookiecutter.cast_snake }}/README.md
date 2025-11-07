@@ -8,8 +8,8 @@ This module defines the {{ cookiecutter.cast_name }} LangGraph graph responsible
 ```
 {{ cookiecutter.cast_snake }}/
 ├── modules/
-│   ├── nodes.py       # Graph nodes
-│   ├── state.py       # State definition
+│   ├── nodes.py       # Graph nodes (required)
+│   ├── state.py       # State definition (required)
 │   ├── tools.py       # Tools (optional)
 │   ├── chains.py      # Chains (optional)
 │   ├── prompts.py     # Prompts (optional)
@@ -46,8 +46,8 @@ result = {{ cookiecutter.cast_snake }}_graph().invoke(initial_state)
 ```
 {{ cookiecutter.cast_snake }}/
 ├── modules/
-│   ├── nodes.py       # Graph 노드 클래스들 정의
-│   ├── state.py       # 상태 정의
+│   ├── nodes.py       # Graph 노드 클래스들 정의 (필수)
+│   ├── state.py       # 상태 정의 (필수)
 │   ├── tools.py       # 도구 함수 (선택)
 │   ├── chains.py      # LangChain 체인 정의 (선택)
 │   ├── prompts.py     # 프롬프트 템플릿 (선택)

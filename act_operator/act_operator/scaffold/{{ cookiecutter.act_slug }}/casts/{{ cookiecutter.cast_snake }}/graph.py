@@ -12,6 +12,9 @@ Guidelines:
 
 Official document URL: 
     - Graph API: https://docs.langchain.com/oss/python/langgraph/graph-api
+    - StateGraph: https://docs.langchain.com/oss/python/langgraph/graph-api#stategraph
+    - Nodes: https://docs.langchain.com/oss/python/langgraph/graph-api#nodes
+    - Edges: https://docs.langchain.com/oss/python/langgraph/graph-api#edges
     - Graph API Usage: https://docs.langchain.com/oss/python/langgraph/use-graph-api
 """
 

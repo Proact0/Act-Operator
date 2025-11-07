@@ -1,4 +1,14 @@
-"""[Required] State definition shared across Test graphs."""
+"""[Required] State definition shared across Test graphs.
+
+Guidelines:
+    - Create dataclass classes for input, output, and overall state.
+    - Use `kw_only=True` to make the classes immutable.
+    - Use `Annotated` to add metadata to the classes.
+
+Official document URL: 
+    - State: https://docs.langchain.com/oss/python/langgraph/graph-api#state
+    - Messages: https://docs.langchain.com/oss/python/langchain/messages
+"""
 
 from __future__ import annotations
 

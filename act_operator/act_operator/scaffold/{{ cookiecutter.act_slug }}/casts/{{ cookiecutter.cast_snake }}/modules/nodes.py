@@ -10,6 +10,10 @@ Guidelines:
       * Full: `def execute(self, state, config, runtime)` - Needs everything
       * Flexible: `def execute(self, state, **kwargs)` - Access via kwargs.get()
     - Use `self.log()` for debugging when `verbose=True`.
+
+Official document URL: 
+    - Nodes: https://docs.langchain.com/oss/python/langgraph/nodes
+    - Async Nodes: https://docs.langchain.com/oss/python/langgraph/async-nodes
 """
 
 from langchain_core.messages import AIMessage
