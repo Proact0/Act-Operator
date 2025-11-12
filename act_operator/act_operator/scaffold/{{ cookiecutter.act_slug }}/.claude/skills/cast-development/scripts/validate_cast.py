@@ -1,377 +1,332 @@
 #!/usr/bin/env python3
-"""
-Cast Structure Validator
+"""Validate Cast structure and implementation.
 
-Validates that a Cast has the correct structure and required files.
+This script validates that a Cast is properly structured and can be built successfully.
+It checks for required files, validates state schemas, and tests graph compilation.
 
 Usage:
-    python scripts/validate_cast.py casts/my_cast
-    python scripts/validate_cast.py casts/my_cast --verbose
-
-Checks:
-- Required files exist (graph.py, modules/state.py, modules/nodes.py)
-- Optional files are properly structured
-- Python syntax is valid
-- BaseGraph and BaseNode are used correctly
+    python validate_cast.py <cast_name>
+    python validate_cast.py my_cast --verbose
 """
 
 import argparse
-import ast
+import importlib.util
 import sys
 from pathlib import Path
+from typing import Any, Optional
+
+
+class Colors:
+    """ANSI color codes for terminal output."""
+
+    GREEN = "\033[92m"
+    RED = "\033[91m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    BOLD = "\033[1m"
+    END = "\033[0m"
 
 
 class CastValidator:
-    """Validates Cast structure and content."""
+    """Validates Cast structure and implementation."""
 
-    def __init__(self, cast_path: Path, verbose: bool = False):
-        self.cast_path = cast_path
+    def __init__(self, cast_name: str, verbose: bool = False):
+        """Initialize the validator.
+
+        Args:
+            cast_name: Name of the cast to validate (e.g., 'my_cast')
+            verbose: Enable verbose output
+        """
+        self.cast_name = cast_name
         self.verbose = verbose
-        self.errors = []
-        self.warnings = []
+        self.errors: list[str] = []
+        self.warnings: list[str] = []
+        self.base_path = Path("casts") / cast_name
 
-    def log(self, message: str):
-        """Log message if verbose."""
-        if self.verbose:
-            print(f"  {message}")
+    def log(self, message: str, level: str = "info") -> None:
+        """Log a message based on verbosity settings.
 
-    def error(self, message: str):
-        """Add error message."""
-        self.errors.append(message)
-        print(f"  ❌ {message}")
+        Args:
+            message: Message to log
+            level: Log level (info, success, warning, error)
+        """
+        if level == "error":
+            print(f"{Colors.RED}✗{Colors.END} {message}")
+        elif level == "warning":
+            print(f"{Colors.YELLOW}⚠{Colors.END} {message}")
+        elif level == "success":
+            print(f"{Colors.GREEN}✓{Colors.END} {message}")
+        elif level == "info" and self.verbose:
+            print(f"{Colors.BLUE}ℹ{Colors.END} {message}")
 
-    def warning(self, message: str):
-        """Add warning message."""
-        self.warnings.append(message)
-        print(f"  ⚠️  {message}")
+    def validate_file_exists(self, file_path: Path, description: str) -> bool:
+        """Validate that a required file exists.
 
-    def success(self, message: str):
-        """Print success message."""
-        print(f"  ✅ {message}")
+        Args:
+            file_path: Path to the file
+            description: Description of the file for error messages
+
+        Returns:
+            True if file exists, False otherwise
+        """
+        if file_path.exists():
+            self.log(f"Found {description}: {file_path}", "success")
+            return True
+        else:
+            self.errors.append(f"Missing {description}: {file_path}")
+            self.log(f"Missing {description}: {file_path}", "error")
+            return False
+
+    def validate_structure(self) -> bool:
+        """Validate Cast directory structure.
+
+        Returns:
+            True if structure is valid, False otherwise
+        """
+        self.log("\n=== Validating Cast Structure ===", "info")
+
+        # Check base directory
+        if not self.base_path.exists():
+            self.errors.append(f"Cast directory not found: {self.base_path}")
+            self.log(f"Cast directory not found: {self.base_path}", "error")
+            return False
+
+        self.log(f"Found cast directory: {self.base_path}", "success")
+
+        # Check required files
+        required_files = {
+            self.base_path / "graph.py": "Graph definition",
+            self.base_path / "modules" / "nodes.py": "Node implementations",
+            self.base_path / "modules" / "state.py": "State definition",
+            self.base_path / "__init__.py": "Cast __init__.py",
+            self.base_path / "modules" / "__init__.py": "Modules __init__.py",
+        }
+
+        all_exist = True
+        for file_path, description in required_files.items():
+            if not self.validate_file_exists(file_path, description):
+                all_exist = False
+
+        return all_exist
+
+    def load_module(self, module_path: str) -> Optional[Any]:
+        """Dynamically load a Python module.
+
+        Args:
+            module_path: Python module path (e.g., 'casts.my_cast.graph')
+
+        Returns:
+            Loaded module or None if loading fails
+        """
+        try:
+            module = importlib.import_module(module_path)
+            self.log(f"Successfully loaded module: {module_path}", "success")
+            return module
+        except Exception as e:
+            self.errors.append(f"Failed to load module {module_path}: {str(e)}")
+            self.log(f"Failed to load module {module_path}: {str(e)}", "error")
+            return None
+
+    def validate_state(self) -> bool:
+        """Validate state definition.
+
+        Returns:
+            True if state is valid, False otherwise
+        """
+        self.log("\n=== Validating State Definition ===", "info")
+
+        state_module = self.load_module(f"casts.{self.cast_name}.modules.state")
+        if not state_module:
+            return False
+
+        # Check for required state classes
+        required_classes = ["State", "InputState", "OutputState"]
+        all_found = True
+
+        for class_name in required_classes:
+            if hasattr(state_module, class_name):
+                state_class = getattr(state_module, class_name)
+                self.log(f"Found {class_name} class", "success")
+
+                # Validate it's a dataclass
+                if not hasattr(state_class, "__dataclass_fields__"):
+                    self.warnings.append(
+                        f"{class_name} is not a dataclass - consider using @dataclass decorator"
+                    )
+                    self.log(
+                        f"{class_name} is not a dataclass - consider using @dataclass decorator",
+                        "warning",
+                    )
+                else:
+                    self.log(f"{class_name} is properly defined as a dataclass", "info")
+            else:
+                self.errors.append(f"Missing required class: {class_name}")
+                self.log(f"Missing required class: {class_name}", "error")
+                all_found = False
+
+        return all_found
+
+    def validate_nodes(self) -> bool:
+        """Validate node implementations.
+
+        Returns:
+            True if nodes are valid, False otherwise
+        """
+        self.log("\n=== Validating Node Implementations ===", "info")
+
+        nodes_module = self.load_module(f"casts.{self.cast_name}.modules.nodes")
+        if not nodes_module:
+            return False
+
+        # Find all node classes (look for classes with 'execute' method)
+        node_classes = []
+        for name in dir(nodes_module):
+            obj = getattr(nodes_module, name)
+            if (
+                isinstance(obj, type)
+                and hasattr(obj, "execute")
+                and name not in ["BaseNode", "AsyncBaseNode"]
+            ):
+                node_classes.append((name, obj))
+
+        if not node_classes:
+            self.warnings.append("No node classes found - did you implement any nodes?")
+            self.log("No node classes found - did you implement any nodes?", "warning")
+            return True
+
+        self.log(f"Found {len(node_classes)} node class(es)", "success")
+
+        # Validate each node
+        for node_name, node_class in node_classes:
+            self.log(f"Validating node: {node_name}", "info")
+
+            # Check for execute method
+            if not hasattr(node_class, "execute"):
+                self.errors.append(f"Node {node_name} missing execute() method")
+                self.log(f"Node {node_name} missing execute() method", "error")
+                continue
+
+            # Check if it's async or sync
+            import inspect
+
+            if inspect.iscoroutinefunction(node_class.execute):
+                self.log(f"{node_name} is an async node", "info")
+            else:
+                self.log(f"{node_name} is a sync node", "info")
+
+        return len(self.errors) == 0
+
+    def validate_graph(self) -> bool:
+        """Validate graph definition and compilation.
+
+        Returns:
+            True if graph is valid, False otherwise
+        """
+        self.log("\n=== Validating Graph Definition ===", "info")
+
+        graph_module = self.load_module(f"casts.{self.cast_name}.graph")
+        if not graph_module:
+            return False
+
+        # Find graph instance (look for objects with 'build' method)
+        graph_instance = None
+        for name in dir(graph_module):
+            obj = getattr(graph_module, name)
+            if hasattr(obj, "build") and not isinstance(obj, type):
+                graph_instance = obj
+                self.log(f"Found graph instance: {name}", "success")
+                break
+
+        if not graph_instance:
+            self.errors.append("No graph instance found with build() method")
+            self.log("No graph instance found with build() method", "error")
+            return False
+
+        # Try to build the graph
+        try:
+            compiled_graph = graph_instance.build()
+            self.log("Graph compiled successfully", "success")
+
+            # Validate graph has nodes
+            if hasattr(compiled_graph, "nodes"):
+                node_count = len(compiled_graph.nodes)
+                self.log(f"Graph has {node_count} node(s)", "info")
+                if node_count == 0:
+                    self.warnings.append("Graph has no nodes - did you add any?")
+                    self.log("Graph has no nodes - did you add any?", "warning")
+
+            return True
+
+        except Exception as e:
+            self.errors.append(f"Failed to build graph: {str(e)}")
+            self.log(f"Failed to build graph: {str(e)}", "error")
+            return False
 
     def validate(self) -> bool:
-        """Run all validations."""
-        print(f"\n🔍 Validating Cast: {self.cast_path.name}")
-        print("=" * 60)
+        """Run all validations.
 
-        # Check directory exists
-        if not self.cast_path.exists():
-            self.error(f"Cast directory not found: {self.cast_path}")
+        Returns:
+            True if all validations pass, False otherwise
+        """
+        print(f"\n{Colors.BOLD}Validating Cast: {self.cast_name}{Colors.END}\n")
+
+        # Run validations
+        structure_valid = self.validate_structure()
+        if not structure_valid:
+            self.log("\nStructure validation failed - cannot proceed", "error")
             return False
 
-        if not self.cast_path.is_dir():
-            self.error(f"Not a directory: {self.cast_path}")
-            return False
+        state_valid = self.validate_state()
+        nodes_valid = self.validate_nodes()
+        graph_valid = self.validate_graph()
 
-        # Run checks
-        self.check_required_files()
-        self.check_graph_py()
-        self.check_modules_dir()
-        self.check_state_py()
-        self.check_nodes_py()
-        self.check_optional_files()
-        self.check_pyproject_toml()
-
-        # Summary
-        print("\n" + "=" * 60)
-        print("📊 Validation Summary")
-        print("=" * 60)
+        # Print summary
+        print(f"\n{Colors.BOLD}=== Validation Summary ==={Colors.END}")
 
         if self.errors:
-            print(f"❌ Errors: {len(self.errors)}")
-            for err in self.errors:
-                print(f"   - {err}")
+            print(f"\n{Colors.RED}{Colors.BOLD}Errors:{Colors.END}")
+            for error in self.errors:
+                print(f"  {Colors.RED}✗{Colors.END} {error}")
 
         if self.warnings:
-            print(f"⚠️  Warnings: {len(self.warnings)}")
-            for warn in self.warnings:
-                print(f"   - {warn}")
+            print(f"\n{Colors.YELLOW}{Colors.BOLD}Warnings:{Colors.END}")
+            for warning in self.warnings:
+                print(f"  {Colors.YELLOW}⚠{Colors.END} {warning}")
 
-        if not self.errors and not self.warnings:
-            print("✅ All checks passed! Cast structure is valid.")
-            return True
-        elif not self.errors:
-            print("✅ No errors found. Warnings are informational.")
+        # Overall result
+        all_valid = structure_valid and state_valid and nodes_valid and graph_valid
+
+        if all_valid and not self.errors:
+            print(
+                f"\n{Colors.GREEN}{Colors.BOLD}✓ Cast validation passed!{Colors.END}\n"
+            )
             return True
         else:
-            print(f"\n❌ Validation failed with {len(self.errors)} error(s).")
+            print(f"\n{Colors.RED}{Colors.BOLD}✗ Cast validation failed{Colors.END}\n")
             return False
-
-    def check_required_files(self):
-        """Check required files exist."""
-        print("\n📁 Checking required files...")
-
-        required = [
-            ("graph.py", "Graph definition file"),
-            ("modules/", "Modules directory"),
-            ("modules/state.py", "State schema file"),
-            ("modules/nodes.py", "Node implementations file"),
-        ]
-
-        for file_path, description in required:
-            full_path = self.cast_path / file_path
-            if full_path.exists():
-                self.success(f"{description}: {file_path}")
-            else:
-                self.error(f"Missing {description}: {file_path}")
-
-    def check_graph_py(self):
-        """Check graph.py structure."""
-        print("\n📄 Checking graph.py...")
-
-        graph_file = self.cast_path / "graph.py"
-        if not graph_file.exists():
-            return
-
-        try:
-            with open(graph_file) as f:
-                content = f.read()
-                tree = ast.parse(content)
-
-            # Check for BaseGraph import
-            has_base_graph_import = any(
-                isinstance(node, ast.ImportFrom) and
-                node.module == "casts.base_graph" and
-                any(alias.name == "BaseGraph" for alias in node.names)
-                for node in ast.walk(tree)
-            )
-
-            if has_base_graph_import:
-                self.success("Imports BaseGraph")
-            else:
-                self.warning("BaseGraph not imported from casts.base_graph")
-
-            # Check for class extending BaseGraph
-            has_graph_class = any(
-                isinstance(node, ast.ClassDef) and
-                any(
-                    isinstance(base, ast.Name) and base.id == "BaseGraph" or
-                    isinstance(base, ast.Attribute) and base.attr == "BaseGraph"
-                    for base in node.bases
-                )
-                for node in ast.walk(tree)
-            )
-
-            if has_graph_class:
-                self.success("Defines class extending BaseGraph")
-            else:
-                self.error("No class found extending BaseGraph")
-
-            # Check for build method
-            has_build_method = any(
-                isinstance(node, ast.FunctionDef) and node.name == "build"
-                for node in ast.walk(tree)
-            )
-
-            if has_build_method:
-                self.success("Implements build() method")
-            else:
-                self.error("Missing build() method in graph class")
-
-        except SyntaxError as e:
-            self.error(f"Syntax error in graph.py: {e}")
-
-    def check_modules_dir(self):
-        """Check modules directory."""
-        print("\n📁 Checking modules/...")
-
-        modules_dir = self.cast_path / "modules"
-        if not modules_dir.exists():
-            return
-
-        # Check for __init__.py
-        init_file = modules_dir / "__init__.py"
-        if init_file.exists():
-            self.success("__init__.py exists")
-        else:
-            self.warning("Missing __init__.py in modules/")
-
-    def check_state_py(self):
-        """Check state.py structure."""
-        print("\n📄 Checking modules/state.py...")
-
-        state_file = self.cast_path / "modules" / "state.py"
-        if not state_file.exists():
-            return
-
-        try:
-            with open(state_file) as f:
-                content = f.read()
-                tree = ast.parse(content)
-
-            # Check for dataclass usage
-            has_dataclass = any(
-                isinstance(node, ast.ClassDef) and
-                any(
-                    isinstance(decorator, ast.Name) and decorator.id == "dataclass" or
-                    isinstance(decorator, ast.Call) and
-                    isinstance(decorator.func, ast.Name) and
-                    decorator.func.id == "dataclass"
-                    for decorator in node.decorator_list
-                )
-                for node in ast.walk(tree)
-            )
-
-            if has_dataclass:
-                self.success("Uses @dataclass decorator")
-            else:
-                self.warning("State classes should use @dataclass")
-
-            # Check for State classes
-            class_names = [
-                node.name for node in ast.walk(tree)
-                if isinstance(node, ast.ClassDef)
-            ]
-
-            expected_classes = ["InputState", "OutputState", "State"]
-            for cls in expected_classes:
-                if cls in class_names:
-                    self.success(f"Defines {cls}")
-                else:
-                    self.warning(f"Missing {cls} class (recommended)")
-
-        except SyntaxError as e:
-            self.error(f"Syntax error in state.py: {e}")
-
-    def check_nodes_py(self):
-        """Check nodes.py structure."""
-        print("\n📄 Checking modules/nodes.py...")
-
-        nodes_file = self.cast_path / "modules" / "nodes.py"
-        if not nodes_file.exists():
-            return
-
-        try:
-            with open(nodes_file) as f:
-                content = f.read()
-                tree = ast.parse(content)
-
-            # Check for BaseNode import
-            has_base_node_import = any(
-                isinstance(node, ast.ImportFrom) and
-                node.module == "casts.base_node" and
-                any(alias.name in ["BaseNode", "AsyncBaseNode"] for alias in node.names)
-                for node in ast.walk(tree)
-            )
-
-            if has_base_node_import:
-                self.success("Imports BaseNode or AsyncBaseNode")
-            else:
-                self.warning("BaseNode not imported from casts.base_node")
-
-            # Check for node classes
-            node_classes = [
-                node.name for node in ast.walk(tree)
-                if isinstance(node, ast.ClassDef) and
-                any(
-                    isinstance(base, ast.Name) and base.id in ["BaseNode", "AsyncBaseNode"]
-                    for base in node.bases
-                )
-            ]
-
-            if node_classes:
-                self.success(f"Defines {len(node_classes)} node class(es)")
-                for cls in node_classes:
-                    self.log(f"Found node: {cls}")
-            else:
-                self.error("No node classes found extending BaseNode")
-
-            # Check for execute methods
-            has_execute = any(
-                isinstance(node, ast.FunctionDef) and node.name == "execute"
-                for node in ast.walk(tree)
-            )
-
-            if has_execute:
-                self.success("Implements execute() method")
-            else:
-                self.error("No execute() method found in nodes")
-
-        except SyntaxError as e:
-            self.error(f"Syntax error in nodes.py: {e}")
-
-    def check_optional_files(self):
-        """Check optional module files."""
-        print("\n📄 Checking optional files...")
-
-        optional_files = [
-            "modules/agents.py",
-            "modules/tools.py",
-            "modules/prompts.py",
-            "modules/models.py",
-            "modules/conditions.py",
-            "modules/utils.py",
-        ]
-
-        found_optional = []
-        for file_path in optional_files:
-            full_path = self.cast_path / file_path
-            if full_path.exists():
-                found_optional.append(file_path)
-
-        if found_optional:
-            self.success(f"Found {len(found_optional)} optional module(s)")
-            for file_path in found_optional:
-                self.log(f"Optional: {file_path}")
-        else:
-            self.log("No optional modules (this is fine)")
-
-    def check_pyproject_toml(self):
-        """Check pyproject.toml if it exists."""
-        print("\n📄 Checking pyproject.toml...")
-
-        pyproject_file = self.cast_path / "pyproject.toml"
-        if pyproject_file.exists():
-            self.success("pyproject.toml exists")
-
-            # Check content
-            with open(pyproject_file) as f:
-                content = f.read()
-
-            if "[project]" in content:
-                self.success("Has [project] section")
-            else:
-                self.warning("Missing [project] section in pyproject.toml")
-
-            if f'name = "{self.cast_path.name}"' in content:
-                self.success(f"Package name matches directory: {self.cast_path.name}")
-            else:
-                self.warning(f"Package name should match directory: {self.cast_path.name}")
-        else:
-            self.warning("No pyproject.toml (needed for workspace)")
 
 
 def main():
-    """Main entry point."""
+    """Main entry point for the validation script."""
     parser = argparse.ArgumentParser(
-        description="Validate Cast structure and files",
+        description="Validate Cast structure and implementation",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python scripts/validate_cast.py casts/my_cast
-  python scripts/validate_cast.py casts/my_cast --verbose
-        """
+  python validate_cast.py my_cast
+  python validate_cast.py my_cast --verbose
+        """,
     )
-
+    parser.add_argument("cast_name", help="Name of the cast to validate")
     parser.add_argument(
-        "cast_path",
-        type=Path,
-        help="Path to Cast directory (e.g., casts/my_cast)"
-    )
-
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Show detailed validation steps"
+        "-v", "--verbose", action="store_true", help="Enable verbose output"
     )
 
     args = parser.parse_args()
 
-    # Validate
-    validator = CastValidator(args.cast_path, verbose=args.verbose)
+    validator = CastValidator(args.cast_name, verbose=args.verbose)
     success = validator.validate()
 
-    # Exit code
     sys.exit(0 if success else 1)
 
 
