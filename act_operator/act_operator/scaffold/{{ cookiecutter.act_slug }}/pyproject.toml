@@ -7,7 +7,6 @@ requires-python = ">=3.11"
 dependencies = [
     "langchain>=1.0.0",
     "langgraph>=1.0.0",
-    "act_operator>=0.1.0",
 ]
 
 [dependency-groups]
@@ -21,6 +20,7 @@ lint = [
 ]
 dev = [
     "ipykernel",
+    "act_operator>=0.1.0",
     {include-group = "test"},
     {include-group = "lint"},
 ]

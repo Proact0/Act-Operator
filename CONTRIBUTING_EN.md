@@ -95,6 +95,98 @@ uv run pytest -q
 - If a change affects users, update `README.md` or related guides accordingly.
 - Check whether scaffold templates (`act_operator/act_operator/scaffold/`) need updates in `README.md` or `TEMPLATE_README.md`.
 
+## Contributing to Claude Agent Skills
+
+The Act Operator scaffold includes Skills that help Claude Agent support Cast development. This section guides you on how to improve existing Skills or add new ones.
+
+### Skill Structure
+
+Each Skill follows this directory structure:
+
+```
+.claude/skills/<skill-name>/
+├── SKILL.md          # Skill main document (required)
+├── references/       # Reference documents (optional)
+│   └── *.md
+├── scripts/          # Utility scripts (optional)
+│   └── *.py
+└── assets/           # Example files (optional)
+    └── *.txt, *.py, etc.
+```
+
+### Improving Existing Skills
+
+**SKILL.md Writing Guide:**
+- **Required Frontmatter**: Include `name` and `description` in YAML frontmatter
+  ```yaml
+  ---
+  name: skill-name
+  description: Clear and concise description - include when to use this skill
+  ---
+  ```
+- **Clear Usage Scenarios**: Specify usage scenarios with "Use this skill when:" section
+- **Structured Content**: Choose appropriate structure from Workflow/Task/Reference patterns
+- **Practical Examples**: Include code samples, checklists, step-by-step guides
+- **Reference Links**: Mention related `references/`, `scripts/`, `assets/` files
+
+**references/ Documents:**
+- API references, best practices, pattern guides, etc.
+- Write in Markdown format
+- Link appropriately from the Skill's main document
+
+**scripts/ Utilities:**
+- Validation, automation, helper scripts, etc.
+- Python scripts recommended
+- Should be executable independently or usable within Skill context
+
+**assets/ Examples:**
+- Templates, configuration files, example code, etc.
+- Real, usable examples referenced in Skill documentation
+
+### Adding a New Skill
+
+1. **Create Skill Directory**
+   ```bash
+   mkdir -p act_operator/act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/<skill-name>/{references,scripts,assets}
+   ```
+
+2. **Write SKILL.md**
+   - Reference existing Skills (`cast-development`, `act-setup`, etc.) for structure
+   - Include clear name and description in frontmatter
+   - Include usage scenarios, workflows, examples
+
+3. **Add Required Resources**
+   - `references/`: Related documents
+   - `scripts/`: Utility scripts
+   - `assets/`: Example files
+
+4. **Test and Validate**
+   - Verify the Skill works correctly in actual Claude Agent
+   - Validate that examples in documentation are accurate
+
+### Skill Contribution Checklist
+
+- [ ] SKILL.md includes frontmatter (`name`, `description`)
+- [ ] "Use this skill when:" section clearly describes usage scenarios
+- [ ] Structured content (Workflow/Task/Reference, etc.)
+- [ ] Practical examples and code samples included
+- [ ] Links to related references/scripts/assets files
+- [ ] Consistent style with existing Skills
+- [ ] Verify all links and references in documentation are accurate
+
+### Existing Skills List
+
+Currently included Skills:
+- **cast-development**: Cast module development (nodes, state, graph implementation)
+- **act-setup**: Act project setup and uv workspace management
+- **graph-composition**: Graph composition and edge connections
+- **modules-integration**: Module integration (agents, tools, prompts, etc.)
+- **node-implementation**: Node implementation patterns and best practices
+- **state-management**: State management and schema definition
+- **testing-debugging**: Test writing and debugging
+
+Please update this list when adding new Skills.
+
 ## Issue Templates
 - Use templates under `.github/ISSUE_TEMPLATE`.
   - **Backlog / Feature Request**: propose new features, define tasks/steps.
