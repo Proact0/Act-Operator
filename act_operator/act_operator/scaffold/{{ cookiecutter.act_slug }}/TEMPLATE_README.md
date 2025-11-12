@@ -124,12 +124,15 @@ To add a new graph/feature as a separate Cast, use the `act cast` command. Act O
 
 ```bash
 # Ensure dev dependencies are installed
-uv sync --group dev
+uv sync --dev
 
 # Add a new Cast (interactive mode)
 uv run act cast
 
-# Or with options
+# Or specify cast name directly
+uv run act cast my-new-cast
+
+# Or with full options
 uv run act cast --path . --cast-name "New Cast Name"
 ```
 
@@ -141,11 +144,8 @@ uv run act cast --path . --cast-name "New Cast Name"
 
 **After creating:**
 ```bash
-# Install the new Cast
-uv sync --package new_cast_name
-
-# Verify and start development
-uv run langgraph dev
+# Install all packages (includes new Cast)
+uv sync --all-packages
 ```
 
 ## Testing and Quality Management
@@ -312,12 +312,15 @@ uv run langgraph dev --tunnel
 
 ```bash
 # dev 의존성이 설치되어 있는지 확인
-uv sync --group dev
+uv sync --dev
 
 # 새 Cast 추가 (대화형 모드)
 uv run act cast
 
-# 또는 옵션과 함께
+# 또는 Cast 이름을 직접 지정
+uv run act cast my-new-cast
+
+# 또는 전체 옵션과 함께
 uv run act cast --path . --cast-name "새 Cast 이름"
 ```
 
@@ -329,11 +332,8 @@ uv run act cast --path . --cast-name "새 Cast 이름"
 
 **Cast 생성 후:**
 ```bash
-# 새 Cast 설치
-uv sync --package new_cast_name
-
-# 검증 및 개발 시작
-uv run langgraph dev
+# 모든 패키지 설치 (새 Cast 포함)
+uv sync --all-packages
 ```
 
 ## 테스트 및 품질 관리

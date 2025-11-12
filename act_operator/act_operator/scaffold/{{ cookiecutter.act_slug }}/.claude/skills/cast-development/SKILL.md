@@ -26,11 +26,16 @@ A Cast is an independent LangGraph graph module with:
 # Interactive mode (recommended)
 uv run act cast
 
-# With options
+# Or specify cast name directly
+uv run act cast my-new-cast
+
+# With full options
 uv run act cast --path . --cast-name "My New Cast"
 ```
 
 The `act cast` command scaffolds a complete Cast structure automatically.
+
+**For project setup and uv workspace management**, use the `act-setup` skill.
 
 ## Workflow
 
@@ -183,15 +188,22 @@ cd /path/to/my-act
 
 # Run interactive Cast creation
 uv run act cast
+
+# Or specify name directly
+uv run act cast data-processing
 ```
 
-The interactive prompt will ask for:
+The interactive prompt (if no name provided) will ask for:
 - Cast name (e.g., "Data Processing")
 - Automatically generates: slug (`data-processing`), snake (`data_processing`), pascal (`DataProcessing`)
 
 ### Non-Interactive Mode
 
 ```bash
+# With cast name as argument
+uv run act cast my-new-cast
+
+# With full options
 uv run act cast --path . --cast-name "Data Processing"
 ```
 
@@ -225,24 +237,17 @@ uv run act cast --path . --cast-name "Data Processing"
    - Adds new graph entry automatically
    - Example: `"data-processing": "./casts/data_processing/graph.py:data_processing_graph"`
 
-4. **Configures** workspace:
-   - Creates Cast `pyproject.toml` as workspace member
-   - Ready for `uv sync --package data_processing`
-
 ### After Creating Cast
 
 ```bash
-# Install new Cast
-uv sync --package data_processing
+# Install all packages (includes new Cast)
+uv sync --all-packages
 
 # Verify structure
 python scripts/validate_cast.py casts/data_processing
-
-# Start development
-uv run langgraph dev
 ```
 
-The new Cast will appear in LangGraph Studio immediately.
+The new Cast will appear in LangGraph Studio immediately after sync.
 
 ## Common Patterns
 
@@ -328,17 +333,13 @@ casts/{{ cookiecutter.cast_snake }}/
 **Detailed documentation:**
 - Base classes API: [references/base_classes.md]
 - LangGraph patterns: [references/langgraph_patterns.md]
-- Workspace management: [references/workspace_guide.md]
-
-**Complete examples:**
-- Simple Cast: [examples/simple_cast/]
-- Advanced Cast with agent: [examples/advanced_cast/]
 
 **Tools:**
 - Validation: `python scripts/validate_cast.py <cast-path>`
 
 ## Next Steps
 
+- Project setup & uv workspace: Use `act-setup` skill
 - State design patterns: Use `state-management` skill
 - Node implementation: Use `node-implementation` skill
 - Graph composition: Use `graph-composition` skill
