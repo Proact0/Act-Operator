@@ -21,6 +21,17 @@ A Cast is an independent LangGraph graph module with:
   - **nodes.py** (required): Node implementations
   - agents.py, conditions.py, models.py, prompts.py, tools.py, utils.py (optional)
 
+**Creating a new Cast:**
+```bash
+# Interactive mode (recommended)
+uv run act cast
+
+# With options
+uv run act cast --path . --cast-name "My New Cast"
+```
+
+The `act cast` command scaffolds a complete Cast structure automatically.
+
 ## Workflow
 
 Copy this checklist and track your progress:
@@ -159,6 +170,79 @@ python scripts/validate_cast.py casts/{{ cookiecutter.cast_snake }}
 ```
 
 If validation fails, review errors and fix issues before continuing.
+
+## Adding New Cast
+
+To add a new Cast to your existing Act project, use the `act cast` command:
+
+### Interactive Mode (Recommended)
+
+```bash
+# Navigate to your Act project root
+cd /path/to/my-act
+
+# Run interactive Cast creation
+uv run act cast
+```
+
+The interactive prompt will ask for:
+- Cast name (e.g., "Data Processing")
+- Automatically generates: slug (`data-processing`), snake (`data_processing`), pascal (`DataProcessing`)
+
+### Non-Interactive Mode
+
+```bash
+uv run act cast --path . --cast-name "Data Processing"
+```
+
+### What `act cast` Does
+
+1. **Validates** Act project structure:
+   - Checks for `pyproject.toml`
+   - Checks for `langgraph.json`
+   - Verifies `casts/base_node.py` and `casts/base_graph.py` exist
+
+2. **Creates** complete Cast structure:
+   ```
+   casts/data_processing/
+   ├── __init__.py
+   ├── graph.py
+   ├── pyproject.toml
+   ├── README.md
+   └── modules/
+       ├── __init__.py
+       ├── state.py        # Required
+       ├── nodes.py        # Required
+       ├── agents.py       # Optional (template)
+       ├── conditions.py   # Optional (template)
+       ├── models.py       # Optional (template)
+       ├── prompts.py      # Optional (template)
+       ├── tools.py        # Optional (template)
+       └── utils.py        # Optional (template)
+   ```
+
+3. **Updates** `langgraph.json`:
+   - Adds new graph entry automatically
+   - Example: `"data-processing": "./casts/data_processing/graph.py:data_processing_graph"`
+
+4. **Configures** workspace:
+   - Creates Cast `pyproject.toml` as workspace member
+   - Ready for `uv sync --package data_processing`
+
+### After Creating Cast
+
+```bash
+# Install new Cast
+uv sync --package data_processing
+
+# Verify structure
+python scripts/validate_cast.py casts/data_processing
+
+# Start development
+uv run langgraph dev
+```
+
+The new Cast will appear in LangGraph Studio immediately.
 
 ## Common Patterns
 

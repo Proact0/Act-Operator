@@ -204,13 +204,37 @@ uv run python scripts/my_script.py
 
 ### Adding New Cast
 
+**Recommended: Use `act cast` command**
+
+```bash
+# Interactive mode (recommended)
+uv run act cast
+
+# Non-interactive mode
+uv run act cast --path . --cast-name "New Cast"
+```
+
 When you run `act cast`, it automatically:
 
-1. Creates Cast directory with `pyproject.toml`
-2. Registers Cast in `langgraph.json`
-3. Cast becomes workspace member automatically
+1. **Validates** Act project structure
+   - Checks for `pyproject.toml`, `langgraph.json`
+   - Verifies `casts/base_node.py` and `casts/base_graph.py` exist
 
-**Manual steps if needed:**
+2. **Creates** complete Cast structure:
+   - Cast directory with all module files
+   - `pyproject.toml` as workspace member
+   - `graph.py`, `modules/state.py`, `modules/nodes.py` (required)
+   - Optional module templates (agents, tools, prompts, etc.)
+
+3. **Updates** `langgraph.json`:
+   - Adds new graph entry automatically
+   - Example: `"new-cast": "./casts/new_cast/graph.py:new_cast_graph"`
+
+4. **Workspace integration**:
+   - Cast becomes workspace member automatically
+   - Ready for `uv sync --package new_cast`
+
+**Manual steps (only if `act cast` is not available):**
 
 ```bash
 # 1. Create Cast directory
@@ -225,7 +249,13 @@ requires-python = ">=3.11"
 dependencies = []
 EOF
 
-# 3. Sync workspace
+# 3. Create required files (state.py, nodes.py, graph.py)
+# ... (copy from template)
+
+# 4. Update langgraph.json
+# ... (add graph entry)
+
+# 5. Sync workspace
 uv sync --package new_cast
 ```
 

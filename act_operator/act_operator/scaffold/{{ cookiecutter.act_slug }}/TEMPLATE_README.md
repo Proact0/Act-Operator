@@ -120,17 +120,33 @@ To stop: Press `Ctrl + C` (Windows) or `Cmd + C` (macOS) in the terminal
 
 ## Adding a New Cast
 
-To add a new graph/feature as a separate Cast, scaffold the Cast by specifying the project root path in an environment where Act Operator is installed.
+To add a new graph/feature as a separate Cast, use the `act cast` command. Act Operator is already included in the `dev` dependency group.
 
 ```bash
-# (In a separate environment) Install Act Operator
-uv add act-operator
+# Ensure dev dependencies are installed
+uv sync --group dev
 
-# Add a new Cast to the current project
+# Add a new Cast (interactive mode)
 uv run act cast
+
+# Or with options
+uv run act cast --path . --cast-name "New Cast Name"
 ```
 
-> Using `act cast` will automatically update `langgraph.json` (graph registry).
+**What happens:**
+- Validates Act project structure
+- Creates complete Cast directory with all required files
+- Updates `langgraph.json` automatically
+- Configures Cast as workspace member
+
+**After creating:**
+```bash
+# Install the new Cast
+uv sync --package new_cast_name
+
+# Verify and start development
+uv run langgraph dev
+```
 
 ## Testing and Quality Management
 
@@ -292,17 +308,33 @@ uv run langgraph dev --tunnel
 
 ## 새 Cast 추가
 
-새로운 그래프/기능을 별도 Cast로 추가하려면 Act Operator를 설치한 환경에서 프로젝트 루트 경로를 지정해 Cast를 스캐폴딩합니다.
+새로운 그래프/기능을 별도 Cast로 추가하려면 `act cast` 명령을 사용합니다. Act Operator는 이미 `dev` 의존성 그룹에 포함되어 있습니다.
 
 ```bash
-# (별도 환경에서) Act Operator 설치
-uv add act-operator
+# dev 의존성이 설치되어 있는지 확인
+uv sync --group dev
 
-# 현재 프로젝트에 새 Cast 추가
+# 새 Cast 추가 (대화형 모드)
 uv run act cast
+
+# 또는 옵션과 함께
+uv run act cast --path . --cast-name "새 Cast 이름"
 ```
 
-> `act cast`를 사용하면 `langgraph.json`(그래프 레지스트리)이 자동 갱신됩니다.
+**수행 내용:**
+- Act 프로젝트 구조 검증
+- 필수 파일이 포함된 완전한 Cast 디렉터리 생성
+- `langgraph.json` 자동 업데이트
+- Cast를 workspace member로 구성
+
+**Cast 생성 후:**
+```bash
+# 새 Cast 설치
+uv sync --package new_cast_name
+
+# 검증 및 개발 시작
+uv run langgraph dev
+```
 
 ## 테스트 및 품질 관리
 
