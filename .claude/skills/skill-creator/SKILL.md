@@ -89,7 +89,7 @@ Skills use a three-level loading system to manage context efficiently:
 
 To create a skill, follow the "Skill Creation Process" in order, skipping steps only if there is a clear reason why they are not applicable.
 
-See [skill_best_practices](skill_best_practices.md) to develop effective technology.
+**See [skill_best_practices](skill_best_practices.md) to develop effective technology.**
 
 ### Step 1: Understanding the Skill with Concrete Examples
 

@@ -7,13 +7,13 @@ requires-python = ">=3.11"
 dependencies = [
     "langchain>=1.0.0",
     "langgraph>=1.0.0",
+    "act_operator>=0.1.0",
 ]
 
 [dependency-groups]
 test = [
     "pytest",
-    "langgraph-cli; python_version < '3.14'",
-    "langgraph-cli[inmem]; python_version < '3.14'",
+    "langgraph-cli[inmem]",
 ]
 lint = [
     "pre-commit",
