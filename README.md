@@ -1,6 +1,6 @@
 # Act Operator
 
-Act Operator는 `cookiecutter`로 LangGraph 기반의 “Act - AX Template” 블루프린트를 신속히 부트스트랩하기 위한 Proact0의 CLI입니다. 이 도구는 Act 프로젝트를 생성하는 `act new`와, 기존 블루프린트에 추가 캐스트를 스캐폴딩하는 `act cast` 명령을 제공합니다.
+Act Operator는 `cookiecutter`로 `LangChain & LangGraph >= 1.0` 기반의 “Act - AX Template” 블루프린트를 신속히 부트스트랩하기 위한 Proact0의 CLI입니다. 이 도구는 Act 프로젝트를 생성하는 `act new`와, 기존 블루프린트에 추가 캐스트를 스캐폴딩하는 `act cast` 명령을 제공합니다.
 
 ## 주요 기능
 

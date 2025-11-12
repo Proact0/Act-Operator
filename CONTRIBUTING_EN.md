@@ -6,7 +6,7 @@ Thank you for your interest in contributing to Act Operator! We welcome all form
 
 ## Types of Contributions
 - **Bug Reports**: Use the issue templates and include reproduction steps, environment, expected vs actual behavior.
-- **Documentation Improvements**: Update README/guides/examples; fix typos and clarify phrasing.
+- **Documentation Improvements**: Update Claude Skills/README/guides/examples; fix typos and clarify phrasing.
 - **Tests**: Add unit/integration tests for new or changed functionality.
 - **Feature Proposals/Implementations**: Split into small, reviewable PRs with clear goals.
 - **Developer Experience/Performance**: Improve linting/build/run flows or runtime efficiency when appropriate.

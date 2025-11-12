@@ -1,6 +1,6 @@
 # Act Operator
 
-Act Operator is Proact0’s CLI for bootstrapping LangGraph-based “Act - AX Template” blueprints with `cookiecutter`. The tool exposes `act new` to build an Act project and `act cast` to scaffold additional casts inside an existing blueprint.
+Act Operator is Proact0’s CLI for bootstrapping `LangChain & LangGraph >= 1.0 based` “Act - AX Template” blueprints with `cookiecutter`. The tool exposes `act new` to build an Act project and `act cast` to scaffold additional casts inside an existing blueprint.
 
 ## Key Features
 

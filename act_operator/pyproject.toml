@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "act-operator"
 dynamic = ["version"]
-description = "Proact0’s CLI for bootstrapping LangGraph-based “Act - AX Template” blueprints with `cookiecutter`."
+description = "Proact0’s CLI for bootstrapping LangGraph-based “Act - AX Template” blueprints."
 requires-python = ">=3.12"
 authors = [
     { name = "Joongheon Park" }

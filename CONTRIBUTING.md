@@ -6,7 +6,7 @@ Act Operator 오픈소스 프로젝트에 관심 가져주셔서 감사합니다
 
 ## 기여 유형
 - **버그 리포트**: 재현 절차/환경/예상 동작/실제 동작을 포함해 이슈 템플릿으로 등록
-- **문서 개선**: README/가이드/예제 보완, 오탈자/표현 개선
+- **문서 개선**: Claude Skills/README/가이드/예제 보완, 오탈자/표현 개선
 - **테스트 보강**: 신규/변경 기능에 대한 단위/통합 테스트 추가
 - **기능 제안/구현**: 작은 단위로 나눠 명확한 PR로 제안/구현
 - **개발자 경험/성능 개선**: 린팅/타입/빌드/실행 흐름 최적화
@@ -42,10 +42,10 @@ uv sync --dev
 uv run pytest
 
 # CLI 사용 예시: 새 Act 프로젝트 생성
-uv run act new --path ./my-act --act-name "My Act" --cast-name "Main Cast"
+uv run act new
 
 # CLI 사용 예시: 기존 프로젝트에 Cast 추가
-uv run act cast --path ./my-act --cast-name "Support Cast"
+uv run act cast
 
 # 빌드 산출물 생성 (배포 전 점검용)
 uv build
