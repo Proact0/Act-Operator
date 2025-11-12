@@ -93,6 +93,98 @@ uv run pytest -q
 - 사용자에 영향이 있는 변경은 `README.md` 또는 관련 가이드를 함께 업데이트합니다.
 - 스캐폴드 템플릿(`act_operator/act_operator/scaffold/`)의 `README.md`/`TEMPLATE_README.md`도 변경 반영이 필요한지 확인합니다.
 
+## Claude Agent Skill 기여
+
+Act Operator 스캐폴드에는 Claude Agent가 Cast 개발을 지원하기 위한 Skill들이 포함되어 있습니다. 이 Skill들을 개선하거나 새로운 Skill을 추가하는 방법을 안내합니다.
+
+### Skill 구조
+
+각 Skill은 다음 디렉터리 구조를 따릅니다:
+
+```
+.claude/skills/<skill-name>/
+├── SKILL.md          # Skill 메인 문서 (필수)
+├── references/       # 참조 문서들 (선택)
+│   └── *.md
+├── scripts/          # 유틸리티 스크립트들 (선택)
+│   └── *.py
+└── assets/           # 예제 파일들 (선택)
+    └── *.txt, *.py, etc.
+```
+
+### 기존 Skill 개선
+
+**SKILL.md 작성 가이드:**
+- **Frontmatter 필수**: YAML frontmatter에 `name`과 `description` 포함
+  ```yaml
+  ---
+  name: skill-name
+  description: 명확하고 간결한 설명 - 언제 이 skill을 사용해야 하는지 포함
+  ---
+  ```
+- **명확한 사용 시점**: "Use this skill when:" 섹션으로 사용 시나리오 명시
+- **구조화된 내용**: Workflow/Task/Reference 패턴 중 적합한 구조 선택
+- **실용적인 예제**: 코드 샘플, 체크리스트, 단계별 가이드 포함
+- **참조 연결**: 관련 `references/`, `scripts/`, `assets/` 파일 언급
+
+**references/ 문서:**
+- API 레퍼런스, 베스트 프랙티스, 패턴 가이드 등
+- Markdown 형식으로 작성
+- Skill의 메인 문서에서 적절히 링크
+
+**scripts/ 유틸리티:**
+- 검증, 자동화, 헬퍼 스크립트 등
+- Python 스크립트 권장
+- 독립 실행 가능하거나 Skill 컨텍스트에서 사용 가능해야 함
+
+**assets/ 예제:**
+- 템플릿, 설정 파일, 예제 코드 등
+- Skill 문서에서 참조되는 실제 사용 가능한 예제
+
+### 새 Skill 추가
+
+1. **Skill 디렉터리 생성**
+   ```bash
+   mkdir -p act_operator/act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/<skill-name>/{references,scripts,assets}
+   ```
+
+2. **SKILL.md 작성**
+   - 기존 Skill들(`cast-development`, `act-setup` 등)을 참고하여 구조 작성
+   - Frontmatter에 명확한 name과 description 포함
+   - 사용 시점, 워크플로우, 예제 포함
+
+3. **필요한 리소스 추가**
+   - `references/`: 관련 문서
+   - `scripts/`: 유틸리티 스크립트
+   - `assets/`: 예제 파일
+
+4. **테스트 및 검증**
+   - Skill이 실제 Claude Agent에서 올바르게 작동하는지 확인
+   - 문서의 예제들이 정확한지 검증
+
+### Skill 기여 체크리스트
+
+- [ ] SKILL.md에 frontmatter(`name`, `description`) 포함
+- [ ] "Use this skill when:" 섹션으로 사용 시점 명확히 기술
+- [ ] 구조화된 내용(Workflow/Task/Reference 등)
+- [ ] 실용적인 예제 및 코드 샘플 포함
+- [ ] 관련 references/scripts/assets 파일과 연결
+- [ ] 기존 Skill들과 일관된 스타일 유지
+- [ ] 문서 내 링크 및 참조가 정확한지 확인
+
+### 기존 Skill 목록
+
+현재 포함된 Skill들:
+- **cast-development**: Cast 모듈 개발 (노드, 상태, 그래프 구현)
+- **act-setup**: Act 프로젝트 설정 및 uv 워크스페이스 관리
+- **graph-composition**: 그래프 구성 및 엣지 연결
+- **modules-integration**: 모듈 통합 (agents, tools, prompts 등)
+- **node-implementation**: 노드 구현 패턴 및 베스트 프랙티스
+- **state-management**: 상태 관리 및 스키마 정의
+- **testing-debugging**: 테스트 작성 및 디버깅
+
+새로운 Skill 추가 시 이 목록도 업데이트해주세요.
+
 ## 이슈 템플릿 사용
 - `.github/ISSUE_TEMPLATE`에 제공된 템플릿을 사용하세요.
   - **Backlog**: 기능 제안/백로그 산정/작업 단계 정의
