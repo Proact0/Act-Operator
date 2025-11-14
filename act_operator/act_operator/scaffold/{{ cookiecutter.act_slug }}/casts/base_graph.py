@@ -12,6 +12,7 @@ class BaseGraph(ABC):
     Attributes:
         name: Canonical name of the graph (class name by default).
     """
+
     def __init__(self) -> None:
         """Initializes the graph and assigns its canonical name."""
         self.name = self.__class__.__name__

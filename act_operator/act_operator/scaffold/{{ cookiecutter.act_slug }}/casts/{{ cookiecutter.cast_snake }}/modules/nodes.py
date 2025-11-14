@@ -11,7 +11,7 @@ Guidelines:
       * Flexible: `def execute(self, state, **kwargs)` - Access via kwargs.get()
     - Use `self.log()` for debugging when `verbose=True`.
 
-Official document URL: 
+Official document URL:
     - Nodes: https://docs.langchain.com/oss/python/langgraph/nodes
     - Async Nodes: https://docs.langchain.com/oss/python/langgraph/async-nodes
 """
@@ -28,6 +28,9 @@ class SampleNode(BaseNode):
         name: Canonical name of the node (class name by default).
         verbose: Flag indicating whether detailed logging is enabled.
     """
+
+    def __init__(self):
+        super().__init__()
 
     def execute(self, state):
         """Execute the sample node.
@@ -48,6 +51,9 @@ class AsyncSampleNode(AsyncBaseNode):
         name: Canonical name of the node (class name by default).
         verbose: Flag indicating whether detailed logging is enabled.
     """
+
+    def __init__(self):
+        super().__init__()
 
     async def execute(self, state):
         """Execute the sample node.

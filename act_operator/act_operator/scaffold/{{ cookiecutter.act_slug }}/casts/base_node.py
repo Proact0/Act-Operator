@@ -135,7 +135,11 @@ class BaseNode(ABC):
         # Log entry if verbose
         if self.verbose:
             thread_id = self.get_thread_id(config)
-            self.log("Executing", state_keys=list(state.keys()) if hasattr(state, 'keys') else None, thread_id=thread_id)
+            self.log(
+                "Executing",
+                state_keys=list(state.keys()) if hasattr(state, "keys") else None,
+                thread_id=thread_id,
+            )
 
         # Inspect execute signature to see what parameters it accepts
         sig = inspect.signature(self.execute)
@@ -149,7 +153,9 @@ class BaseNode(ABC):
             execute_kwargs["runtime"] = runtime
 
         # Add any additional kwargs if execute has **kwargs
-        has_var_keyword = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values())
+        has_var_keyword = any(
+            p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
+        )
         if has_var_keyword:
             execute_kwargs.update(kwargs)
 
@@ -283,7 +289,11 @@ class AsyncBaseNode(ABC):
         # Log entry if verbose
         if self.verbose:
             thread_id = self.get_thread_id(config)
-            self.log("Executing", state_keys=list(state.keys()) if hasattr(state, 'keys') else None, thread_id=thread_id)
+            self.log(
+                "Executing",
+                state_keys=list(state.keys()) if hasattr(state, "keys") else None,
+                thread_id=thread_id,
+            )
 
         # Inspect execute signature to see what parameters it accepts
         sig = inspect.signature(self.execute)
@@ -297,7 +307,9 @@ class AsyncBaseNode(ABC):
             execute_kwargs["runtime"] = runtime
 
         # Add any additional kwargs if execute has **kwargs
-        has_var_keyword = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values())
+        has_var_keyword = any(
+            p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
+        )
         if has_var_keyword:
             execute_kwargs.update(kwargs)
 

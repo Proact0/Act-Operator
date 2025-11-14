@@ -1,26 +1,19 @@
-"""[Required] State definition shared across Test graphs.
+"""[Required] State definition shared across {{ cookiecutter.cast_slug }} graphs.
 
 Guidelines:
-    - Create dataclass classes for input, output, and overall state.
-    - Use `kw_only=True` to make the classes immutable.
-    - Use `Annotated` to add metadata to the classes.
+    - Create TypedDict classes for input, output, overall state, and any other state you need.
+    - Use `MessagesState` from langgraph.graph or use `Annotated[list[AnyMessage], add_messages]` for messages to enable proper message merging.
+    - When inheriting from MessagesState, do not override the messages field.
 
-Official document URL: 
+Official document URL:
     - State: https://docs.langchain.com/oss/python/langgraph/graph-api#state
-    - Messages: https://docs.langchain.com/oss/python/langchain/messages
 """
 
-from __future__ import annotations
-
-from dataclasses import dataclass
-from typing import Annotated
-
-from langchain.messages import AnyMessage
-from langgraph.graph.message import add_messages
+from langgraph.graph import MessagesState
+from typing_extensions import TypedDict
 
 
-@dataclass(kw_only=True)
-class InputState:
+class InputState(TypedDict):
     """Input state container.
 
     Attributes:
@@ -30,25 +23,24 @@ class InputState:
     query: str
 
 
-@dataclass(kw_only=True)
-class OutputState:
+class OutputState(MessagesState):
     """Output state container.
 
     Attributes:
-        messages: Additional messages
+        messages: Additional messages (inherited from MessagesState)
     """
 
-    messages: Annotated[list[AnyMessage], add_messages]
+    # messages field is inherited from MessagesState
+    # It is defined as: messages: Annotated[list[AnyMessage], add_messages]
+    pass
 
 
-@dataclass(kw_only=True)
-class State:
+class State(MessagesState):
     """Graph state container.
 
     Attributes:
         query: User query
-        messages: Additional messages
+        messages: Additional messages (inherited from MessagesState)
     """
 
     query: str
-    messages: Annotated[list[AnyMessage], add_messages]

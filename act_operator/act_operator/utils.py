@@ -172,7 +172,11 @@ def render_cookiecutter_template(
         OSError: If rendering or moving files fails.
     """
     target_dir_exists = target_dir.exists()
-    output_root = target_dir.parent if not target_dir_exists else tempfile.mkdtemp(prefix="act_op_")
+    output_root = (
+        target_dir.parent
+        if not target_dir_exists
+        else tempfile.mkdtemp(prefix="act_op_")
+    )
 
     try:
         rendered_path = cookiecutter(
