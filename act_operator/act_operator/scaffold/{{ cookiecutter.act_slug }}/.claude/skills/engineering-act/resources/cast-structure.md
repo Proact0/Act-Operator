@@ -9,13 +9,11 @@ casts/
 ├── base_node.py           # BaseNode and AsyncBaseNode classes
 ├── base_graph.py          # BaseGraph class
 ├── __init__.py           # Export base classes
-│
 └── my_cast/              # Individual cast directory
     ├── __init__.py       # Export graph
     ├── graph.py          # Main graph implementation
     ├── pyproject.toml    # Cast-specific dependencies (optional)
     ├── README.md         # Cast documentation
-    │
     └── modules/          # Cast modules
         ├── __init__.py
         ├── state.py      # State schema (TypedDict)

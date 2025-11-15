@@ -20,7 +20,7 @@ uv remove langchain-openai
 
 # Sync environment
 uv sync              # Production dependencies
-uv sync --all-extras # Include dev/test/lint groups
+uv sync --all-packages --dev # Include dev/test/lint groups
 ```
 
 ### Cast Operations
@@ -29,16 +29,16 @@ uv sync --all-extras # Include dev/test/lint groups
 uv run act cast -c "My New Cast"
 
 # Create cast with full boilerplate (use script)
-uv run python .claude/skills/engineering-act/scripts/create_cast.py "My New Cast"
+uv run .claude/skills/engineering-act/scripts/create_cast.py "My New Cast"
 ```
 
 ### Project Status
 ```bash
 # Show project info
-uv run python .claude/skills/engineering-act/scripts/project_info.py
+uv run .claude/skills/engineering-act/scripts/project_info.py
 
 # Validate project structure
-uv run python .claude/skills/engineering-act/scripts/validate_project.py
+uv run .claude/skills/engineering-act/scripts/validate_project.py
 
 # List installed packages
 uv pip list
@@ -48,38 +48,29 @@ uv pip list
 
 All scripts in `.claude/skills/engineering-act/scripts/`:
 
-| Script | Purpose | Saves |
-|--------|---------|-------|
-| `create_cast.py` | Create cast with full boilerplate modules | ~300 tokens |
-| `project_info.py` | Display project status (packages, casts, Python version) | ~150 tokens |
-| `validate_project.py` | Check project structure and configuration | ~200 tokens |
-| `batch_dependencies.py` | Add/remove multiple packages at once | ~100 tokens |
-| `sync_check.py` | Sync environment and show changes | ~100 tokens |
+| Script | Purpose |
+|--------|---------|
+| `create_cast.py` | Create cast with full boilerplate modules |
+| `project_info.py` | Display project status (packages, casts, version) |
+| `validate_project.py` | Check project structure and configuration |
+| `batch_dependencies.py` | Add/remove multiple packages at once |
+| `sync_check.py` | Sync environment and show changes |
 
 **Usage Pattern:**
 ```bash
-uv run python .claude/skills/engineering-act/scripts/[SCRIPT_NAME].py --help
+uv run .claude/skills/engineering-act/scripts/[SCRIPT_NAME].py --help
 ```
 
 ## Quick Troubleshooting
 
-**Environment out of sync?**
+**Symptom:** Import errors, missing packages after editing pyproject.toml
+
+**Fix:**
 ```bash
-uv sync --all-extras
+uv sync --all-packages
 ```
 
-**Dependency conflict?**
-```bash
-uv lock --upgrade-package [package-name]
-uv sync
-```
-
-**Cast not recognized?**
-Check `pyproject.toml` has cast in workspace members:
-```toml
-[tool.uv.workspace]
-members = ["casts/*"]
-```
+**Explanation:** Environment doesn't match lockfile. `uv sync` installs missing packages and removes extras.
 
 **More issues?** See `resources/troubleshooting.md`
 
@@ -97,14 +88,14 @@ members = ["casts/*"]
 uv add langchain-experimental
 
 # Create new cast for implementation
-uv run python .claude/skills/engineering-act/scripts/create_cast.py "MyGraph"
+uv run .claude/skills/engineering-act/scripts/create_cast.py "MyGraph"
 
 # Proceed to developing-cast
 /developing-cast
 ```
 
 **Before developing-cast:**
-- Environment synced: `uv sync --all-extras`
+- Environment synced: `uv sync --all-packages --dev`
 - Cast structure created: Use `create_cast.py`
 - Dependencies installed: `uv add [packages]`
 
@@ -128,7 +119,7 @@ uv add langchain-community
 ### Development Setup
 ```bash
 # Sync all dependency groups
-uv sync --all-extras
+uv sync --all-packages --dev
 
 # Install pre-commit hooks
 uv run pre-commit install
@@ -160,7 +151,7 @@ uvx --from langgraph-cli langgraph dev
 
 ### ❌ Manual Cast File Creation
 **Problem:** Creating modules/state.py, modules/agents.py manually
-**Solution:** `uv run python .claude/skills/engineering-act/scripts/create_cast.py "CastName"`
+**Solution:** `uv run .claude/skills/engineering-act/scripts/create_cast.py "CastName"`
 
 ### ❌ Multiple uv add Commands
 **Problem:** `uv add pkg1 && uv add pkg2 && uv add pkg3`

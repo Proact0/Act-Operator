@@ -240,30 +240,30 @@ Navigate to these resources for decision-making guidance:
 
 ### Core Architecture Resources
 
-1. **`resources/workflow-patterns.md`** (< 2k tokens)
+1. **`resources/workflow-patterns.md`**
    - Decision framework for choosing ReAct, Plan-Execute, Reflection, Map-Reduce
    - When to use each pattern
    - Pattern combinations
 
-2. **`resources/state-design-guide.md`** (< 2k tokens)
+2. **`resources/state-design-guide.md`**
    - State schema design principles
    - Reducers and channels
    - Input/output state separation
    - State type best practices
 
-3. **`resources/node-architecture-guide.md`** (< 2k tokens)
+3. **`resources/node-architecture-guide.md`**
    - SOLID principles for nodes
    - Node decomposition strategies
    - Dependency management
    - Parallel vs sequential execution
 
-4. **`resources/edge-routing-guide.md`** (< 2k tokens)
+4. **`resources/edge-routing-guide.md`**
    - Conditional edge design
    - Routing function patterns
    - Loop and cycle management
    - Error handling flows
 
-5. **`resources/subgraph-decisions.md`** (< 2k tokens)
+5. **`resources/subgraph-decisions.md`**
    - When to use subgraphs
    - Composition patterns
    - Parent-child communication
@@ -271,7 +271,7 @@ Navigate to these resources for decision-making guidance:
 
 ### Quality Resources
 
-6. **`resources/anti-patterns.md`** (< 2k tokens)
+6. **`resources/anti-patterns.md`**
    - Common architectural mistakes
    - How to avoid them
    - Refactoring strategies

@@ -23,7 +23,6 @@ Usage:
 
 import argparse
 import json
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -76,7 +75,9 @@ def interactive_mode() -> dict[str, Any]:
 
     # Workflow Pattern
     print("\n--- Workflow Pattern ---")
-    print("Common patterns: ReAct, Plan-Execute, Reflection, Map-Reduce, Multi-Agent, Custom")
+    print(
+        "Common patterns: ReAct, Plan-Execute, Reflection, Map-Reduce, Multi-Agent, Custom"
+    )
     arch["workflow_pattern"] = prompt_user("Workflow pattern", "ReAct")
     arch["pattern_rationale"] = prompt_multiline("Why this pattern?")
 
@@ -90,11 +91,9 @@ def interactive_mode() -> dict[str, Any]:
             break
         field_type = prompt_user(f"  Type for '{field}'", "str")
         description = prompt_user(f"  Description for '{field}'")
-        arch["input_state"].append({
-            "name": field,
-            "type": field_type,
-            "description": description
-        })
+        arch["input_state"].append(
+            {"name": field, "type": field_type, "description": description}
+        )
 
     print("\nWorking State (intermediate data):")
     arch["working_state"] = []
@@ -105,12 +104,14 @@ def interactive_mode() -> dict[str, Any]:
         field_type = prompt_user(f"  Type for '{field}'", "str")
         reducer = prompt_user(f"  Reducer for '{field}' (or Enter for default)", "")
         description = prompt_user(f"  Description for '{field}'")
-        arch["working_state"].append({
-            "name": field,
-            "type": field_type,
-            "reducer": reducer,
-            "description": description
-        })
+        arch["working_state"].append(
+            {
+                "name": field,
+                "type": field_type,
+                "reducer": reducer,
+                "description": description,
+            }
+        )
 
     print("\nOutput State (what comes out):")
     arch["output_state"] = []
@@ -120,11 +121,9 @@ def interactive_mode() -> dict[str, Any]:
             break
         field_type = prompt_user(f"  Type for '{field}'", "str")
         description = prompt_user(f"  Description for '{field}'")
-        arch["output_state"].append({
-            "name": field,
-            "type": field_type,
-            "description": description
-        })
+        arch["output_state"].append(
+            {"name": field, "type": field_type, "description": description}
+        )
 
     # Nodes
     print("\n--- Nodes ---")
@@ -135,20 +134,23 @@ def interactive_mode() -> dict[str, Any]:
         if not node_name:
             break
         purpose = prompt_user(f"  Purpose of '{node_name}'")
-        reads = prompt_user(f"  State fields READ by '{node_name}' (comma-separated)", "").split(",")
+        reads = prompt_user(
+            f"  State fields READ by '{node_name}' (comma-separated)", ""
+        ).split(",")
         reads = [r.strip() for r in reads if r.strip()]
-        writes = prompt_user(f"  State fields WRITTEN by '{node_name}' (comma-separated)", "").split(",")
+        writes = prompt_user(
+            f"  State fields WRITTEN by '{node_name}' (comma-separated)", ""
+        ).split(",")
         writes = [w.strip() for w in writes if w.strip()]
-        arch["nodes"].append({
-            "name": node_name,
-            "purpose": purpose,
-            "reads": reads,
-            "writes": writes
-        })
+        arch["nodes"].append(
+            {"name": node_name, "purpose": purpose, "reads": reads, "writes": writes}
+        )
 
     # Edges
     print("\n--- Edges & Routing ---")
-    arch["edges"] = prompt_multiline("Describe edge flow (e.g., 'START → node1 → router → ...')")
+    arch["edges"] = prompt_multiline(
+        "Describe edge flow (e.g., 'START → node1 → router → ...')"
+    )
     arch["routing_logic"] = prompt_multiline("Describe routing/conditional logic")
 
     # Subgraphs
@@ -161,14 +163,13 @@ def interactive_mode() -> dict[str, Any]:
             if not subgraph_name:
                 break
             purpose = prompt_user(f"  Purpose of '{subgraph_name}'")
-            arch["subgraphs"].append({
-                "name": subgraph_name,
-                "purpose": purpose
-            })
+            arch["subgraphs"].append({"name": subgraph_name, "purpose": purpose})
 
     # Additional Notes
     print("\n--- Additional Notes ---")
-    arch["implementation_notes"] = prompt_multiline("Implementation notes/guidance (optional)")
+    arch["implementation_notes"] = prompt_multiline(
+        "Implementation notes/guidance (optional)"
+    )
     arch["error_handling"] = prompt_multiline("Error handling strategy (optional)")
 
     return arch
@@ -220,12 +221,16 @@ def format_state_table(state_fields: list[dict], include_reducer: bool = False) 
         lines.append("|-------|------|---------|-------------|")
         for field in state_fields:
             reducer = field.get("reducer", "default (override)")
-            lines.append(f'| `{field["name"]}` | `{field["type"]}` | {reducer} | {field["description"]} |')
+            lines.append(
+                f'| `{field["name"]}` | `{field["type"]}` | {reducer} | {field["description"]} |'
+            )
     else:
         lines.append("| Field | Type | Description |")
         lines.append("|-------|------|-------------|")
         for field in state_fields:
-            lines.append(f'| `{field["name"]}` | `{field["type"]}` | {field["description"]} |')
+            lines.append(
+                f'| `{field["name"]}` | `{field["type"]}` | {field["description"]} |'
+            )
 
     return "\n".join(lines)
 
@@ -237,7 +242,7 @@ def format_nodes_table(nodes: list[dict]) -> str:
 
     lines = [
         "| Node | Purpose | Reads | Writes |",
-        "|------|---------|-------|--------|"
+        "|------|---------|-------|--------|",
     ]
 
     for node in nodes:
@@ -270,7 +275,9 @@ def generate_claude_md(arch: dict[str, Any], template_path: Path) -> str:
         "{{WORKFLOW_PATTERN}}": arch.get("workflow_pattern", ""),
         "{{PATTERN_RATIONALE}}": arch.get("pattern_rationale", ""),
         "{{INPUT_STATE_TABLE}}": format_state_table(arch.get("input_state", [])),
-        "{{WORKING_STATE_TABLE}}": format_state_table(arch.get("working_state", []), include_reducer=True),
+        "{{WORKING_STATE_TABLE}}": format_state_table(
+            arch.get("working_state", []), include_reducer=True
+        ),
         "{{OUTPUT_STATE_TABLE}}": format_state_table(arch.get("output_state", [])),
         "{{NODES_TABLE}}": format_nodes_table(arch.get("nodes", [])),
         "{{EDGE_FLOW}}": arch.get("edges", ""),
@@ -369,33 +376,33 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate CLAUDE.md architecture document",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__
+        epilog=__doc__,
     )
 
     parser.add_argument(
-        "--interactive", "-i",
+        "--interactive",
+        "-i",
         action="store_true",
-        help="Interactive mode (recommended)"
+        help="Interactive mode (recommended)",
     )
 
     parser.add_argument(
-        "--config", "-c",
-        type=Path,
-        help="Load architecture from JSON config file"
+        "--config", "-c", type=Path, help="Load architecture from JSON config file"
     )
 
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=Path,
         default=Path("CLAUDE.md"),
-        help="Output file path (default: CLAUDE.md)"
+        help="Output file path (default: CLAUDE.md)",
     )
 
     parser.add_argument(
         "--template",
         type=Path,
         default=Path(__file__).parent.parent / "templates" / "CLAUDE.md.template",
-        help="Template file path"
+        help="Template file path",
     )
 
     # Quick mode arguments
@@ -426,7 +433,9 @@ def main():
             "routing_logic": "",
         }
     else:
-        parser.error("Must use --interactive, --config, or provide --cast-name, --purpose, and --workflow-pattern")
+        parser.error(
+            "Must use --interactive, --config, or provide --cast-name, --purpose, and --workflow-pattern"
+        )
 
     # Generate CLAUDE.md
     content = generate_claude_md(arch, args.template)

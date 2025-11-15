@@ -4,18 +4,6 @@ Common issues and fixes for Act projects.
 
 ## Environment Issues
 
-### Environment Out of Sync
-**Symptom:** Import errors, missing packages after editing pyproject.toml
-
-**Fix:**
-```bash
-uv sync --all-extras
-```
-
-**Explanation:** Environment doesn't match lockfile. `uv sync` installs missing packages and removes extras.
-
----
-
 ### Module Not Found After Adding Package
 **Symptom:** `ModuleNotFoundError` despite running `uv add`
 
@@ -24,7 +12,7 @@ uv sync --all-extras
 2. Is package in pyproject.toml dependencies?
 3. Try explicit sync:
 ```bash
-uv sync
+uv sync --all-packages
 ```
 
 ---
@@ -34,7 +22,7 @@ uv sync
 
 **Fix:**
 ```bash
-uv sync
+uv sync --all-packages
 ```
 
 Creates `.venv/` and installs dependencies.
@@ -49,7 +37,7 @@ Creates `.venv/` and installs dependencies.
 **Fix 1:** Upgrade conflicting package
 ```bash
 uv lock --upgrade-package [conflicting-package]
-uv sync
+uv sync --all-packages
 ```
 
 **Fix 2:** Add with specific version
@@ -69,7 +57,7 @@ uv pip show [package]  # Check current version
 
 **Fix:**
 ```bash
-uv sync  # Automatically removes orphans
+uv sync --all-packages  # Automatically removes orphans
 ```
 
 `uv sync` in exact mode (default) removes packages not in lockfile.
@@ -82,10 +70,8 @@ uv sync  # Automatically removes orphans
 **Fix:**
 ```bash
 uv lock
-uv sync
+uv sync --all-packages
 ```
-
-Or just `uv sync` (auto-updates lock if needed).
 
 ---
 
@@ -111,7 +97,7 @@ members = ["casts/*"]
 
 **Fix:** Use script to create complete boilerplate:
 ```bash
-uv run python .claude/skills/engineering-act/scripts/create_cast.py "My Cast"
+uv run .claude/skills/engineering-act/scripts/create_cast.py "My Cast"
 ```
 
 ---
@@ -261,7 +247,7 @@ uv run python .claude/skills/engineering-act/scripts/project_info.py
 
 **Step 3:** Force re-sync
 ```bash
-uv sync --reinstall --all-extras
+uv sync --reinstall --all-packages --dev
 ```
 
 **Step 4:** Check for errors
