@@ -1,0 +1,7 @@
+Files to trim (>500 lines):
+- edge-routing-guide.md: 719 lines → target 480 lines
+- node-architecture-guide.md: 701 lines → target 480 lines  
+- state-design-guide.md: 555 lines → target 480 lines
+- subgraph-decisions.md: 632 lines → target 480 lines
+
+Strategy: Remove verbose examples, condense repetitive sections, keep decision frameworks
