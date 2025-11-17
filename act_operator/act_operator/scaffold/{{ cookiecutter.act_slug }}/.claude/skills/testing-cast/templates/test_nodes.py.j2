@@ -1,0 +1,44 @@
+"""Tests for {{ cast_name }} nodes."""
+
+import pytest
+from casts.{{ cast_name }}.nodes import (
+{%- for node in nodes %}
+    {{ node.name }},
+{%- endfor %}
+)
+
+
+{% for node in nodes %}
+class Test{{ node.name }}:
+    """Test suite for {{ node.name }}."""
+
+    {% if node.is_async %}@pytest.mark.asyncio
+    {% endif %}@pytest.fixture
+    {% if node.is_async %}async {% endif %}def node(self):
+        """Provides {{ node.name }} instance."""
+        return {{ node.name }}()
+
+    {% if node.is_async %}@pytest.mark.asyncio
+    {% endif %}def test_execute_basic(self, node):
+        """Test basic execution."""
+        state = {"input": "test"}
+
+        result = {% if node.is_async %}await {% endif %}node.execute(state)
+
+        assert result is not None
+        assert isinstance(result, dict)
+
+    {% if node.is_async %}@pytest.mark.asyncio
+    {% endif %}def test_execute_with_empty_state(self, node):
+        """Test execution with empty state."""
+        state = {}
+
+        result = {% if node.is_async %}await {% endif %}node.execute(state)
+
+        # Should handle gracefully
+        assert result is not None
+
+    # TODO: Add more specific tests for {{ node.name }}
+
+
+{% endfor %}
