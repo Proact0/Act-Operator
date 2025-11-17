@@ -8,13 +8,13 @@ issues. It provides warnings and suggestions for improvement.
 
 Usage:
     # Validate existing CLAUDE.md
-    uv run python validate_architecture.py --input CLAUDE.md
+    uv run validate_architecture.py --input CLAUDE.md
 
     # Interactive validation (during architecture design)
-    uv run python validate_architecture.py --interactive
+    uv run validate_architecture.py --interactive
 
     # JSON output for tooling
-    uv run python validate_architecture.py --input CLAUDE.md --json
+    uv run validate_architecture.py --input CLAUDE.md --json
 """
 
 import argparse

@@ -1,7 +1,6 @@
 ---
 name: architecting-act
 description: Design LangGraph architectures through strategic questioning - state schemas, nodes, edges, and workflow patterns
-version: 1.0.0
 ---
 
 # Architecting Act Skill

@@ -1,7 +1,6 @@
 ---
 name: developing-cast
 description: Implement LangGraph 1.0 cast components with verified patterns - state, nodes, edges, tools, memory, and advanced features
-version: 1.0.0
 ---
 
 # Developing Cast Skill

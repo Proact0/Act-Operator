@@ -1,7 +1,6 @@
 ---
 name: testing-cast
 description: Pytest-based testing framework for LangGraph casts - patterns, fixtures, and test generation for nodes, graphs, and integrated systems
-version: 1.0.0
 ---
 
 # Testing Cast Skill

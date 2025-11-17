@@ -6,5 +6,9 @@
   "cast_slug": "cast-name",
   "cast_snake": "cast_name",
   "cast_pascal": "CastName",
-  "language": "en"
+  "language": "en",
+  "_copy_without_render": [
+    ".claude/skills/architecting-act/scripts/generate_claude_md.py",
+    ".claude/skills/architecting-act/templates/CLAUDE.md.template"
+  ]
 }
