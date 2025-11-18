@@ -223,7 +223,7 @@ _(Add more decision records as needed)_
 
 **Validation Script:**
 ```bash
-uv run python .claude/skills/architecting-act/scripts/validate_architecture.py --input CLAUDE.md
+uv run .claude/skills/architecting-act/scripts/validate_architecture.py --input CLAUDE.md
 ```
 
 ---

@@ -1,0 +1,84 @@
+name: UV Lock Upgrade
+
+on:
+  schedule:
+    # run at midnight every Sunday
+    - cron: "0 0 * * 0"
+  # allow manual triggering
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: "3.12" # Updated to match project requirements
+  WORKING_DIRECTORY: "."
+
+jobs:
+  upgrade-dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+          cache-suffix: "uv-lock-upgrade"
+
+      - name: Upgrade lock file
+        run: |
+          echo "📦 Upgrading dependencies..."
+          uv lock --upgrade
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet; then
+            echo "No dependency updates available"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Dependency updates found"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "📝 Changed files:"
+            git diff --name-only
+          fi
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(deps): upgrade dependencies"
+          title: "chore(deps): upgrade dependencies"
+          body: |
+            ## 📦 Dependency Updates
+
+            This PR updates the dependencies in {{ cookiecutter.act_name }} using `uv lock --upgrade`.
+
+            ### Changed Files
+            - `uv.lock`
+
+            ### Review Checklist
+            - [ ] Review the dependency changes
+            - [ ] Run tests to ensure compatibility
+            - [ ] Check for any breaking changes in updated packages
+
+            ---
+            🤖 Automated PR by [UV Lock Upgrade workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/uv_lock_upgrade.yml)
+
+            **Triggered by:** ${{ github.event_name }}
+          branch: deps/uv-lock-upgrade
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+
+      - name: No updates needed
+        if: steps.check_changes.outputs.has_changes == 'false'
+        run: |
+          echo "✅ All dependencies are up to date!"

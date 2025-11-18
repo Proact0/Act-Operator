@@ -19,8 +19,7 @@ lint = [
     "ruff",
 ]
 dev = [
-    "ipykernel",
-    "act_operator>=0.1.0",
+    "act-operator>=0.1.0",
     {include-group = "test"},
     {include-group = "lint"},
 ]
@@ -39,6 +38,7 @@ exclude = [
     "casts/__pycache__",
     "casts/**/__pycache__",
     "casts/**/.venv",
+    "casts/.DS_Store",
 ]
 
 [tool.ruff]

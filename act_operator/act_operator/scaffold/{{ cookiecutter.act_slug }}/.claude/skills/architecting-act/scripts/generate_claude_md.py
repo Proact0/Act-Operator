@@ -8,17 +8,17 @@ it with architecture decisions made during the architecting-act skill workflow.
 
 Usage:
     # Interactive mode (recommended)
-    uv run python generate_claude_md.py --interactive
+    uv run generate_claude_md.py --interactive
 
     # Direct mode (provide all arguments)
-    uv run python generate_claude_md.py \
+    uv run generate_claude_md.py \
         --output CLAUDE.md \
         --cast-name "MyCast" \
         --workflow-pattern "ReAct" \
         --purpose "Answer questions using search tools"
 
     # Load from JSON config
-    uv run python generate_claude_md.py --config architecture.json
+    uv run generate_claude_md.py --config architecture.json
 """
 
 import argparse

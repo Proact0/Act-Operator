@@ -201,7 +201,7 @@ Act Operator 스캐폴드에는 Claude Agent가 Cast 개발을 지원하기 위�
 - 엔트리포인트: `pyproject.toml`의 `[project.scripts]`
   - `act` → `act_operator.cli:main`
 - 로컬 실행: `uv run act ...`
-- 모듈 진입: 필요 시 `uv run python -m act_operator`
+- 모듈 진입: 필요 시 `uv run -m act_operator`
 
 ## 버전 및 릴리즈 정책
 - 버전은 `hatch`로 관리하며, 정의 위치는 `act_operator/__init__.py`입니다.

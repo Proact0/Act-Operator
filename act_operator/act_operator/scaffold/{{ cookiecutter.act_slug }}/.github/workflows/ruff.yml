@@ -1,0 +1,28 @@
+name: Ruff Lint & Format
+
+on: [push, pull_request]
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-suffix: "ruff"
+
+      - name: Install dependencies (dev)
+        run: uv sync --all-packages
+
+      - name: Ruff Lint with fix
+        run: uv run ruff check . --fix
+
+      - name: Ruff Format
+        run: uv run ruff format .
+
+      - name: Ruff Format Check
+        run: uv run ruff format . --check

@@ -203,7 +203,7 @@ Please update this list when adding new Skills.
 - Entry point: `[project.scripts]` in `pyproject.toml`
   - `act` → `act_operator.cli:main`
 - Local run: `uv run act ...`
-- Module entry: `uv run python -m act_operator` when needed.
+- Module entry: `uv run -m act_operator` when needed.
 
 ## Versioning & Release Policy
 - Version is managed via `hatch` and defined in `act_operator/__init__.py`.

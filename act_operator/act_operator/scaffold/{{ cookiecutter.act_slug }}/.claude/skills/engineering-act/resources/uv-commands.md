@@ -35,7 +35,7 @@ uv lock --upgrade-package package-name      # Just update lock
 
 ```bash
 # Sync with all dependency groups (dev, test, lint)
-uv sync --all-packages --dev
+uv sync --all-packages
 
 # Just update lockfile (no install)
 uv lock
@@ -48,13 +48,13 @@ uv sync --reinstall
 
 ### Fresh Environment Setup
 ```bash
-uv sync --all-packages --dev      # Sync all groups
+uv sync --all-packages      # Sync all groups
 ```
 
 ### After Editing pyproject.toml
 ```bash
 uv lock    # Update lockfile
-uv sync --all-packages --dev    # Sync environment
+uv sync --all-packages    # Sync environment
 ```
 
 ### Adding LangChain Integrations in Cast Package
@@ -66,7 +66,7 @@ uv add --package {cast_name} langchain-anthropic     # Anthropic
 ## Best Practices
 
 ✓ Use `uv add/remove` for dependency changes (auto-updates lock + sync)
-✓ Use `uv sync --all-pacakges --dev` for monorepo development setup
+✓ Use `uv sync --all-packages` for monorepo development setup
 ✓ Let `uv run` manage environment activation
 ✓ Use `uv.lock` for reproducible builds (commit to git)
 ✓ Use `uvx` for one-off tool execution

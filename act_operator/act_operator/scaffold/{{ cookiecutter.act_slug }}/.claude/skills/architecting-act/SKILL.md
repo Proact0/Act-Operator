@@ -194,7 +194,7 @@ Once user approves the architecture:
 
 Run validation:
 ```bash
-uv run python .claude/skills/architecting-act/scripts/validate_architecture.py
+uv run .claude/skills/architecting-act/scripts/validate_architecture.py
 ```
 
 Address any warnings or suggestions from the validator.
@@ -203,7 +203,7 @@ Address any warnings or suggestions from the validator.
 
 Generate the formalized architecture document:
 ```bash
-uv run python .claude/skills/architecting-act/scripts/generate_claude_md.py \
+uv run .claude/skills/architecting-act/scripts/generate_claude_md.py \
   --output CLAUDE.md \
   --workflow-pattern "[chosen-pattern]" \
   --state-schema "[state-design]" \
@@ -282,7 +282,7 @@ Generates the formalized CLAUDE.md architecture document.
 
 **Usage:**
 ```bash
-uv run python .claude/skills/architecting-act/scripts/generate_claude_md.py \
+uv run .claude/skills/architecting-act/scripts/generate_claude_md.py \
   --output CLAUDE.md \
   --interactive  # Prompts for all architecture decisions
 ```
@@ -298,7 +298,7 @@ Validates architecture decisions and suggests improvements.
 
 **Usage:**
 ```bash
-uv run python .claude/skills/architecting-act/scripts/validate_architecture.py \
+uv run .claude/skills/architecting-act/scripts/validate_architecture.py \
   --input CLAUDE.md  # Validates existing CLAUDE.md
 ```
 
