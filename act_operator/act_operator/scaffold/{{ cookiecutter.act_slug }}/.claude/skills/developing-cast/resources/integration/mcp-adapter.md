@@ -1,5 +1,30 @@
 # MCP Adapter Integration
 
+## Table of Contents
+
+- [When to Use This Resource](#when-to-use-this-resource)
+- [What is MCP?](#what-is-mcp)
+- [Installing MCP Adapters](#installing-mcp-adapters)
+- [Basic MCP Integration](#basic-mcp-integration)
+  - [Single MCP Server](#single-mcp-server)
+  - [Multiple MCP Servers](#multiple-mcp-servers)
+- [Transport Protocols](#transport-protocols)
+  - [1. stdio (Local Subprocess)](#1-stdio-local-subprocess)
+  - [2. HTTP/HTTPS (Remote Server)](#2-httphttps-remote-server)
+  - [3. SSE (Server-Sent Events)](#3-sse-server-sent-events)
+- [Using MCP Tools in Nodes](#using-mcp-tools-in-nodes)
+- [Agent Pattern with MCP Tools](#agent-pattern-with-mcp-tools)
+- [Dynamic Tool Selection](#dynamic-tool-selection)
+- [Configuration Management](#configuration-management)
+  - [Act Project Pattern](#act-project-pattern)
+- [Error Handling](#error-handling)
+- [Common Use Cases](#common-use-cases)
+  - [1. Filesystem Access](#1-filesystem-access)
+  - [2. Database Queries](#2-database-queries)
+  - [3. External APIs](#3-external-apis)
+- [Common Mistakes](#common-mistakes)
+- [References](#references)
+
 ## When to Use This Resource
 Read this when integrating Model Context Protocol (MCP) servers to access tools from external MCP-compatible services.
 

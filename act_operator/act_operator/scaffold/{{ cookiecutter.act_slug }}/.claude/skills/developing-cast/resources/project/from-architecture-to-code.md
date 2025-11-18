@@ -1,5 +1,27 @@
 # From Architecture to Code
 
+## Table of Contents
+
+- [When to Use This Resource](#when-to-use-this-resource)
+- [The Translation Process](#the-translation-process)
+- [CLAUDE.md Structure](#claudemd-structure)
+- [Step-by-Step Translation](#step-by-step-translation)
+  - [Step 1: Create State Schema](#step-1-create-state-schema)
+  - [Step 2: Create Node Classes](#step-2-create-node-classes)
+  - [Step 3: Create Routing Functions](#step-3-create-routing-functions)
+  - [Step 4: Build Graph](#step-4-build-graph)
+  - [Step 5: Implement Tools (if specified)](#step-5-implement-tools-if-specified)
+- [Decision Points During Translation](#decision-points-during-translation)
+  - [When CLAUDE.md says "ReAct Pattern"](#when-claudemd-says-react-pattern)
+  - [When CLAUDE.md says "Plan-Execute"](#when-claudemd-says-plan-execute)
+  - [When CLAUDE.md says "Map-Reduce"](#when-claudemd-says-map-reduce)
+  - [When CLAUDE.md mentions "Human Approval"](#when-claudemd-mentions-human-approval)
+  - [When CLAUDE.md specifies "Persistent Memory"](#when-claudemd-specifies-persistent-memory)
+- [Validation Checklist](#validation-checklist)
+- [Example: Complete Translation](#example-complete-translation)
+- [When Architecture Changes](#when-architecture-changes)
+- [References](#references)
+
 ## When to Use This Resource
 Read this when translating CLAUDE.md (from architecting-act) into actual implementation code.
 

@@ -1,5 +1,26 @@
 # External APIs Integration
 
+## Table of Contents
+
+- [When to Use This Resource](#when-to-use-this-resource)
+- [Integration Approaches](#integration-approaches)
+  - [Approach 1: Tools (Recommended for LLM Access)](#approach-1-tools-recommended-for-llm-access)
+  - [Approach 2: Nodes (For Complex Logic)](#approach-2-nodes-for-complex-logic)
+  - [Approach 3: Async Nodes (For Performance)](#approach-3-async-nodes-for-performance)
+- [API Client Patterns](#api-client-patterns)
+  - [Pattern 1: Reusable API Client Class](#pattern-1-reusable-api-client-class)
+  - [Pattern 2: GraphQL APIs](#pattern-2-graphql-apis)
+  - [Pattern 3: Rate Limiting](#pattern-3-rate-limiting)
+- [Webhook Integration](#webhook-integration)
+  - [Pattern: Webhook Receiver Node](#pattern-webhook-receiver-node)
+- [Error Handling & Retries](#error-handling--retries)
+- [Authentication Patterns](#authentication-patterns)
+  - [Pattern 1: API Key](#pattern-1-api-key)
+  - [Pattern 2: OAuth2](#pattern-2-oauth2)
+  - [Pattern 3: JWT](#pattern-3-jwt)
+- [Common Mistakes](#common-mistakes)
+- [References](#references)
+
 ## When to Use This Resource
 Read this when integrating REST APIs, GraphQL, webhooks, or any external services not using MCP.
 

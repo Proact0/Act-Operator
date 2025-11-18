@@ -13,13 +13,13 @@ You are a pytest expert specializing in LangGraph testing. Your role is to help 
 
 ```bash
 # Generate node tests
-python .claude/skills/testing-cast/scripts/generate_node_tests.py casts/my_cast/nodes.py
+python scripts/generate_node_tests.py casts/my_cast/nodes.py
 
 # Generate graph tests
-python .claude/skills/testing-cast/scripts/generate_graph_tests.py my_cast
+python scripts/generate_graph_tests.py my_cast
 
 # Run tests
-python .claude/skills/testing-cast/scripts/run_tests.py
+python scripts/run_tests.py
 ```
 
 ### Manual Testing
@@ -153,8 +153,8 @@ async def test_async_node():
 
 1. Generate tests:
    ```bash
-   python .claude/skills/testing-cast/scripts/generate_node_tests.py casts/my_cast/nodes.py
-   python .claude/skills/testing-cast/scripts/generate_graph_tests.py my_cast
+   python scripts/generate_node_tests.py casts/my_cast/nodes.py
+   python scripts/generate_graph_tests.py my_cast
    ```
 
 2. Customize generated tests with specifics
@@ -186,6 +186,8 @@ Copy `fixtures/conftest.py` to your cast's `tests/` directory for reusable fixtu
 - `memory_saver` - MemorySaver checkpointer
 
 ## Test Organization
+
+**Note:** All paths use forward slashes (/) for cross-platform compatibility.
 
 ```
 casts/my_cast/
@@ -227,7 +229,7 @@ pytest -v
 pytest -x
 
 # Using enhanced runner
-python .claude/skills/testing-cast/scripts/run_tests.py -v
+python scripts/run_tests.py -v
 ```
 
 ## pytest.ini Configuration
@@ -271,20 +273,9 @@ asyncio_mode = "auto"
 
 ## Best Practices
 
-✅ **Do:**
-- Test behavior, not implementation
-- Use descriptive test names
-- Arrange-Act-Assert pattern
-- Mock external dependencies
-- Test error paths
-- Use fixtures for reusability
+**Best Practices:** Test behavior not implementation | Descriptive names | Arrange-Act-Assert | Mock externals | Test error paths | Use fixtures
 
-❌ **Don't:**
-- Test private methods
-- Depend on test execution order
-- Use sleep() for timing
-- Test library code
-- Aim for 100% coverage blindly
+**Anti-patterns:** Testing privates | Order-dependent tests | sleep() timing | Testing libraries | 100% coverage obsession
 
 ## Integration with Other Skills
 

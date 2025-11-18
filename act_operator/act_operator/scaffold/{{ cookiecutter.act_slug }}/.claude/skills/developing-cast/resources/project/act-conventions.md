@@ -1,5 +1,25 @@
 # Act Project Conventions
 
+## Table of Contents
+
+- [When to Use This Resource](#when-to-use-this-resource)
+- [Directory Structure](#directory-structure)
+- [CRITICAL Conventions](#critical-conventions)
+  - [1. Tools Location](#1-tools-location)
+  - [2. Base Class Inheritance](#2-base-class-inheritance)
+  - [3. Required Files Per Cast](#3-required-files-per-cast)
+  - [4. Naming Conventions](#4-naming-conventions)
+- [File Templates](#file-templates)
+  - [graph.py Template](#graphpy-template)
+  - [state.py Template](#statepy-template)
+  - [nodes.py Template](#nodespy-template)
+  - [conditions.py Template](#conditionspy-template)
+- [Import Patterns](#import-patterns)
+- [Memory Location Guidelines](#memory-location-guidelines)
+- [Configuration Management](#configuration-management)
+- [Common Violations](#common-violations)
+- [References](#references)
+
 ## When to Use This Resource
 Read this for Act-specific file placement, naming conventions, and project structure requirements.
 

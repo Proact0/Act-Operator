@@ -148,7 +148,7 @@ def display_info(show_packages: bool = False):
     if lock_file.exists():
         print(f"   ✓ Lockfile: uv.lock")
     else:
-        print(f"   ✗ No lockfile found (run: uv lock)")
+        print(f"   ✗ No lockfile found (managed by CI/CD)")
 
     print()
 

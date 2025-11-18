@@ -39,16 +39,10 @@ Ask questions to understand what they're building:
 - Should this system be able to self-correct or validate its outputs?
 - Are there specific quality standards or validation requirements?
 
-**DO NOT:**
-- Ask all questions at once (overwhelming)
-- Ask implementation details (that's for developing-cast)
-- Assume you know what they need
-
-**DO:**
-- Ask 2-3 questions at a time
-- Use their answers to guide next questions
-- Clarify ambiguities before moving forward
-- Show you understand by summarizing their needs
+**Ask Questions:**
+- 2-3 at a time, iteratively based on answers
+- Clarify ambiguities, summarize understanding before proceeding
+- Avoid: asking all at once, implementation details, assumptions
 
 ### Stage 2: Technical Constraints (3-4 targeted questions)
 
@@ -80,16 +74,10 @@ Consult `resources/workflow-patterns.md` to determine the best pattern.
 
 **Present your recommendation:**
 ```
-Based on your requirements, I recommend the [PATTERN] pattern because:
-- [Reason 1 specific to their needs]
-- [Reason 2 specific to their needs]
-- [Reason 3 specific to their needs]
-
-Alternative patterns considered:
-- [Pattern A]: Why not chosen
-- [Pattern B]: Why not chosen
-
-Does this align with your vision? Any concerns?
+Recommended: [PATTERN]
+Reasons: [1], [2], [3]
+Alternatives: [A] (why not), [B] (why not)
+Concerns?
 ```
 
 #### 3.2 State Schema Design
@@ -194,7 +182,7 @@ Once user approves the architecture:
 
 Run validation:
 ```bash
-uv run .claude/skills/architecting-act/scripts/validate_architecture.py
+python scripts/validate_architecture.py
 ```
 
 Address any warnings or suggestions from the validator.
@@ -203,7 +191,7 @@ Address any warnings or suggestions from the validator.
 
 Generate the formalized architecture document:
 ```bash
-uv run .claude/skills/architecting-act/scripts/generate_claude_md.py \
+python scripts/generate_claude_md.py \
   --output CLAUDE.md \
   --workflow-pattern "[chosen-pattern]" \
   --state-schema "[state-design]" \
@@ -235,45 +223,16 @@ Once approved, you can proceed with implementation using:
 
 ## Resource Index
 
-Navigate to these resources for decision-making guidance:
+**Note:** All paths use forward slashes (/) for cross-platform compatibility.
 
 ### Core Architecture Resources
 
-1. **`resources/workflow-patterns.md`**
-   - Decision framework for choosing ReAct, Plan-Execute, Reflection, Map-Reduce
-   - When to use each pattern
-   - Pattern combinations
-
-2. **`resources/state-design-guide.md`**
-   - State schema design principles
-   - Reducers and channels
-   - Input/output state separation
-   - State type best practices
-
-3. **`resources/node-architecture-guide.md`**
-   - SOLID principles for nodes
-   - Node decomposition strategies
-   - Dependency management
-   - Parallel vs sequential execution
-
-4. **`resources/edge-routing-guide.md`**
-   - Conditional edge design
-   - Routing function patterns
-   - Loop and cycle management
-   - Error handling flows
-
-5. **`resources/subgraph-decisions.md`**
-   - When to use subgraphs
-   - Composition patterns
-   - Parent-child communication
-   - Nested graph considerations
-
-### Quality Resources
-
-6. **`resources/anti-patterns.md`**
-   - Common architectural mistakes
-   - How to avoid them
-   - Refactoring strategies
+1. **`resources/workflow-patterns.md`** - Pattern selection framework
+2. **`resources/state-design-guide.md`** - State schemas and reducers
+3. **`resources/node-architecture-guide.md`** - SOLID principles for nodes
+4. **`resources/edge-routing-guide.md`** - Conditional routing patterns
+5. **`resources/subgraph-decisions.md`** - When to use subgraphs
+6. **`resources/anti-patterns.md`** - Common mistakes and refactoring
 
 ## Scripts Reference
 
@@ -282,7 +241,7 @@ Generates the formalized CLAUDE.md architecture document.
 
 **Usage:**
 ```bash
-uv run .claude/skills/architecting-act/scripts/generate_claude_md.py \
+python scripts/generate_claude_md.py \
   --output CLAUDE.md \
   --interactive  # Prompts for all architecture decisions
 ```
@@ -298,7 +257,7 @@ Validates architecture decisions and suggests improvements.
 
 **Usage:**
 ```bash
-uv run .claude/skills/architecting-act/scripts/validate_architecture.py \
+python scripts/validate_architecture.py \
   --input CLAUDE.md  # Validates existing CLAUDE.md
 ```
 
@@ -333,26 +292,6 @@ To update the architecture:
 3. I'll update CLAUDE.md accordingly
 4. developing-cast will pick up the changes
 ```
-
-## Best Practices
-
-### Communication Style
-- **Ask, don't assume**: Clarify before deciding
-- **Explain rationale**: Help users learn architectural thinking
-- **Show alternatives**: Present options when multiple approaches work
-- **Iterate gracefully**: Architecture evolves through conversation
-
-### Decision Making
-- **Start simple**: Recommend simplest pattern that meets needs
-- **Justify complexity**: Only add complexity with clear benefits
-- **Plan for evolution**: Consider how architecture might grow
-- **Validate assumptions**: Check understanding at each stage
-
-### Documentation Quality
-- **Be specific**: Avoid vague descriptions
-- **Include context**: Document why decisions were made
-- **Use diagrams**: Mermaid graphs clarify structure
-- **Enable handoff**: developing-cast should understand intent
 
 ## Anti-Patterns to Avoid
 
