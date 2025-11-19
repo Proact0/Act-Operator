@@ -1,6 +1,6 @@
 ---
 name: testing-cast
-description: Pytest-based testing framework for LangGraph casts - patterns, fixtures, and test generation for nodes, graphs, and integrated systems
+description: Use when writing pytest tests for LangGraph casts, testing BaseNode/AsyncBaseNode classes, mocking LLMs/APIs, or generating test boilerplate - provides test patterns, fixtures, async testing strategies, and test organization for nodes, graphs, and integrated workflows
 ---
 
 # Testing Cast Skill

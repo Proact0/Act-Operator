@@ -1,6 +1,6 @@
 ---
 name: developing-cast
-description: Implement LangGraph 1.0 cast components with verified patterns - state, nodes, edges, tools, memory, and advanced features
+description: Use when implementing LangGraph components from CLAUDE.md architecture, translating designs to code, or applying Act project conventions - reference system for state schemas, BaseNode/AsyncBaseNode patterns, edge routing, tools, memory (Store/checkpointer), and LangGraph 1.0 features
 ---
 
 # Developing Cast Skill

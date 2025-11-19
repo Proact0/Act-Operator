@@ -1,6 +1,6 @@
 ---
 name: architecting-act
-description: Design LangGraph architectures through strategic questioning - state schemas, nodes, edges, and workflow patterns
+description: Use when designing new LangGraph graph architecture, planning state/node structure, or choosing workflow patterns - guides through 4-stage interactive process (requirements → constraints → design → CLAUDE.md) using strategic questioning to create robust architectures
 ---
 
 # Architecting Act Skill
