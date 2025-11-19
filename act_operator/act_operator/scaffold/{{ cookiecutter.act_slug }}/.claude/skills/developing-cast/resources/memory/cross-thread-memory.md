@@ -1,5 +1,35 @@
 # Cross-Thread Memory (Store)
 
+## Table of Contents
+
+- [When to Use This Resource](#when-to-use-this-resource)
+- [What is Store?](#what-is-store)
+- [Store Implementations](#store-implementations)
+  - [InMemoryStore (Development)](#inmemorystore-development)
+  - [PostgresStore (Production)](#postgresstore-production)
+- [Store Operations](#store-operations)
+  - [Put (Save Data)](#put-save-data)
+  - [Get (Retrieve Data)](#get-retrieve-data)
+  - [Search (Query by Namespace)](#search-query-by-namespace)
+  - [Delete (Remove Data)](#delete-remove-data)
+- [Accessing Store](#accessing-store)
+  - [Pattern 1: From Nodes (via runtime)](#pattern-1-from-nodes-via-runtime)
+  - [Pattern 2: From Tools (via InjectedToolRuntime)](#pattern-2-from-tools-via-injectedtoolruntime)
+- [Common Patterns](#common-patterns)
+  - [Pattern 1: User Profile Management](#pattern-1-user-profile-management)
+  - [Pattern 2: Knowledge Accumulation](#pattern-2-knowledge-accumulation)
+  - [Pattern 3: Shared Context Across Threads](#pattern-3-shared-context-across-threads)
+  - [Pattern 4: Session-Specific Temp Data](#pattern-4-session-specific-temp-data)
+- [LangMem Integration](#langmem-integration)
+- [Configuration with user_id](#configuration-with-user_id)
+- [Common Mistakes](#common-mistakes)
+- [Memory Location Decision](#memory-location-decision)
+- [Production Considerations](#production-considerations)
+  - [Cleanup Strategy](#cleanup-strategy)
+  - [Namespace Design](#namespace-design)
+  - [Performance](#performance)
+- [References](#references)
+
 ## When to Use This Resource
 Read this when implementing memory that persists across different conversations/threads, user preferences, or shared knowledge bases.
 

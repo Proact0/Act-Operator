@@ -34,18 +34,12 @@ Creates `.venv/` and installs dependencies.
 ### Dependency Conflict
 **Symptom:** `uv add` fails with version conflict
 
-**Fix 1:** Upgrade conflicting package
-```bash
-uv lock --upgrade-package [conflicting-package]
-uv sync --all-packages
-```
-
-**Fix 2:** Add with specific version
+**Fix 1:** Add with specific version
 ```bash
 uv add "package>=1.0,<2.0"
 ```
 
-**Fix 3:** Check compatibility
+**Fix 2:** Check compatibility
 ```bash
 uv pip show [package]  # Check current version
 ```
@@ -62,16 +56,7 @@ uv sync --all-packages  # Automatically removes orphans
 
 `uv sync` in exact mode (default) removes packages not in lockfile.
 
----
-
-### Lockfile Out of Date
-**Symptom:** Warning about stale lockfile
-
-**Fix:**
-```bash
-uv lock
-uv sync --all-packages
-```
+**Note:** Lockfile is managed by GitHub Actions CI/CD pipeline.
 
 ---
 
@@ -97,7 +82,7 @@ members = ["casts/*"]
 
 **Fix:** Use script to create complete boilerplate:
 ```bash
-uv run .claude/skills/engineering-act/scripts/create_cast.py "My Cast"
+python scripts/create_cast.py "My Cast"
 ```
 
 ---
@@ -237,12 +222,12 @@ uvx ruff check .
 
 **Step 1:** Check project structure
 ```bash
-uv run python .claude/skills/engineering-act/scripts/validate_project.py
+python scripts/validate_project.py
 ```
 
 **Step 2:** Check project info
 ```bash
-uv run python .claude/skills/engineering-act/scripts/project_info.py
+python scripts/project_info.py
 ```
 
 **Step 3:** Force re-sync
@@ -261,12 +246,12 @@ uv run python -c "import [your_cast]"
 
 **Check validation:**
 ```bash
-uv run python .claude/skills/engineering-act/scripts/validate_project.py
+python scripts/validate_project.py
 ```
 
 **Show project info:**
 ```bash
-uv run python .claude/skills/engineering-act/scripts/project_info.py --packages
+python scripts/project_info.py --packages
 ```
 
 **LangGraph docs:**

@@ -12,6 +12,27 @@ uv run script.py
 uv run [command]
 ```
 
+## Execution Contexts
+
+**Act CLI Commands** (installed entrypoint)
+```bash
+uv run act cast -c "My Cast"
+uv run act --help
+```
+
+**Project Scripts** (in project root)
+```bash
+uv run script.py
+uv run pytest
+```
+
+**Skill Scripts** (in .claude/skills/[name]/scripts/)
+```bash
+python scripts/generate_claude_md.py
+python scripts/validate_project.py
+# Note: Use 'python', NOT 'uv run' for skill scripts
+```
+
 ## Dependency Management
 
 ```bash
@@ -28,17 +49,19 @@ uv remove package-name
 
 # Upgrade dependency
 uv add --upgrade package-name
-uv lock --upgrade-package package-name      # Just update lock
 ```
 
 ## Environment Synchronization
 
 ```bash
-# Sync with all dependency groups (dev, test, lint)
+# Sync ALL cast packages + development dependencies (monorepo command)
 uv sync --all-packages
 
-# Just update lockfile (no install)
-uv lock
+# This command:
+# - Installs ALL cast packages in the monorepo workspace
+# - Installs dev, test, and lint dependency groups
+# - Required for full development environment setup
+# - Use this after cloning the repository
 
 # Force reinstall
 uv sync --reinstall
@@ -53,9 +76,11 @@ uv sync --all-packages      # Sync all groups
 
 ### After Editing pyproject.toml
 ```bash
-uv lock    # Update lockfile
-uv sync --all-packages    # Sync environment
+# Sync environment (lockfile updated automatically by GitHub Actions)
+uv sync --all-packages
 ```
+
+**Note:** `uv.lock` is managed by CI/CD pipeline. Use `uv add/remove` for dependencies.
 
 ### Adding LangChain Integrations in Cast Package
 ```bash
@@ -68,7 +93,7 @@ uv add --package {cast_name} langchain-anthropic     # Anthropic
 ✓ Use `uv add/remove` for dependency changes (auto-updates lock + sync)
 ✓ Use `uv sync --all-packages` for monorepo development setup
 ✓ Let `uv run` manage environment activation
-✓ Use `uv.lock` for reproducible builds (commit to git)
+✓ `uv.lock` managed by GitHub Actions (commit changes from CI)
 ✓ Use `uvx` for one-off tool execution
 
 ❌ Don't manually edit `uv.lock` (use uv commands)

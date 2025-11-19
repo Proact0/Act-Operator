@@ -1,6 +1,6 @@
 ---
 name: developing-cast
-description: Implement LangGraph 1.0 cast components with verified patterns - state, nodes, edges, tools, memory, and advanced features
+description: Use when implementing LangGraph components from CLAUDE.md architecture, translating designs to code, or applying Act project conventions - reference system for state schemas, BaseNode/AsyncBaseNode patterns, edge routing, tools, memory (Store/checkpointer), and LangGraph 1.0 features
 ---
 
 # Developing Cast Skill
@@ -26,18 +26,10 @@ Help developers implement robust LangGraph 1.0 casts by providing:
 4. **Point out Act conventions** they must follow
 5. **Help troubleshoot issues** with anti-patterns and common mistakes
 
-**Do NOT:**
-- Recite entire resource contents
-- Implement everything for them without context
-- Skip Act project conventions
-- Use deprecated 0.x patterns
-
-**DO:**
-- Ask what component they're working on
-- Direct them to relevant resources
-- Provide quick examples when helpful
-- Emphasize decision points ("when to use X vs Y")
-- Validate against Act conventions
+**Approach:**
+- Guide to resources, don't recite them | Ask context first
+- Quick examples + decision points ("X vs Y")
+- Validate Act conventions | Avoid deprecated 0.x patterns
 
 ## Quick Start Guide
 
@@ -231,22 +223,13 @@ resources/quick-reference.md     # Code snippets, imports, decisions
 
 ## Critical Act Conventions
 
-⚠️ **MUST follow these - violations will break the project:**
+**Note:** All paths use forward slashes (/) for cross-platform compatibility.
 
-1. **Tools location:** `modules/tools/` (NEVER in `casts/[cast]/`)
-2. **Node inheritance:** ALL nodes inherit from `BaseNode` or `AsyncBaseNode`
-3. **Graph inheritance:** ALL graphs inherit from `BaseGraph`
-4. **Required files per cast:**
-   - `state.py` - State schema
-   - `nodes.py` - Node implementations
-   - `graph.py` - Graph class
-5. **Naming:**
-   - State classes: `[Name]State`
-   - Graph classes: `[Name]Graph`
-   - Files: `snake_case.py`
-   - Classes: `PascalCase`
-
-**See:** `resources/project/act-conventions.md` for complete list
+**Critical Conventions** (details: `resources/project/act-conventions.md`):
+- Tools: `modules/tools/` ONLY | Never in cast directories
+- Inheritance: BaseNode/AsyncBaseNode (nodes), BaseGraph (graphs)
+- Files: `casts/[cast]/` → state.py, nodes.py, graph.py, conditions.py
+- Naming: snake_case.py files | PascalCase classes | [Name]State/Graph
 
 ## LangGraph 1.0 Verification
 

@@ -182,7 +182,7 @@ class Validator:
         else:
             self.warning("No lockfile (uv.lock) found")
             if self.fix:
-                print("    Run: uv lock")
+                print("    Note: Lockfile managed by GitHub Actions CI/CD")
 
     def run_validation(self):
         """Run all validations."""

@@ -1,5 +1,27 @@
 # Error Handling & Retry Patterns
 
+## Table of Contents
+
+- [When to Use This Resource](#when-to-use-this-resource)
+- [Error Handling Strategies](#error-handling-strategies)
+  - [Strategy 1: Try-Catch in Nodes](#strategy-1-try-catch-in-nodes)
+  - [Strategy 2: Dedicated Error Handler Node](#strategy-2-dedicated-error-handler-node)
+  - [Strategy 3: Retry with Backoff](#strategy-3-retry-with-backoff)
+  - [Strategy 4: Fallback Chains](#strategy-4-fallback-chains)
+- [Retry Patterns in Graph Structure](#retry-patterns-in-graph-structure)
+  - [Pattern 1: Retry Loop with Counter](#pattern-1-retry-loop-with-counter)
+  - [Pattern 2: Per-Node Retry Config](#pattern-2-per-node-retry-config)
+- [Error Routing Patterns](#error-routing-patterns)
+  - [Pattern 1: Error-Specific Routing](#pattern-1-error-specific-routing)
+  - [Pattern 2: Circuit Breaker](#pattern-2-circuit-breaker)
+- [Validation & Early Exit](#validation--early-exit)
+- [Production Patterns](#production-patterns)
+  - [Pattern 1: Comprehensive Error Context](#pattern-1-comprehensive-error-context)
+  - [Pattern 2: Graceful Degradation](#pattern-2-graceful-degradation)
+  - [Pattern 3: Error Aggregation](#pattern-3-error-aggregation)
+- [Common Mistakes](#common-mistakes)
+- [References](#references)
+
 ## When to Use This Resource
 Read this when implementing resilient graphs, adding retry logic, handling failures gracefully, or building production-ready error handling.
 
