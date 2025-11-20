@@ -8,5 +8,5 @@ name = "{{ cookiecutter.cast_slug }}"
 version = "0.1.0"
 description = "{{ cookiecutter.cast_name }} Graph"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = []

@@ -8,7 +8,7 @@
   "cast_pascal": "CastName",
   "language": "en",
   "_copy_without_render": [
-    ".claude/skills/architecting-act/scripts/generate_claude_md.py",
-    ".claude/skills/architecting-act/templates/CLAUDE.md.template"
+    ".claude/skills",
+    ".github/workflows"
   ]
 }

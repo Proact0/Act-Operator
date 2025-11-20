@@ -97,7 +97,7 @@ uv add --package {cast_name} langchain-anthropic     # Anthropic
 ✓ Use `uvx` for one-off tool execution
 
 ❌ Don't manually edit `uv.lock` (use uv commands)
-❌ Don't use `pip` directly in uv projects (use `uv pip` if needed)
+❌ Don't use `pip` directly in uv projects (use `uv run` if needed)
 ❌ Don't manually activate venv (use `uv run`)
 
 ## Speed Tips
