@@ -14,28 +14,38 @@ This document provides a quick guide to understand and properly use the project 
 - Common base classes are imported from `casts/base_node.py` and `casts/base_graph.py`.
 - Each Cast consists of `modules/` (agents/conditions/models/nodes/prompts/state/tools/utils) and `graph.py`.
 
-### Directory Structure (Summary)
+### Directory Core Structure (Summary)
 
 ```
-{{ cookiecutter.act_slug }}/
-├── pyproject.toml
-├── README.md
+{{ cookiecutter.act_slug }}/             #Root
+├── casts/
+│   ├── __init__.py
+│   ├── base_node.py
+│   ├── base_graph.py
+│   └── {{ cookiecutter.cast_snake }}/
+│       ├── modules/
+│       │   ├── __init__.py
+│       │   ├── agents.py (optional)
+│       │   ├── conditions.py (optional)
+│       │   ├── middlewares.py (optional)
+│       │   ├── models.py (optional)
+│       │   ├── nodes.py (required)
+│       │   ├── prompts.py (optional)
+│       │   ├── state.py (required)
+│       │   ├── tools.py (optional)
+│       │   └── utils.py (optional)
+│       ├── __init__.py
+│       ├── graph.py
+│       ├── pyproject.toml
+│       └── README.md
+├── tests/
+│   ├── __init__.py
+│   ├── cast_tests/
+│   ├── node_tests/
+│   ├── node_tests/
 ├── langgraph.json
-└── casts/
-    ├── __init__.py
-    ├── base_node.py
-    ├── base_graph.py
-    └── {{ cookiecutter.cast_snake }}/
-        ├── modules/
-        │   ├── agents.py (optional)
-        │   ├── conditions.py (optional)
-        │   ├── models.py (optional)
-        │   ├── nodes.py (required)
-        │   ├── prompts.py (optional)
-        │   ├── state.py (required)
-        │   ├── tools.py (optional)
-        │   └── utils.py (optional)
-        └── graph.py
+├── pyproject.toml
+└── README.md
 ```
 
 ## Installation and Setup

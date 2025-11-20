@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import typer
@@ -633,6 +634,33 @@ def _generate_cast_project(
 
     scaffold_root = _get_scaffold_root()
 
+    def _copy_cast_test(rendered_root: Path) -> None:
+        """Copy rendered cast test into the project tests directory."""
+        template_test = (
+            rendered_root / "tests" / "cast_tests" / f"{cast_variants.snake}_test.py"
+        )
+        if not template_test.exists():
+            console.print(
+                "[red]Generated cast test template not found. Aborting cast creation.[/red]"
+            )
+            raise typer.Exit(code=EXIT_CODE_ERROR)
+
+        dest_dir = act_path / "tests" / "cast_tests"
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        destination = dest_dir / template_test.name
+
+        if destination.exists():
+            console.print(
+                f"[red]Cast test '{destination.name}' already exists. "
+                "Remove it or rename before creating a new cast.[/red]"
+            )
+            raise typer.Exit(code=EXIT_CODE_ERROR)
+
+        shutil.copy2(template_test, destination)
+        console.print(
+            f"[green]Cast test '{destination.name}' created in tests/cast_tests.[/green]"
+        )
+
     render_cookiecutter_cast_subproject(
         scaffold_root,
         target_dir,
@@ -645,6 +673,7 @@ def _generate_cast_project(
             "cast_pascal": cast_variants.pascal,
             "language": _normalize_lang(language),
         },
+        post_process=_copy_cast_test,
     )
 
     # Update project configuration files

@@ -6,15 +6,11 @@ import json
 import re
 import shutil
 import tempfile
+import tomllib  # Python 3.11+
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any
-
-try:
-    import tomllib  # Python 3.11+
-except ModuleNotFoundError:  # pragma: no cover - fallback for older versions
-    import tomli as tomllib  # type: ignore
+from typing import Any, Callable
 
 from cookiecutter.main import cookiecutter
 
@@ -236,6 +232,8 @@ def render_cookiecutter_cast_subproject(
     template_root: Path,
     target_dir: Path,
     context: dict[str, Any],
+    *,
+    post_process: Callable[[Path], None] | None = None,
 ) -> None:
     """Render a Cast subproject from cookiecutter template.
 
@@ -243,6 +241,7 @@ def render_cookiecutter_cast_subproject(
         template_root: Root path of the cookiecutter template.
         target_dir: Destination directory for the Cast.
         context: Cookiecutter context including cast_snake and other variables.
+        post_process: Optional callback executed with the rendered root before cleanup.
 
     Raises:
         FileNotFoundError: If rendered cast directory is not found.
@@ -269,6 +268,9 @@ def render_cookiecutter_cast_subproject(
 
         output_root.mkdir(parents=True, exist_ok=True)
         shutil.move(str(source_cast_dir), str(target_dir))
+
+        if post_process:
+            post_process(rendered_path)
 
 
 def _read_pyproject_members(pyproject_path: Path) -> list[str]:
@@ -355,18 +357,6 @@ def update_workspace_members(pyproject_path: Path, new_member: str) -> None:
     content = pyproject_path.read_text(encoding=ENCODING_UTF8)
     updated_content = _update_pyproject_content(content, formatted_members)
     pyproject_path.write_text(updated_content, encoding=ENCODING_UTF8)
-
-
-def _build_cast_dependency(cast_snake: str) -> str:
-    """Build cast dependency path.
-
-    Args:
-        cast_snake: Snake-case name of the cast.
-
-    Returns:
-        Cast dependency path string.
-    """
-    return f"{CAST_PATH_PREFIX}{cast_snake}"
 
 
 def _build_graph_reference(cast_snake: str) -> str:
