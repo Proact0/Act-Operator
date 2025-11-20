@@ -1,6 +1,6 @@
 ---
 name: architecting-act
-description: Use when designing new LangGraph graph architecture, planning state/node structure, or choosing workflow patterns - guides through 4-stage interactive process (requirements → constraints → design → CLAUDE.md) using strategic questioning to create robust architectures
+description: Design LangGraph graph architectures through interactive questioning - produces CLAUDE.md specification with state, nodes, edges, and workflow patterns
 ---
 
 # Architecting Act Skill
@@ -17,6 +17,13 @@ Help users design robust LangGraph architectures by:
 5. Defining edges and routing logic
 6. Determining when subgraphs are necessary
 7. Generating formalized architecture documentation
+
+## When NOT to Use
+
+Don't use this skill for:
+- Implementing code (use developing-cast instead)
+- Fixing bugs in existing implementations
+- Writing tests (use testing-cast instead)
 
 ## Interactive Workflow
 

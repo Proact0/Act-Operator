@@ -1,11 +1,18 @@
 ---
 name: engineering-act
-description: Automates Act project operations - dependency management with uv, environment setup, cast scaffolding, and build troubleshooting. Use when setting up projects, adding packages, creating casts, or resolving build issues.
+description: Automate Act project operations with uv - dependency management, environment setup, cast scaffolding, and build troubleshooting
 ---
 
 # Engineering Act Skill
 
 Automates Act project setup, dependency management, and cast scaffolding. **Scripts do the work, not Claude.**
+
+## When NOT to Use
+
+Don't use this skill for:
+- Implementing casts or nodes (use developing-cast instead)
+- Designing architectures (use architecting-act instead)
+- Writing tests (use testing-cast instead)
 
 ## Quick Commands
 
@@ -77,7 +84,6 @@ uv sync --all-packages
 ## Resources
 
 - **`resources/uv-commands.md`** - Essential uv command reference
-- **`resources/cast-structure.md`** - Cast directory layout guide
 - **`resources/troubleshooting.md`** - Common issues and fixes
 
 ## Workflow Integration

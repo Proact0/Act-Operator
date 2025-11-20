@@ -248,8 +248,8 @@ builder.add_node("tools", tool_node)
 
 | What | Where |
 |------|-------|
-| State schema | `casts/[cast]/state.py` |
-| Nodes | `casts/[cast]/nodes.py` |
+| State schema | `casts/[cast]/modules/state.py` |
+| Nodes | `casts/[cast]/modules/nodes.py` |
 | Graph | `casts/[cast]/graph.py` |
 | Routing functions | `casts/[cast]/conditions.py` |
 | **Tools** | **`modules/tools/`** ⚠️ |

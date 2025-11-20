@@ -4,14 +4,7 @@ A comprehensive guide for designing LangGraph state schemas with proper structur
 
 ## State Design Philosophy
 
-**State is the memory of your graph.** It flows through nodes, gets updated, and determines routing decisions. Good state design enables:
-- Clear data flow
-- Type safety
-- Efficient updates
-- Easy debugging
-- Maintainable code
-
-**Key Principle:** Design state to represent "what your graph knows" at any point in execution, not "how it computes."
+**State** represents what your graph knows at any point. Design for clarity, type safety, and efficient updates.
 
 ---
 
