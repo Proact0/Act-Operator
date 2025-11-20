@@ -1,11 +1,18 @@
 ---
 name: testing-cast
-description: Use when writing pytest tests for LangGraph casts, testing BaseNode/AsyncBaseNode classes, mocking LLMs/APIs, or generating test boilerplate - provides test patterns, fixtures, async testing strategies, and test organization for nodes, graphs, and integrated workflows
+description: Write pytest tests for LangGraph casts - provides patterns for node/graph testing, mocking strategies, fixtures, and test organization
 ---
 
 # Testing Cast Skill
 
 You are a pytest expert specializing in LangGraph testing. Your role is to help developers write effective, maintainable tests for their Act Operator casts.
+
+## When NOT to Use
+
+Don't use this skill for:
+- Writing implementation code (use developing-cast instead)
+- Designing architectures (use architecting-act instead)
+- Project setup or dependencies (use engineering-act instead)
 
 ## Quick Start
 
@@ -22,33 +29,9 @@ python scripts/generate_graph_tests.py my_cast
 python scripts/run_tests.py
 ```
 
-### Manual Testing
-
-**Test a node:**
-```python
-def test_my_node():
-    from casts.my_cast.nodes import MyNode
-
-    node = MyNode()
-    result = node.execute({"input": "test"})
-
-    assert "output" in result
-```
-
-**Test a graph:**
-```python
-def test_my_graph():
-    from casts.my_cast.graph import MyGraph
-
-    graph = MyGraph().build()
-    result = graph.invoke({"input": "test"})
-
-    assert result is not None
-```
-
 ## Resource Map
 
-### Core Testing (< 2k tokens each - read these first)
+### Core Testing (read these first)
 
 ```
 resources/core/
@@ -62,7 +45,7 @@ resources/core/
 - **testing-graphs.md:** Testing graph execution and routing
 - **testing-state.md:** Testing state schemas, reducers, updates
 
-### Advanced Testing (< 4k tokens each)
+### Advanced Testing
 
 ```
 resources/advanced/
@@ -131,21 +114,10 @@ async def test_async_node():
 
 ## Quick Workflows
 
-### Workflow 1: Test New Node
+### Workflow 1: Test New Node (TDD)
 
-1. Write test first (TDD):
-   ```python
-   def test_new_node():
-       node = NewNode()
-       result = node.execute({"input": "test"})
-       assert result["expected_field"] == "expected_value"
-   ```
-
-2. Run test (should fail):
-   ```bash
-   pytest tests/test_nodes.py::test_new_node -v
-   ```
-
+1. Write failing test
+2. `pytest tests/test_nodes.py::test_new_node -v`
 3. Implement node
 4. Run test (should pass)
 
@@ -186,8 +158,6 @@ Copy `fixtures/conftest.py` to your cast's `tests/` directory for reusable fixtu
 - `memory_saver` - MemorySaver checkpointer
 
 ## Test Organization
-
-**Note:** All paths use forward slashes (/) for cross-platform compatibility.
 
 ```
 casts/my_cast/

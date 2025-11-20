@@ -54,14 +54,12 @@ uv add --upgrade package-name
 ## Environment Synchronization
 
 ```bash
-# Sync ALL cast packages + development dependencies (monorepo command)
-uv sync --all-packages
-
-# This command:
+# Sync ALL cast packages + development dependencies
 # - Installs ALL cast packages in the monorepo workspace
 # - Installs dev, test, and lint dependency groups
 # - Required for full development environment setup
 # - Use this after cloning the repository
+uv sync --all-packages
 
 # Force reinstall
 uv sync --reinstall
@@ -76,11 +74,11 @@ uv sync --all-packages      # Sync all groups
 
 ### After Editing pyproject.toml
 ```bash
-# Sync environment (lockfile updated automatically by GitHub Actions)
+# Sync environment to match updated pyproject.toml
 uv sync --all-packages
 ```
 
-**Note:** `uv.lock` is managed by CI/CD pipeline. Use `uv add/remove` for dependencies.
+**Note:** `uv add/remove` commands automatically update both `pyproject.toml` and `uv.lock`. Use these instead of manual edits.
 
 ### Adding LangChain Integrations in Cast Package
 ```bash
@@ -90,10 +88,9 @@ uv add --package {cast_name} langchain-anthropic     # Anthropic
 
 ## Best Practices
 
-✓ Use `uv add/remove` for dependency changes (auto-updates lock + sync)
+✓ Use `uv add/remove` for dependency changes (auto-updates pyproject.toml and uv.lock)
 ✓ Use `uv sync --all-packages` for monorepo development setup
 ✓ Let `uv run` manage environment activation
-✓ `uv.lock` managed by GitHub Actions (commit changes from CI)
 ✓ Use `uvx` for one-off tool execution
 
 ❌ Don't manually edit `uv.lock` (use uv commands)

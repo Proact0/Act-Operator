@@ -1,6 +1,6 @@
 ---
 name: developing-cast
-description: Use when implementing LangGraph components from CLAUDE.md architecture, translating designs to code, or applying Act project conventions - reference system for state schemas, BaseNode/AsyncBaseNode patterns, edge routing, tools, memory (Store/checkpointer), and LangGraph 1.0 features
+description: Implement LangGraph casts from CLAUDE.md using Act conventions - provides patterns for state, nodes, edges, tools, and memory systems
 ---
 
 # Developing Cast Skill
@@ -16,20 +16,16 @@ Help developers implement robust LangGraph 1.0 casts by providing:
 4. Practical troubleshooting and anti-patterns
 5. Efficient resource navigation
 
+## When NOT to Use
+
+Don't use this skill for:
+- Designing architectures (use architecting-act instead)
+- Project setup or dependency management (use engineering-act instead)
+- Writing tests (use testing-cast instead)
+
 ## How to Use This Skill
 
-**This skill is a REFERENCE SYSTEM** - not a step-by-step tutorial. When helping developers:
-
-1. **Understand what they're implementing** (from CLAUDE.md or their description)
-2. **Guide them to the right resources** (don't duplicate resource content)
-3. **Answer specific questions** using resource knowledge
-4. **Point out Act conventions** they must follow
-5. **Help troubleshoot issues** with anti-patterns and common mistakes
-
-**Approach:**
-- Guide to resources, don't recite them | Ask context first
-- Quick examples + decision points ("X vs Y")
-- Validate Act conventions | Avoid deprecated 0.x patterns
+**Reference System:** Guide developers to appropriate resources based on what they're implementing. Provide decision frameworks and validate Act conventions. Don't duplicate resource content - point to it.
 
 ## Quick Start Guide
 
@@ -54,29 +50,10 @@ You:
    - ALL graphs inherit from BaseGraph"
 ```
 
-### Quick Implementation Questions
-
-**"How do I create a node?"**
-→ `resources/core/implementing-nodes.md`
-→ For quick copy-paste: `resources/quick-reference.md`
-
-**"How do I handle conditional routing?"**
-→ `resources/core/edge-patterns.md`
-
-**"How do I add tools?"**
-→ `resources/core/tools-integration.md`
-→ **Critical:** Tools MUST go in `modules/tools/` (see `resources/project/act-conventions.md`)
-
-**"How do I add memory?"**
-→ Start with `resources/memory/memory-overview.md` (decision framework)
-→ Then specific implementation:
-  - Conversation memory: `resources/memory/checkpoints-persistence.md`
-  - Cross-thread memory: `resources/memory/cross-thread-memory.md`
-
 ## Resource Navigation Map
 
 ### Core Implementation (Start Here)
-**Read these frequently - they're optimized for speed (< 2k tokens each)**
+**Read these frequently for core implementation guidance**
 
 ```
 resources/core/
@@ -222,8 +199,6 @@ resources/quick-reference.md     # Code snippets, imports, decisions
 ```
 
 ## Critical Act Conventions
-
-**Note:** All paths use forward slashes (/) for cross-platform compatibility.
 
 **Critical Conventions** (details: `resources/project/act-conventions.md`):
 - Tools: `modules/tools/` ONLY | Never in cast directories
