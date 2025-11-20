@@ -1,12 +1,26 @@
-# Act Template Skills - Comprehensive Analysis and Restructuring
+# Act Template Skills - Comprehensive Analysis, Restructuring, and Implementation
 
-Analyze and restructure all Claude skills for the Act Template.
+Analyze, restructure, and update all Claude skills for the Act Template.
 
 **Context:** Act Operator is a cookiecutter-based CLI tool that generates Act Template projects. The skills you are analyzing guide users working within generated Act Template projects.
 
 **Skills Location:** `act_operator/act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
 
 **Note:** `{{ cookiecutter.* }}` are Jinja2 template variables replaced by cookiecutter during project setup.
+
+---
+
+## Your Mission
+
+This is a comprehensive improvement process:
+
+1. **Analyze** all skills thoroughly
+2. **Document** all issues found
+3. **Restructure** resources for optimal organization
+4. **Implement** all fixes and improvements
+5. **Verify** changes are correct
+
+You will be making actual file changes to improve the skills.
 
 ---
 
@@ -62,7 +76,7 @@ When Act Operator generates a project, it creates this structure:
 
 **Dynamic Structure:**
 - Users can add multiple casts to `casts/` directory
-- Each cast gets its own test file in `tests/cast_tests/[cast_name]_test.py`
+- Each cast gets its own test file in `tests/cast_tests/{cast_name}_test.py`
 - Node tests for all casts go in `tests/node_tests/`
 
 ---
@@ -134,235 +148,334 @@ Run with: `uv run pytest tests/node_tests/`
 
 ---
 
-## Analysis Methodology
+## Workflow
 
-### Phase 1: Discovery
+### Phase 1: Analysis
 
-Read all resources in each skill:
-- Every `.md` file in `resources/`
-- All scripts in `scripts/`
-- All templates in `templates/`
-- Note all file paths, import patterns, and structural examples
+Read and analyze all resources:
 
-### Phase 2: Verification
+**For each skill:**
+1. Read SKILL.md
+2. Read all files in `resources/`
+3. Read all files in `scripts/`
+4. Read all files in `templates/`
+5. Note issues, patterns, inefficiencies
 
-For each code example:
-- Verify file paths match template structure
-- Verify imports match correct patterns
-- Check structural references are accurate
-- Confirm test organization alignment
+**Compare against:**
+- Template structure (scaffold files)
+- Import patterns (actual template code)
+- Test structure
+- Python conventions
+- LangGraph best practices
 
-### Phase 3: Pattern Analysis
+### Phase 2: Documentation
 
-Within each skill:
-- Identify duplicate content
-- Identify contradictions
-- Identify inefficiencies
-- Identify gaps
+Create issue inventory:
 
-Across skills:
-- Check terminology consistency
-- Check for overlaps
-- Verify integration points
+**For each issue found:**
+- Specific file and line location
+- Severity (CRITICAL/HIGH/MEDIUM/LOW)
+- Clear description
+- Correct pattern
+- Fix action needed
 
-### Phase 4: Evaluation
+**Organize by:**
+- Skill (architecting-act, developing-cast, etc.)
+- Category (structure, imports, tests, scope, efficiency, etc.)
+- Severity
 
-For each resource:
-- Accuracy against template structure
-- Completeness of coverage
-- Organization efficiency
-- Clarity of instructions
+### Phase 3: Planning
 
-For each skill:
-- Resource organization effectiveness
-- Scope appropriateness
-- Integration with other skills
+Develop implementation plan:
 
-### Phase 5: Recommendation
+**Prioritize:**
+1. CRITICAL issues (breaks functionality)
+2. HIGH issues (incorrect information)
+3. MEDIUM issues (inefficiency, inconsistency)
+4. LOW issues (optimization)
 
-Document findings:
-- Specific issues with locations
-- Severity assessment
-- Proposed solutions
-- Restructuring proposals when needed
+**Consider:**
+- File reorganization needs
+- Resource merging/splitting
+- New resources needed
+- Deprecated resources
+
+### Phase 4: Implementation
+
+Execute fixes systematically:
+
+**For content fixes:**
+1. Update file paths
+2. Correct import patterns
+3. Fix code examples
+4. Remove out-of-scope content
+5. Improve clarity and efficiency
+
+**For restructuring:**
+1. Create new organization
+2. Move/merge resources
+3. Update cross-references in SKILL.md
+4. Remove deprecated resources
+
+**Use tools:**
+- Read: Verify current content
+- Edit: Make targeted changes
+- Write: Create new resources
+- Bash: Rename/move files if needed
+
+### Phase 5: Verification
+
+Confirm changes are correct:
+
+**Check:**
+- All file paths match template
+- All imports are correct
+- All code examples work
+- No broken references
+- Consistent terminology
+- Clear, efficient content
 
 ---
 
-## Issue Categories to Investigate
+## Issue Categories
 
 ### Structure References
 
-Verify all file path examples:
-- `casts/[cast]/modules/state.py` ✓
-- `casts/[cast]/modules/nodes.py` ✓
-- `casts/[cast]/modules/conditions.py` ✓
+Verify:
+- `casts/{cast}/modules/state.py` ✓
+- `casts/{cast}/modules/nodes.py` ✓
+- No references to non-existent root `modules/`
 
 ### Import Patterns
 
-Check all import examples:
+Check:
 - graph.py uses absolute imports
 - modules/*.py uses absolute for base classes
-- modules/*.py uses relative for sibling modules
+- modules/*.py uses relative for siblings
 
 ### Template Variables
 
-Check handling of cookiecutter variables:
-- `{{ cookiecutter.act_slug }}`
-- `{{ cookiecutter.cast_snake }}`
-- `{{ cookiecutter.cast_pascal }}`
-- Explained when relevant, not overused
+Verify:
+- `{{ cookiecutter.act_slug }}` used appropriately
+- `{{ cookiecutter.cast_snake }}` used appropriately
+- Explained when needed, not overused
 
 ### Node Naming
 
-Verify node examples:
+Ensure:
 - PascalCase class names
 - Noun-based (what it IS)
 
 ### Test Organization
 
-Check test references:
-- `tests/cast_tests/{cast_name}_test.py` for each cast
-- `tests/node_tests/test_node.py` for node tests
-- Dynamic test file creation per cast
+Verify:
+- `tests/cast_tests/{cast_name}_test.py`
+- `tests/node_tests/test_node.py`
+- Dynamic per-cast test files
 
 ### Scope Alignment
 
-Verify content is within template scope:
-- Building casts ✓
-- Testing casts ✓
-- Deploying projects ✗ (out of scope)
-- Using deployed graphs ✗ (out of scope)
+Remove:
+- Deployment content (out of scope)
+- Usage/consumption patterns (out of scope)
+
+Keep:
+- Building casts
+- Testing casts
 
 ### Content Efficiency
 
-Look for:
+Eliminate:
 - Redundant explanations
 - Duplicate examples
-- Unnecessary verbosity
-- Cross-references between resources
+- Excessive verbosity
+- Unnecessary cross-references
 
-### Terminology Consistency
+### Terminology
 
-Check for consistent use of:
-- "cast" (not "graph" or "agent" as primary term)
-- nodes.py vs agents.py
-- conditions.py vs routing functions
-- Standard naming patterns
-
----
-
-## Output Format
-
-### Part 1: Issue Inventory
-
-For each skill, document issues:
-
-```markdown
-## [Skill Name]
-
-### Issue: [Title]
-**Files:** [Specific paths and lines]
-**Severity:** CRITICAL | HIGH | MEDIUM | LOW
-**Description:** [What's wrong]
-**Correction:** [What it should be]
-**Action:** [Specific fix needed]
-```
-
-### Part 2: Restructuring Proposals
-
-When resource organization needs improvement:
-
-```markdown
-## [Skill Name] Restructuring
-
-### Current Structure
-[Current organization]
-
-### Proposed Structure
-[Improved organization]
-
-### Rationale
-[Why this improves effectiveness]
-
-### Implementation
-[How to migrate]
-```
-
-### Part 3: Priority Action Plan
-
-```markdown
-## Action Plan
-
-### Phase 1: Critical Fixes
-[CRITICAL severity issues]
-
-### Phase 2: High Priority
-[HIGH severity issues]
-
-### Phase 3: Improvements
-[MEDIUM/LOW severity]
-
-### Phase 4: Restructuring
-[Organizational improvements]
-```
+Standardize:
+- "cast" as primary term
+- Consistent file naming
+- Consistent concepts
 
 ---
 
-## Analysis Scope
+## Implementation Guidelines
 
-### Accuracy
-- File paths match template structure
-- Import patterns match generated code
-- Structure examples are correct
-- Code examples work in generated projects
+### Making Changes
 
-### Completeness
-- All necessary topics covered
-- No critical gaps
-- Appropriate depth for template users
+**File modifications:**
+```bash
+# Read before editing
+Read file_path
 
-### Efficiency
-- No unnecessary content
-- Clear, concise instructions
-- Minimal redundancy
-- Self-contained resources
+# Make precise edits
+Edit file_path old_string new_string
 
-### Organization
-- Logical resource grouping
-- Appropriate depth (one level from SKILL.md)
-- Easy navigation
-- Clear scope
+# Or write new content
+Write file_path content
+```
 
-### Integration
-- Consistent with other skills
-- No contradictions
-- Smooth handoffs between skills
+**File organization:**
+```bash
+# Rename/move if needed
+mv old_path new_path
 
----
+# Remove deprecated
+rm deprecated_file
+```
 
-## Quality Standards
+### Change Standards
 
-### Precision
-Every file path, import pattern, and code example must match what's generated by Act Operator.
+**Every change must:**
+- Fix a documented issue
+- Be verifiable against template
+- Maintain or improve clarity
+- Not introduce new issues
 
-### Completeness
-Cover all resources thoroughly. Don't skip files or sections.
+**Avoid:**
+- Changing correct content
+- Breaking working examples
+- Introducing inconsistencies
+- Over-engineering
 
-### Clarity
-Issues must be specific with exact file locations and line numbers.
+### Batch Changes
 
-### Practicality
-Recommendations must be implementable with clear action steps.
+**For systematic issues:**
+1. Document the pattern
+2. Find all instances
+3. Fix consistently
+4. Verify all fixes
+
+**Example:**
+```markdown
+Pattern: `casts/{cast}/state.py` → `casts/{cast}/modules/state.py`
+Files affected: 15 resources in developing-cast
+Fix approach: Search and replace with verification
+```
 
 ---
 
 ## Deliverables
 
-1. **Complete Issue Inventory** - All issues found across all skills
-2. **Restructuring Proposals** - Organizational improvements needed
-3. **Priority Action Plan** - Phased implementation roadmap
-4. **Verification Checklist** - How to confirm fixes are correct
+### 1. Analysis Report
+
+```markdown
+# Skills Analysis Report
+
+## Summary
+- Files analyzed: [count]
+- Issues found: [count by severity]
+- Resources restructured: [count]
+
+## Issues by Skill
+
+### architecting-act
+[List of issues with severity]
+
+### developing-cast
+[List of issues with severity]
+
+### engineering-act
+[List of issues with severity]
+
+### testing-cast
+[List of issues with severity]
+
+## Restructuring Performed
+[List of reorganizations]
+```
+
+### 2. Implementation Log
+
+```markdown
+# Implementation Log
+
+## Files Modified
+1. [file_path] - [what was changed]
+2. [file_path] - [what was changed]
+...
+
+## Files Created
+1. [file_path] - [purpose]
+...
+
+## Files Removed
+1. [file_path] - [reason]
+...
+
+## Verification Results
+[Confirmation all changes are correct]
+```
+
+### 3. Updated Skills
+
+All skill files corrected and improved, ready for use.
 
 ---
 
-Begin systematic analysis following the five phases. Focus on accuracy, completeness, and practical improvements for template users.
+## Quality Standards
+
+### Accuracy
+Every file path, import, and example must match the template.
+
+### Completeness
+All issues must be addressed, no gaps.
+
+### Consistency
+Same patterns applied uniformly across all skills.
+
+### Efficiency
+Concise, clear, actionable content.
+
+### Verifiability
+All changes can be confirmed against template structure.
+
+---
+
+## Example Workflow
+
+### Issue Found
+```markdown
+Issue: Incorrect file paths in developing-cast/resources/quick-reference.md
+Location: Lines 246-257
+Pattern: Missing `modules/` in all paths
+Severity: CRITICAL
+```
+
+### Implementation
+```python
+# Read current content
+Read "act_operator/.../quick-reference.md"
+
+# Fix paths
+Edit "act_operator/.../quick-reference.md"
+  old: "| State schema | `casts/[cast]/state.py` |"
+  new: "| State schema | `casts/[cast]/modules/state.py` |"
+
+Edit "act_operator/.../quick-reference.md"
+  old: "| Nodes | `casts/[cast]/nodes.py` |"
+  new: "| Nodes | `casts/[cast]/modules/nodes.py` |"
+
+# Verify
+Read "act_operator/.../quick-reference.md"  # Check changes
+```
+
+### Verification
+```markdown
+✓ All paths now include modules/
+✓ Matches template structure
+✓ No broken references
+✓ Consistent with other resources
+```
+
+---
+
+Begin the comprehensive improvement process. Work through all five phases systematically, making actual improvements to the skills documentation.
+
+Focus on:
+1. **Accuracy** - Fix all incorrect information
+2. **Efficiency** - Remove redundancy and verbosity
+3. **Organization** - Restructure for optimal usability
+4. **Completeness** - Address all issues found
+5. **Quality** - Ensure every change improves the skills
