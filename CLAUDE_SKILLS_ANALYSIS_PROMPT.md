@@ -165,8 +165,32 @@ Read and analyze all resources:
 - Template structure (scaffold files)
 - Import patterns (actual template code)
 - Test structure
-- Python conventions
-- LangGraph best practices
+- Python 3.10+ conventions
+- **LangGraph 1.0 best practices:**
+  - max_steps for loop safety
+  - Error boundary patterns
+  - Type validation with Pydantic
+  - Nodes as pure functions
+  - State should be small, typed, validated
+- **LangChain 1.0 changes:**
+  - create_react_agent deprecation
+  - Parameter renames (prompt → system_prompt)
+  - TypedDict for state schemas
+  - Property changes (.text() → .text)
+- **Claude Skill Best Practices:**
+  - Context efficiency (no token count mentions)
+  - Concise, actionable content
+  - Specific descriptions with key terms
+  - Avoid duplicate content
+
+**Look for:**
+- Missing modern patterns (max_steps, error boundaries, validators)
+- Duplicate content across files
+- Out-of-scope content (runtime, deployment, external references)
+- Verbose explanations that could be condensed
+- Excessive cross-references
+- Unclear or contradictory guidance
+- Typos and technical errors
 
 ### Phase 2: Documentation
 
@@ -239,6 +263,210 @@ Confirm changes are correct:
 
 ## Issue Categories
 
+### 🔴 CRITICAL: LangGraph 1.0 Best Practices
+
+**Missing Patterns to Add:**
+
+1. **max_steps Configuration** - LangGraph 1.0's loop safety mechanism
+   - Location: All loop/retry patterns in architecting-act, developing-cast
+   - Pattern:
+   ```python
+   graph = builder.compile(
+       checkpointer=checkpointer,
+       max_steps=10  # Prevent infinite loops
+   )
+   ```
+   - Files to update:
+     - architecting-act/resources/workflow-patterns.md (ReAct, Reflection patterns)
+     - architecting-act/resources/edge-routing-guide.md (Loop Design section)
+     - architecting-act/resources/anti-patterns.md (Infinite Loop)
+     - developing-cast/resources/advanced/error-handling-retry.md
+     - developing-cast/resources/quick-reference.md
+
+2. **Error Boundary Pattern** - State fields for error tracking
+   - Pattern:
+   ```python
+   class State(TypedDict):
+       error: Optional[str]  # Error boundary
+       error_count: Annotated[int, operator.add]
+   ```
+   - Files to update:
+     - architecting-act/resources/state-design-guide.md
+     - architecting-act/resources/node-architecture-guide.md
+     - developing-cast/resources/core/state-management.md
+
+3. **Type Validation** - Pydantic validators for state safety
+   - Pattern:
+   ```python
+   from pydantic import BaseModel, field_validator
+
+   class State(BaseModel):
+       query: str
+
+       @field_validator('query')
+       @classmethod
+       def query_not_empty(cls, v):
+           if not v.strip():
+               raise ValueError('Query cannot be empty')
+           return v
+   ```
+   - Files to update:
+     - architecting-act/resources/state-design-guide.md
+     - developing-cast/resources/core/state-management.md
+
+4. **Nodes as Pure Functions** - Core LangGraph 1.0 principle
+   - Principle: "Return partial state updates, don't mutate inputs"
+   - Promote from "Common Mistakes" to main guidance
+   - Files to update:
+     - developing-cast/resources/core/implementing-nodes.md
+     - developing-cast/SKILL.md
+
+### 🔴 CRITICAL: LangChain 1.0 Breaking Changes
+
+**Update Required:**
+
+1. **Python 3.10+ Requirement** - Add to all skills
+2. **create_react_agent Deprecated:**
+   - OLD: `langgraph.prebuilt.create_react_agent`
+   - NEW: `langchain.agents.create_agent`
+3. **Parameter Renames:**
+   - `prompt` → `system_prompt`
+   - `.text()` → `.text` (property)
+4. **TypedDict Only** - Pydantic models deprecated for state schemas
+5. **Agent Creation** - All legacy abstractions deprecated
+
+Files to update:
+- architecting-act/SKILL.md (lines 316-328: LangGraph 1.0 section)
+- developing-cast/SKILL.md (lines 234-242: LangGraph 1.0 section)
+
+### 🟡 Context Efficiency Issues
+
+**Unnecessary Meta-Information to Remove:**
+
+1. **Token Count Mentions:**
+   - testing-cast/SKILL.md line 51: "< 2k tokens each"
+   - testing-cast/SKILL.md line 65: "< 4k tokens each"
+   - Reason: Claude skill best practices - token counts are meta-info not needed for usage
+
+2. **Repetitive Notes:**
+   - "All paths use forward slashes (/) for cross-platform compatibility"
+   - Appears in: architecting-act, developing-cast, testing-cast SKILL.md
+   - Keep once, remove others
+
+### 🟡 Duplicate Content to Consolidate
+
+**State Examples:**
+- developing-cast/resources/core/state-management.md (lines 113-121)
+- developing-cast/resources/project/act-conventions.md (lines 202-211)
+- Action: Remove from act-conventions.md, reference state-management.md
+
+**Retry Patterns:**
+- developing-cast/resources/advanced/error-handling-retry.md (lines 182-208)
+- developing-cast/resources/quick-reference.md (lines 200-214)
+- Action: Keep detailed in error-handling-retry.md, summarize in quick-reference
+
+**Node Templates:**
+- developing-cast/resources/core/implementing-nodes.md (lines 14-26)
+- developing-cast/resources/quick-reference.md (lines 6-12)
+- Action: Quick-reference shows imports only, full example in implementing-nodes
+
+**uv Commands:**
+- engineering-act/SKILL.md (lines 14-23, 136-137)
+- engineering-act/resources/uv-commands.md (lines 39-52)
+- engineering-act/resources/troubleshooting.md (`uv sync --all-packages` repeated 5+ times)
+- Action: SKILL.md Quick Commands only, others reference it
+
+**Fixture Lists:**
+- testing-cast/SKILL.md (lines 178-186)
+- testing-cast/fixtures/conftest.py
+- Action: Remove list from SKILL.md, reference file only
+
+**Reducers:**
+- architecting-act/resources/state-design-guide.md (lines 138-199 detailed + lines 542-552 summary)
+- Action: Consolidate into single concise section
+
+**Loops:**
+- architecting-act/resources/edge-routing-guide.md (lines 235-283 Loop Design + lines 266-283 Best Practices)
+- Action: Merge into single section
+
+### 🔴 Out-of-Scope Content to Remove
+
+**engineering-act scope violations:**
+
+1. **cast-structure.md (entire file - 256 lines)**
+   - Current location: engineering-act/resources/
+   - Problem: Describes cast architecture, not dependency management
+   - Action: Remove from engineering-act (belongs in developing-cast or architecting-act)
+
+2. **LangGraph Runtime Issues**
+   - File: engineering-act/resources/troubleshooting.md (lines 102-128)
+   - Problem: Runtime troubleshooting, not engineering/build issues
+   - Action: Remove
+
+3. **LangChain Integration List**
+   - File: engineering-act/SKILL.md (lines 104-117)
+   - Problem: Too specific, not general tooling
+   - Action: Remove or move to developing-cast
+
+4. **LangGraph Server Command**
+   - File: engineering-act/SKILL.md (lines 129-132)
+   - Command: `uvx --from langgraph-cli langgraph dev`
+   - Problem: Runtime command, not engineering
+   - Action: Remove
+
+**architecting-act scope violations:**
+
+5. **External References Section**
+   - File: architecting-act/resources/workflow-patterns.md (lines 349-355)
+   - Content: Links to ReAct Paper, Reflexion, LATS papers
+   - Problem: External papers not needed for architecture design
+   - Action: Remove
+
+6. **Scripts Implementation Details**
+   - File: architecting-act/SKILL.md (lines 237-270)
+   - Content: Detailed Features, Checks for scripts
+   - Problem: Script documentation, not architecture guidance
+   - Action: Keep usage only, remove implementation details
+
+### 🟡 Verbose Explanations to Condense
+
+**SOLID Principles:**
+- File: architecting-act/resources/node-architecture-guide.md (lines 16-113)
+- Current: 100 lines
+- Target: 50 lines (5-7 lines per principle with integrated examples)
+
+**Cast Structure Details:**
+- File: engineering-act/resources/cast-structure.md (lines 28-159)
+- Current: 130+ lines with full code examples
+- Target: Purpose descriptions only (30-40 lines)
+
+**"When to use" Lists:**
+- File: developing-cast/resources/core/implementing-nodes.md (lines 28-33, 50-54)
+- Current: 4 bullets each
+- Target: 2 bullets each
+
+**Table of Contents:**
+- File: developing-cast/resources/advanced/error-handling-retry.md (lines 3-23)
+- Current: 21 lines
+- Target: 3-5 lines or remove
+
+**Remove Unnecessary Sections:**
+- Pros/Cons sections in developing-cast/resources/core/state-management.md (lines 32-36, 51-55)
+- Pros/Cons in developing-cast/resources/advanced/error-handling-retry.md (lines 58-65)
+- Reason: Patterns speak for themselves, trade-offs are obvious
+
+### 🟡 Cross-References to Clean Up
+
+**Mid-document cross-references (interrupt flow):**
+- developing-cast/resources/core/implementing-nodes.md (lines 89, 149)
+- Action: Remove mid-doc refs, keep end-of-doc only
+
+**Excessive "Related:" sections:**
+- developing-cast/resources/project/act-conventions.md (lines 352-357: 4 refs)
+- developing-cast/resources/core/implementing-nodes.md (lines 236-241: 3 refs)
+- developing-cast/resources/core/state-management.md (lines 170-174: 2 refs)
+- Action: Maximum 2 related refs per document
+
 ### Structure References
 
 Verify:
@@ -273,23 +501,27 @@ Verify:
 - `tests/node_tests/test_node.py`
 - Dynamic per-cast test files
 
-### Scope Alignment
+### Typos and Technical Errors
 
-Remove:
-- Deployment content (out of scope)
-- Usage/consumption patterns (out of scope)
+Fix:
+- architecting-act/resources/workflow-patterns.md line 147: "DON'NOT use" → "DON'T use"
+- engineering-act/SKILL.md lines 22-23: Conflicting comments about `uv sync`
 
-Keep:
-- Building casts
-- Testing casts
+### Unclear Guidance to Clarify
 
-### Content Efficiency
+1. **engineering-act/SKILL.md (lines 22-23):**
+   - Current: Contradictory comments about `uv sync`
+   - Fix: Clear explanation of when to use each variant
 
-Eliminate:
-- Redundant explanations
-- Duplicate examples
-- Excessive verbosity
-- Unnecessary cross-references
+2. **testing-cast/SKILL.md (line 179):**
+   - Current: "Copy `fixtures/conftest.py`"
+   - Problem: Copy or symlink? How to handle updates?
+   - Fix: "Use fixtures/conftest.py as a template"
+
+3. **architecting-act/SKILL.md (lines 192-201):**
+   - Current: Script command with placeholder arguments
+   - Problem: Unclear how to populate values
+   - Fix: Show actual example values or explain interactive mode
 
 ### Terminology
 
@@ -471,11 +703,96 @@ Read "act_operator/.../quick-reference.md"  # Check changes
 
 ---
 
+## Priority Guidelines
+
+### 🔴 HIGH Priority (Fix First)
+
+These issues affect correctness and functionality:
+
+1. **LangGraph 1.0 Best Practices**
+   - Add max_steps patterns
+   - Add error boundary patterns
+   - Add type validation examples
+   - Promote "nodes as pure functions" principle
+
+2. **LangChain 1.0 Breaking Changes**
+   - Update create_react_agent references
+   - Update parameter names
+   - Clarify TypedDict vs Pydantic for state
+
+3. **Out-of-Scope Content**
+   - Remove cast-structure.md from engineering-act
+   - Remove runtime troubleshooting
+   - Remove external references
+   - Remove implementation details from SKILL.md files
+
+4. **Typos and Errors**
+   - Fix "DON'NOT use" typo
+   - Resolve contradictory uv sync comments
+
+### 🟡 MEDIUM Priority (Improve Quality)
+
+These issues affect usability and clarity:
+
+5. **Duplicate Content Consolidation**
+   - Consolidate state examples
+   - Consolidate retry patterns
+   - Consolidate node templates
+   - Consolidate uv commands
+
+6. **Context Efficiency**
+   - Remove token count mentions
+   - Remove repetitive notes
+   - Condense verbose sections (SOLID, TOC, "When to use")
+   - Remove unnecessary Pros/Cons sections
+
+7. **Cross-References**
+   - Remove mid-document cross-refs
+   - Limit end-of-doc refs to 2 maximum
+
+8. **Unclear Guidance**
+   - Clarify fixture usage pattern
+   - Clarify script argument examples
+   - Clarify uv sync variants
+
+### 🟢 LOW Priority (Polish)
+
+Nice-to-have improvements:
+
+9. **Modern Tool Patterns**
+   - Add pytest-mock examples
+   - Add uv lock, uv tree commands
+   - Add async fixture patterns
+
+10. **Additional Guidelines**
+    - Add state size guidelines
+    - Add verification checklists
+    - Enhance cross-skill workflow integration
+
+---
+
+## Estimated Impact
+
+**Files to modify:** ~29 files across all skills
+**Lines to remove/condense:** ~800 lines
+**Lines to add:** ~400 lines
+**Net result:** More concise, accurate, and modern documentation
+
+---
+
 Begin the comprehensive improvement process. Work through all five phases systematically, making actual improvements to the skills documentation.
 
+**Recommended approach:**
+
+1. **Phase 1 (Analysis):** Read all skills thoroughly, document all issues found
+2. **Phase 2 (Documentation):** Create complete issue inventory with file:line references
+3. **Phase 3 (Planning):** Prioritize fixes (HIGH → MEDIUM → LOW)
+4. **Phase 4 (Implementation):** Apply fixes systematically, verify each change
+5. **Phase 5 (Verification):** Confirm all changes are correct and complete
+
 Focus on:
-1. **Accuracy** - Fix all incorrect information
-2. **Efficiency** - Remove redundancy and verbosity
-3. **Organization** - Restructure for optimal usability
-4. **Completeness** - Address all issues found
-5. **Quality** - Ensure every change improves the skills
+1. **Accuracy** - Fix all incorrect information (LangGraph 1.0, LangChain 1.0)
+2. **Efficiency** - Remove redundancy and verbosity (duplicates, context waste)
+3. **Organization** - Restructure for optimal usability (scope alignment)
+4. **Completeness** - Address all issues found (modern patterns, missing guidance)
+5. **Quality** - Ensure every change improves the skills (clarity, consistency)
