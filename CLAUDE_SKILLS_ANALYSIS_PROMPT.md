@@ -1,17 +1,23 @@
-# Act Operator Skills - Comprehensive Analysis and Restructuring
+# Act Template Skills - Comprehensive Analysis and Restructuring
 
-Analyze and restructure all Claude skills in: `act_operator/act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
+Analyze and restructure all Claude skills for the Act Template.
+
+**Context:** Act Operator is a cookiecutter-based CLI tool that generates Act Template projects. The skills you are analyzing guide users working within generated Act Template projects.
+
+**Skills Location:** `act_operator/act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
+
+**Note:** `{{ cookiecutter.* }}` are Jinja2 template variables replaced by cookiecutter during project generation.
 
 ---
 
-## Act Project Structure
+## Act Template Structure
 
-This is the complete and accurate project structure:
+When Act Operator generates a project, it creates this structure:
 
 ```
-{{ cookiecutter.act_slug }}/
+{{ cookiecutter.act_slug }}/                    # Project name (e.g., "my-project")
 ├── .claude/
-│   └── skills/
+│   └── skills/                                 # Skills for Claude to help users
 │       ├── architecting-act/
 │       ├── developing-cast/
 │       ├── engineering-act/
@@ -20,7 +26,7 @@ This is the complete and accurate project structure:
 │   ├── __init__.py
 │   ├── base_node.py
 │   ├── base_graph.py
-│   └── {{ cookiecutter.cast_snake }}/
+│   └── {{ cookiecutter.cast_snake }}/          # Initial cast (e.g., "hello_world")
 │       ├── __init__.py
 │       ├── graph.py
 │       ├── pyproject.toml
@@ -54,6 +60,11 @@ This is the complete and accurate project structure:
 └── TEMPLATE_README.md
 ```
 
+**Dynamic Structure:**
+- Users can add multiple casts to `casts/` directory
+- Each cast gets its own test file in `tests/cast_tests/[cast_name]_test.py`
+- Node tests for all casts go in `tests/node_tests/`
+
 ---
 
 ## Import Patterns
@@ -83,21 +94,13 @@ from .models import get_llm         # Relative
 from .prompts import SYSTEM_PROMPT  # Relative
 ```
 
-### In modules/tools.py
-
-```python
-# casts/my_cast/modules/tools.py
-from langchain_core.tools import tool
-from .utils import helper_function  # Relative
-```
-
 ---
 
 ## Test Structure
 
 ### Graph Tests
 
-**Location:** `tests/cast_tests/{{ cookiecutter.cast_snake }}_test.py`
+**Location:** `tests/cast_tests/{cast_name}_test.py` (one per cast)
 
 Template file for automated graph testing:
 
@@ -114,7 +117,7 @@ Run with: `uv run pytest tests/cast_tests/`
 
 ### Node Tests
 
-**Location:** `tests/node_tests/test_node.py`
+**Location:** `tests/node_tests/test_node.py` (shared by all casts)
 
 Area for writing node unit tests:
 
@@ -144,9 +147,9 @@ Read all resources in each skill:
 ### Phase 2: Verification
 
 For each code example:
-- Verify file paths match scaffold structure
+- Verify file paths match template structure
 - Verify imports match correct patterns
-- Check references to project structure
+- Check structural references are accurate
 - Confirm test organization alignment
 
 ### Phase 3: Pattern Analysis
@@ -165,7 +168,7 @@ Across skills:
 ### Phase 4: Evaluation
 
 For each resource:
-- Accuracy against scaffold
+- Accuracy against template structure
 - Completeness of coverage
 - Organization efficiency
 - Clarity of instructions
@@ -201,6 +204,14 @@ Check all import examples:
 - modules/*.py uses absolute for base classes
 - modules/*.py uses relative for sibling modules
 
+### Template Variables
+
+Check handling of cookiecutter variables:
+- `{{ cookiecutter.act_slug }}`
+- `{{ cookiecutter.cast_snake }}`
+- `{{ cookiecutter.cast_pascal }}`
+- Explained when relevant, not overused
+
 ### Node Naming
 
 Verify node examples:
@@ -210,17 +221,17 @@ Verify node examples:
 ### Test Organization
 
 Check test references:
-- `tests/cast_tests/` for graph tests
-- `tests/node_tests/` for node tests
-- Correct template file names
+- `tests/cast_tests/{cast_name}_test.py` for each cast
+- `tests/node_tests/test_node.py` for node tests
+- Dynamic test file creation per cast
 
 ### Scope Alignment
 
-Verify content is within Act Project scope:
-- Building graphs ✓
-- Testing graphs ✓
-- Deploying graphs ✗ (out of scope)
-- Using graphs ✗ (out of scope)
+Verify content is within template scope:
+- Building casts ✓
+- Testing casts ✓
+- Deploying projects ✗ (out of scope)
+- Using deployed graphs ✗ (out of scope)
 
 ### Content Efficiency
 
@@ -233,6 +244,7 @@ Look for:
 ### Terminology Consistency
 
 Check for consistent use of:
+- "cast" (not "graph" or "agent" as primary term)
 - nodes.py vs agents.py
 - conditions.py vs routing functions
 - Standard naming patterns
@@ -243,7 +255,7 @@ Check for consistent use of:
 
 ### Part 1: Issue Inventory
 
-For each skill, document issues in this format:
+For each skill, document issues:
 
 ```markdown
 ## [Skill Name]
@@ -282,13 +294,13 @@ When resource organization needs improvement:
 ## Action Plan
 
 ### Phase 1: Critical Fixes
-[CRITICAL severity issues - must fix first]
+[CRITICAL severity issues]
 
 ### Phase 2: High Priority
-[HIGH severity issues - fix soon]
+[HIGH severity issues]
 
 ### Phase 3: Improvements
-[MEDIUM/LOW severity - optimize]
+[MEDIUM/LOW severity]
 
 ### Phase 4: Restructuring
 [Organizational improvements]
@@ -298,18 +310,16 @@ When resource organization needs improvement:
 
 ## Analysis Scope
 
-Analyze these aspects comprehensively:
-
 ### Accuracy
-- File paths match scaffold
-- Import patterns match templates
+- File paths match template structure
+- Import patterns match generated code
 - Structure examples are correct
-- Code examples will run
+- Code examples work in generated projects
 
 ### Completeness
 - All necessary topics covered
 - No critical gaps
-- Appropriate depth
+- Appropriate depth for template users
 
 ### Efficiency
 - No unnecessary content
@@ -333,7 +343,7 @@ Analyze these aspects comprehensively:
 ## Quality Standards
 
 ### Precision
-Every file path, import pattern, and code example must be verifiable against the scaffold.
+Every file path, import pattern, and code example must match what's generated by Act Operator.
 
 ### Completeness
 Cover all resources thoroughly. Don't skip files or sections.
@@ -355,4 +365,4 @@ Recommendations must be implementable with clear action steps.
 
 ---
 
-Begin systematic analysis following the five phases. Focus on accuracy, completeness, and practical improvements.
+Begin systematic analysis following the five phases. Focus on accuracy, completeness, and practical improvements for template users.
