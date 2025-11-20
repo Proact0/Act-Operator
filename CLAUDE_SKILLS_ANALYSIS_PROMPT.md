@@ -6,7 +6,7 @@ Analyze and restructure all Claude skills for the Act Template.
 
 **Skills Location:** `act_operator/act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
 
-**Note:** `{{ cookiecutter.* }}` are Jinja2 template variables replaced by cookiecutter during project generation.
+**Note:** `{{ cookiecutter.* }}` are Jinja2 template variables replaced by cookiecutter during project setup.
 
 ---
 
