@@ -7,7 +7,7 @@
 from casts.base_node import BaseNode
 
 class MyNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         return {"result": "value"}
 ```
 
@@ -16,7 +16,7 @@ class MyNode(BaseNode):
 from casts.base_node import AsyncBaseNode
 
 class MyAsyncNode(AsyncBaseNode):
-    async def execute(self, state: dict) -> dict:
+    async def execute(self, state) -> dict:
         result = await async_operation()
         return {"result": result}
 ```
@@ -24,7 +24,7 @@ class MyAsyncNode(AsyncBaseNode):
 ### Node with Config/Runtime
 ```python
 class AdvancedNode(BaseNode):
-    def execute(self, state: dict, config=None, runtime=None, **kwargs) -> dict:
+    def execute(self, state, config=None, runtime=None) -> dict:
         thread_id = self.get_thread_id(config)
 
         if runtime and runtime.store:
@@ -162,7 +162,7 @@ graph.invoke(None, config=config)
 from langgraph.graph import interrupt
 
 class ApprovalNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         approval = interrupt({"message": "Approve?"})
 
         if approval.get("approved"):
@@ -188,7 +188,7 @@ async for chunk in graph.astream({"input": "..."}, stream_mode="values"):
 ### Error Handling
 ```python
 class RobustNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         try:
             result = risky_operation(state)
             return {"result": result, "error": None}
@@ -251,9 +251,9 @@ builder.add_node("tools", tool_node)
 | State schema | `casts/[cast]/modules/state.py` |
 | Nodes | `casts/[cast]/modules/nodes.py` |
 | Graph | `casts/[cast]/graph.py` |
-| Routing functions | `casts/[cast]/conditions.py` |
-| **Tools** | **`modules/tools/`** ⚠️ |
-| API clients | `modules/clients/` |
+| Routing functions | `casts/[cast]/modules/conditions.py` |
+| Tools | `casts/[cast]/modules/tools.py` |
+| Prompts | `casts/[cast]/modules/prompts.py` |
 | Base classes | `casts/base_node.py`, `casts/base_graph.py` |
 
 ## Common Imports
@@ -318,8 +318,8 @@ Need to remember...
 ### Choose Implementation Location
 ```
 LLM should call it?
-├─ Yes → Tool in modules/tools/
-└─ No  → Node in casts/[cast]/nodes.py
+├─ Yes → Tool in modules/tools.py
+└─ No  → Node in modules/nodes.py
 ```
 
 ## References

@@ -139,7 +139,7 @@ builder.add_conditional_edges(
 ⚠️ **Routing Function Location:** `casts/[cast_name]/conditions.py`
 
 ```python
-# casts/my_cast/conditions.py
+# casts/{ cast_name }/conditions.py
 """Routing functions for conditional edges."""
 from langgraph.graph import END
 

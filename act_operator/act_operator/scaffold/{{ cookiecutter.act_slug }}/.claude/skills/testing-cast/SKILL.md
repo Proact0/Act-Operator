@@ -20,10 +20,10 @@ Don't use this skill for:
 
 ```bash
 # Generate node tests
-python scripts/generate_node_tests.py casts/my_cast/nodes.py
+python scripts/generate_node_tests.py casts/{ cast_name }/nodes.py
 
 # Generate graph tests
-python scripts/generate_graph_tests.py my_cast
+python scripts/generate_graph_tests.py { cast_name }
 
 # Run tests
 python scripts/run_tests.py
@@ -125,14 +125,14 @@ async def test_async_node():
 
 1. Generate tests:
    ```bash
-   python scripts/generate_node_tests.py casts/my_cast/nodes.py
-   python scripts/generate_graph_tests.py my_cast
+   python scripts/generate_node_tests.py casts/{ cast_name }/nodes.py
+   python scripts/generate_graph_tests.py { cast_name }
    ```
 
 2. Customize generated tests with specifics
 3. Run tests:
    ```bash
-   pytest casts/my_cast/tests/ -v
+   pytest casts/{ cast_name }/tests/ -v
    ```
 
 ### Workflow 3: Add Integration Tests
@@ -160,7 +160,7 @@ Copy `fixtures/conftest.py` to your cast's `tests/` directory for reusable fixtu
 ## Test Organization
 
 ```
-casts/my_cast/
+casts/{ cast_name }/
 ├── nodes.py
 ├── graph.py
 ├── state.py

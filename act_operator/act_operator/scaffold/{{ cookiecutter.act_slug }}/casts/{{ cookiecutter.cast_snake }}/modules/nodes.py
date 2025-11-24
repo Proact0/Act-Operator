@@ -8,7 +8,6 @@ Guidelines:
       * With config: `def execute(self, state, config)` - Needs thread_id, tags
       * With runtime: `def execute(self, state, runtime)` - Needs store, stream
       * Full: `def execute(self, state, config, runtime)` - Needs everything
-      * Flexible: `def execute(self, state, **kwargs)` - Access via kwargs.get()
     - Use `self.log()` for debugging when `verbose=True`.
 
 Official document URL:

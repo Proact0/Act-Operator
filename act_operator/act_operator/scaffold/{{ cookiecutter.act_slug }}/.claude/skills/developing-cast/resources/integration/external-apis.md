@@ -31,7 +31,7 @@ Read this when integrating REST APIs, GraphQL, webhooks, or any external service
 **When:** LLM should be able to call the API.
 
 ```python
-# modules/tools/api_tools.py
+# casts/{ cast_name }/modules/tools.py
 from langchain_core.tools import tool
 import requests
 
@@ -65,7 +65,7 @@ def search_products(query: str, limit: int = 10) -> list[dict]:
 **When:** API call requires state context or complex pre/post-processing.
 
 ```python
-# casts/my_cast/nodes.py
+# casts/{ cast_name }/modules/nodes.py
 from casts.base_node import BaseNode
 import requests
 
@@ -77,7 +77,7 @@ class FetchUserDataNode(BaseNode):
         self.api_key = api_key
         self.base_url = "https://api.example.com"
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         user_id = state.get("user_id")
 
         if not user_id:
@@ -124,7 +124,7 @@ import httpx  # Async HTTP client
 class AsyncAPINode(AsyncBaseNode):
     """Async API calls for better performance."""
 
-    async def execute(self, state: dict) -> dict:
+    async def execute(self, state) -> dict:
         async with httpx.AsyncClient() as client:
             # Parallel requests
             tasks = [
@@ -151,7 +151,7 @@ class AsyncAPINode(AsyncBaseNode):
 ### Pattern 1: Reusable API Client Class
 
 ```python
-# modules/clients/example_api.py
+# casts/{ cast_name }/modules/utils.py (or dedicated module)
 import requests
 from typing import Optional
 
@@ -191,7 +191,7 @@ class APINode(BaseNode):
         super().__init__(**kwargs)
         self.client = ExampleAPIClient(api_key=os.getenv("EXAMPLE_API_KEY"))
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         results = self.client.search(state["query"])
         return {"search_results": results}
 ```
@@ -212,7 +212,7 @@ class GraphQLNode(BaseNode):
         )
         self.client = Client(transport=transport, fetch_schema_from_transport=True)
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         query = gql('''
             query GetUser($userId: ID!) {
                 user(id: $userId) {
@@ -275,7 +275,7 @@ class RateLimitedAPIClient:
 class WebhookProcessorNode(BaseNode):
     """Processes incoming webhook data."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         webhook_data = state.get("webhook_payload")
 
         # Validate webhook signature
@@ -325,7 +325,7 @@ class RobustAPINode(BaseNode):
         response.raise_for_status()
         return response.json()
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         try:
             result = self.call_api_with_retry(
                 "https://api.example.com/data",
@@ -372,7 +372,7 @@ class OAuth2APINode(BaseNode):
         # Implement token refresh logic
         pass
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         response = self.oauth.get("https://api.example.com/data")
         return {"data": response.json()}
 ```

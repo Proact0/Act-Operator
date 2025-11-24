@@ -119,8 +119,8 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python generate_graph_tests.py <cast_name> [output_file]")
         print("\nExample:")
-        print("  python generate_graph_tests.py my_cast")
-        print("  python generate_graph_tests.py my_cast casts/my_cast/tests/test_graph.py")
+        print("  python generate_graph_tests.py { cast_name }")
+        print("  python generate_graph_tests.py { cast_name } casts/{ cast_name }/tests/test_graph.py")
         sys.exit(1)
 
     cast_name = sys.argv[1]

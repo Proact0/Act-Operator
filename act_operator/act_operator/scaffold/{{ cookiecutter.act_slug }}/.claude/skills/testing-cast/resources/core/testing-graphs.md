@@ -9,7 +9,7 @@ Read this when writing tests for graph classes that inherit from `BaseGraph`.
 # tests/test_graph.py
 import pytest
 from langgraph.checkpoint.memory import MemorySaver
-from casts.my_cast.graph import MyCastGraph
+from casts.{ cast_name }.graph import MyCastGraph
 
 class TestMyCastGraph:
     """Test suite for MyCastGraph."""

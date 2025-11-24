@@ -143,7 +143,7 @@ class CustomToolNode(BaseNode):
         super().__init__(**kwargs)
         self.tools_by_name = {t.name: t for t in tools}
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         last_message = state["messages"][-1]
         tool_calls = getattr(last_message, "tool_calls", [])
 
@@ -167,10 +167,10 @@ class CustomToolNode(BaseNode):
 
 ## Act Project Convention
 
-⚠️ **Tools MUST live in:** `modules/tools/`
+⚠️ **Tools MUST live in:** `casts/[cast]/modules/tools.py`
 
 ```python
-# modules/tools/search_tools.py
+# casts/[cast]/modules/tools.pysearch_tools.py
 from langchain_core.tools import tool
 
 @tool
@@ -189,7 +189,7 @@ __all__ = ["web_search", "database_search"]
 
 **Then in nodes:**
 ```python
-# casts/my_cast/nodes.py
+# casts/{ cast_name }/modules/nodes.py
 from modules.tools.search_tools import web_search, database_search
 from langgraph.prebuilt import ToolNode
 
@@ -204,7 +204,7 @@ Need LLM to call external functions?
 └─ Yes → Create tools with @tool decorator
 
 Tools location:
-└─ ALWAYS → modules/tools/[category]_tools.py
+└─ ALWAYS → casts/[cast]/modules/tools.py[category]_tools.py
 
 Execution approach:
 ├─ Standard agent pattern → Use ToolNode
@@ -220,10 +220,10 @@ Tool needs Store/Runtime access?
 ❌ **Tools in wrong location**
 ```python
 # ❌ Wrong - tools in cast directory
-# casts/my_cast/tools.py
+# casts/{ cast_name }/tools.py
 
 # ✅ Right - tools in modules
-# modules/tools/my_tools.py
+# casts/[cast]/modules/tools.pymy_tools.py
 ```
 
 ❌ **Poor docstrings**

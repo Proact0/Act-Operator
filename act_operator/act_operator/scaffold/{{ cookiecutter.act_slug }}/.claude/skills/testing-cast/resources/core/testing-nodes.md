@@ -10,8 +10,8 @@ Read this when writing unit tests for node classes that inherit from `BaseNode` 
 ```python
 # tests/test_nodes.py
 import pytest
-from casts.my_cast.nodes import ProcessInputNode
-from casts.my_cast.state import MyCastState
+from casts.{ cast_name }.nodes import ProcessInputNode
+from casts.{ cast_name }.state import MyCastState
 
 class TestProcessInputNode:
     """Test suite for ProcessInputNode."""
@@ -55,7 +55,7 @@ class TestProcessInputNode:
 
 ```python
 import pytest
-from casts.my_cast.nodes import FetchDataNode
+from casts.{ cast_name }.nodes import FetchDataNode
 
 class TestFetchDataNode:
     """Test suite for async FetchDataNode."""
@@ -76,7 +76,7 @@ class TestFetchDataNode:
             raise ValueError("API error")
 
         node = FetchDataNode()
-        monkeypatch.setattr("casts.my_cast.nodes.async_api_call", mock_api_call)
+        monkeypatch.setattr("casts.{ cast_name }.nodes.async_api_call", mock_api_call)
         state = {"user_id": "123"}
 
         result = await node.execute(state)

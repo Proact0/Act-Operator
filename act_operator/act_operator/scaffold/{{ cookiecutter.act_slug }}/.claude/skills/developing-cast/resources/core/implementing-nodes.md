@@ -17,7 +17,7 @@ from casts.base_node import BaseNode
 class ProcessInputNode(BaseNode):
     """Processes user input and extracts intent."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         """Simple node - just state in, updates out."""
         user_input = state["input"]
         intent = extract_intent(user_input)  # Your logic
@@ -39,7 +39,7 @@ from casts.base_node import AsyncBaseNode
 class FetchDataNode(AsyncBaseNode):
     """Fetches data from async API."""
 
-    async def execute(self, state: dict) -> dict:
+    async def execute(self, state) -> dict:
         """Async operations using await."""
         user_id = state["user_id"]
         data = await async_api_call(user_id)
@@ -95,7 +95,7 @@ class MemoryNode(BaseNode):
 class SimpleNode(BaseNode):
     """No __init__ needed for stateless nodes."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         return {"processed": True}
 ```
 
@@ -109,7 +109,7 @@ class ConfiguredNode(BaseNode):
         self.model_name = model_name
         self.llm = ChatOpenAI(model=model_name)
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         response = self.llm.invoke(state["messages"])
         return {"response": response}
 ```
@@ -126,7 +126,7 @@ class ConfiguredNode(BaseNode):
 ### Pattern 1: Try-Catch with Fallback
 ```python
 class RobustNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         try:
             result = risky_operation(state["input"])
             return {"result": result, "error": None}
@@ -138,7 +138,7 @@ class RobustNode(BaseNode):
 ### Pattern 2: Validation Before Processing
 ```python
 class ValidatingNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         if "required_field" not in state:
             return {"error": "Missing required_field"}
 
@@ -173,17 +173,17 @@ Node needs configuration (LLM, API keys)?
 
 **File organization:**
 ```python
-# casts/my_cast/nodes.py
+# casts/{ cast_name }/modules/nodes.py
 from casts.base_node import BaseNode, AsyncBaseNode
 
 class FirstNode(BaseNode):
     """First processing step."""
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         ...
 
 class SecondNode(AsyncBaseNode):
     """Async second step."""
-    async def execute(self, state: dict) -> dict:
+    async def execute(self, state) -> dict:
         ...
 ```
 
@@ -198,12 +198,12 @@ class MyNode:  # ❌ Wrong
 
 ❌ **Modifying state directly**
 ```python
-def execute(self, state: dict) -> dict:
+def execute(self, state) -> dict:
     state["result"] = "done"  # ❌ Don't mutate
     return state              # ❌ Return modified state
 
 # ✅ Correct - return updates only
-def execute(self, state: dict) -> dict:
+def execute(self, state) -> dict:
     return {"result": "done"}
 ```
 
@@ -217,7 +217,7 @@ class MyNode(BaseNode):
 ❌ **Using sync when async is needed**
 ```python
 class APINode(BaseNode):  # ❌ Should be AsyncBaseNode
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         return requests.get(url).json()  # Blocking I/O
 ```
 

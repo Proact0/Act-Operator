@@ -7,13 +7,13 @@ Read this for guidance on test coverage strategies and meaningful metrics.
 
 ```bash
 # Basic coverage
-pytest --cov=casts/my_cast tests/
+pytest --cov=casts/{ cast_name } tests/
 
 # With HTML report
-pytest --cov=casts/my_cast --cov-report=html tests/
+pytest --cov=casts/{ cast_name } --cov-report=html tests/
 
 # With branch coverage
-pytest --cov=casts/my_cast --cov-branch tests/
+pytest --cov=casts/{ cast_name } --cov-branch tests/
 ```
 
 ## Coverage Configuration

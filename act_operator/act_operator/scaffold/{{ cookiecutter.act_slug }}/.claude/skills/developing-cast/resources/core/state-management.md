@@ -109,7 +109,7 @@ State growing too large?
 
 **Example structure:**
 ```python
-# casts/my_cast/state.py
+# casts/{ cast_name }/modules/state.py
 from typing import TypedDict, Annotated
 from langgraph.graph import add
 

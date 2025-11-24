@@ -16,7 +16,7 @@ Read this when creating graph.py, compiling StateGraph, or using BaseGraph to bu
 ### Using BaseGraph (Required in Act Projects)
 
 ```python
-# casts/my_cast/graph.py
+# casts/{ cast_name }/graph.py
 from langgraph.graph import StateGraph, START, END
 from casts.base_graph import BaseGraph
 
@@ -67,7 +67,7 @@ class MyCastGraph(BaseGraph):
 
 ```python
 # Somewhere else (e.g., main.py, API endpoint)
-from casts.my_cast.graph import MyCastGraph
+from casts.{ cast_name }.graph import MyCastGraph
 
 # Instantiate graph class
 graph_builder = MyCastGraph()
@@ -168,7 +168,7 @@ class InterruptibleGraph(BaseGraph):
 Complete graph.py example:
 
 ```python
-# casts/my_cast/graph.py
+# casts/{ cast_name }/graph.py
 """Graph definition for MyCast."""
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.sqlite import SqliteSaver

@@ -71,7 +71,7 @@ from casts.base_node import BaseNode
 class ApprovalNode(BaseNode):
     """Requests human approval before proceeding."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         # Present information to human
         action = state.get("proposed_action")
 
@@ -103,7 +103,7 @@ class ApprovalNode(BaseNode):
 
 ```python
 class CriticalActionNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         # Prepare action details
         action_plan = {
             "type": "api_call",
@@ -142,7 +142,7 @@ graph.invoke({"approval": {"approved": True, "notes": "Verified"}}, config=confi
 
 ```python
 class DraftReviewNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         draft = state.get("draft_content")
 
         # Show draft to human for review/editing

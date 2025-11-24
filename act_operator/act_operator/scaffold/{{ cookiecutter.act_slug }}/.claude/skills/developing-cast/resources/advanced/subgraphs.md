@@ -181,16 +181,19 @@ class SubgraphState(TypedDict):
 casts/
 ├── main_cast/
 │   ├── graph.py          # Main orchestrator
-│   ├── state.py
-│   └── nodes.py
+│   └── modules/
+│       ├── state.py
+│       └── nodes.py
 ├── research_agent/       # Subgraph 1
 │   ├── graph.py
-│   ├── state.py
-│   └── nodes.py
+│   └── modules/
+│       ├── state.py
+│       └── nodes.py
 └── writing_agent/        # Subgraph 2
     ├── graph.py
-    ├── state.py
-    └── nodes.py
+    └── modules/
+        ├── state.py
+        └── nodes.py
 ```
 
 **In main_cast/graph.py:**
@@ -266,7 +269,7 @@ class SafeSubgraphWrapper(BaseNode):
         super().__init__(**kwargs)
         self.subgraph = subgraph
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         try:
             result = self.subgraph.invoke(state)
             return {"subgraph_result": result, "error": None}

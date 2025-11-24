@@ -110,8 +110,8 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python generate_node_tests.py <path_to_nodes.py> [output_file]")
         print("\nExample:")
-        print("  python generate_node_tests.py casts/my_cast/nodes.py")
-        print("  python generate_node_tests.py casts/my_cast/nodes.py casts/my_cast/tests/test_nodes.py")
+        print("  python generate_node_tests.py casts/{ cast_name }/nodes.py")
+        print("  python generate_node_tests.py casts/{ cast_name }/nodes.py casts/{ cast_name }/tests/test_nodes.py")
         sys.exit(1)
 
     nodes_file = Path(sys.argv[1])

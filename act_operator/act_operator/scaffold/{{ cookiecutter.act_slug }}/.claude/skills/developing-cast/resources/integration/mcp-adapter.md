@@ -44,7 +44,7 @@ Read this when integrating Model Context Protocol (MCP) servers to access tools 
 ## Installing MCP Adapters
 
 ```bash
-pip install langchain-mcp-adapters
+uv add --package {cast-slug-name} langchain-mcp-adapters
 ```
 
 ## Basic MCP Integration
@@ -159,7 +159,7 @@ class MCPToolNode(BaseNode):
         self.mcp_client = MultiServerMCPClient(mcp_config)
         self.tools = {t.name: t for t in self.mcp_client.get_tools()}
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         tool_name = state.get("tool_to_call")
         tool_args = state.get("tool_args", {})
 
@@ -235,7 +235,7 @@ class DynamicMCPNode(BaseNode):
         super().__init__(**kwargs)
         self.mcp_client = MultiServerMCPClient(mcp_config)
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         # Get tools matching criteria
         required_capability = state.get("required_capability")
 
@@ -274,7 +274,7 @@ mcp_servers:
 ```
 
 ```python
-# casts/my_cast/graph.py
+# casts/{ cast_name }/graph.py
 import yaml
 from pathlib import Path
 
@@ -307,7 +307,7 @@ class RobustMCPNode(BaseNode):
             self.log(f"MCP initialization failed: {e}")
             self.tools = []
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         if not self.tools:
             return {"error": "MCP tools not available"}
 

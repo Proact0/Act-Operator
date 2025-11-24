@@ -368,7 +368,7 @@ Complex memory logic + state interaction?
 └─ Node (can combine state + Store)
 
 Memory needed by multiple casts?
-└─ Tool in modules/tools/memory_tools.py
+└─ Tool in casts/[cast]/modules/tools.py
 
 Memory specific to one cast?
 └─ Node in casts/[cast_name]/nodes.py

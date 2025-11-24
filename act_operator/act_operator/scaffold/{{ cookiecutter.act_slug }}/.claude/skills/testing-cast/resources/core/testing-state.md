@@ -8,7 +8,7 @@ Read this when testing state schemas, reducers, and state flow through graphs.
 ```python
 # tests/test_state.py
 import pytest
-from casts.my_cast.state import MyCastState
+from casts.{ cast_name }.state import MyCastState
 
 class TestMyCastState:
     def test_state_structure(self):
@@ -70,7 +70,7 @@ class TestReducers:
 class TestStateUpdates:
     def test_node_updates_state(self):
         """Node should update specific state fields."""
-        from casts.my_cast.nodes import ProcessNode
+        from casts.{ cast_name }.nodes import ProcessNode
 
         node = ProcessNode()
         initial_state = {"input": "test", "processed": False}

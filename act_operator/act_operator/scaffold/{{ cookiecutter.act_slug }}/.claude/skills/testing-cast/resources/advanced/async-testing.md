@@ -11,7 +11,7 @@ import pytest
 class TestAsyncNode:
     @pytest.mark.asyncio
     async def test_async_node(self):
-        from casts.my_cast.nodes import AsyncFetchNode
+        from casts.{ cast_name }.nodes import AsyncFetchNode
 
         node = AsyncFetchNode()
         state = {"query": "test"}

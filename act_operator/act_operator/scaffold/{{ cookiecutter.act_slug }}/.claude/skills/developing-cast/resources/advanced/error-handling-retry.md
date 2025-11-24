@@ -37,7 +37,7 @@ from casts.base_node import BaseNode
 class RobustAPINode(BaseNode):
     """Calls API with error handling."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         try:
             result = call_external_api(state["query"])
             return {"result": result, "error": None, "status": "success"}
@@ -72,7 +72,7 @@ class RobustAPINode(BaseNode):
 class ErrorHandlerNode(BaseNode):
     """Handles errors from previous nodes."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         error = state.get("error")
         error_source = state.get("error_source")
 
@@ -119,7 +119,7 @@ class RetryNode(BaseNode):
         self.max_retries = max_retries
         self.base_delay = base_delay
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         retries = 0
 
         while retries < self.max_retries:
@@ -151,7 +151,7 @@ class RetryNode(BaseNode):
 class FallbackNode(BaseNode):
     """Tries multiple approaches in sequence."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         # Try primary approach
         try:
             result = self.primary_approach(state)
@@ -276,7 +276,7 @@ class CircuitBreakerNode(BaseNode):
         self.failure_threshold = failure_threshold
         self.circuit_open = False
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         if self.circuit_open:
             return {"error": "Circuit breaker open", "circuit_open": True}
 
@@ -301,7 +301,7 @@ class CircuitBreakerNode(BaseNode):
 class ValidationNode(BaseNode):
     """Validates inputs before processing."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         # Validate required fields
         if "query" not in state or not state["query"]:
             return {"error": "Missing query", "valid": False}
@@ -335,7 +335,7 @@ builder.add_conditional_edges(
 from datetime import datetime
 
 class ErrorContextNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         try:
             result = risky_operation(state)
             return {"result": result}
@@ -390,7 +390,7 @@ builder.add_conditional_edges(
 class ErrorAggregatorNode(BaseNode):
     """Collects errors from multiple parallel nodes."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         errors = []
 
         # Check each parallel branch

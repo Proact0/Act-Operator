@@ -46,7 +46,7 @@ You:
 
 3. Remember Act conventions: `resources/project/act-conventions.md`
    - ALL nodes inherit from BaseNode
-   - ALL tools go in modules/tools/
+   - Tools go in modules/tools.py (optional)
    - ALL graphs inherit from BaseGraph"
 ```
 
@@ -145,11 +145,11 @@ resources/quick-reference.md     # Code snippets, imports, decisions
 ```
 1. Read: resources/project/from-architecture-to-code.md
 2. Read: resources/project/act-conventions.md
-3. Create state.py using resources/core/state-management.md
-4. Create nodes.py using resources/core/implementing-nodes.md
-5. Create conditions.py using resources/core/edge-patterns.md
+3. Create modules/state.py using resources/core/state-management.md
+4. Create modules/nodes.py using resources/core/implementing-nodes.md
+5. Create modules/conditions.py using resources/core/edge-patterns.md
 6. Create graph.py using resources/core/graph-compilation.md
-7. If tools needed: resources/core/tools-integration.md (in modules/tools/)
+7. If tools needed: resources/core/tools-integration.md (in modules/tools.py)
 8. If memory needed: resources/memory/memory-overview.md → specific guides
 ```
 
@@ -201,9 +201,9 @@ resources/quick-reference.md     # Code snippets, imports, decisions
 ## Critical Act Conventions
 
 **Critical Conventions** (details: `resources/project/act-conventions.md`):
-- Tools: `modules/tools/` ONLY | Never in cast directories
+- Tools: `casts/[cast]/modules/tools.py` (optional, cast-specific)
 - Inheritance: BaseNode/AsyncBaseNode (nodes), BaseGraph (graphs)
-- Files: `casts/[cast]/` → state.py, nodes.py, graph.py, conditions.py
+- Files: `casts/[cast]/` → graph.py | `modules/` → state.py, nodes.py (required)
 - Naming: snake_case.py files | PascalCase classes | [Name]State/Graph
 
 ## LangGraph 1.0 Verification
@@ -241,13 +241,14 @@ Implementing...
 
 ```
 What are you creating?
-├─ Tool → modules/tools/[category]_tools.py
-├─ API client → modules/clients/[name]_api.py
-├─ Node → casts/[cast]/nodes.py
-├─ State → casts/[cast]/state.py
+├─ Tool → casts/[cast]/modules/tools.py
+├─ Node → casts/[cast]/modules/nodes.py
+├─ State → casts/[cast]/modules/state.py
 ├─ Graph → casts/[cast]/graph.py
-├─ Routing function → casts/[cast]/conditions.py
-└─ Utility → modules/utils/
+├─ Routing function → casts/[cast]/modules/conditions.py
+├─ Prompts → casts/[cast]/modules/prompts.py
+├─ Models/LLM → casts/[cast]/modules/models.py
+└─ Utilities → casts/[cast]/modules/utils.py
 ```
 
 ### "What type of memory do I need?"
@@ -273,7 +274,7 @@ Data needed for...
 → Check: Node names in targets list? (edge-patterns.md)
 
 **"Tools not found"**
-→ Check: Tools in modules/tools/? (act-conventions.md)
+→ Check: Tools in modules/tools.py? (act-conventions.md)
 → Check: Bound to LLM? (tools-integration.md)
 
 **"Memory not persisting"**
@@ -310,7 +311,6 @@ Data needed for...
 4. **Connect resources:** "You'll also need X after Y"
 
 ### Anti-Patterns to Prevent
-- Tools in wrong location (not in modules/tools/)
 - Not inheriting from base classes
 - Using deprecated LangGraph 0.x APIs
 - Forgetting checkpointer for interrupts

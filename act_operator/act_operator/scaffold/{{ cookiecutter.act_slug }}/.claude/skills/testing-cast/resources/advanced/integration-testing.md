@@ -14,7 +14,7 @@ class TestCompleteWorkflow:
     @pytest.fixture
     def integrated_graph(self):
         """Graph with all dependencies."""
-        from casts.my_cast.graph import MyCastGraph
+        from casts.{ cast_name }.graph import MyCastGraph
         checkpointer = SqliteSaver.from_conn_string(":memory:")
         return MyCastGraph().build(checkpointer=checkpointer)
 

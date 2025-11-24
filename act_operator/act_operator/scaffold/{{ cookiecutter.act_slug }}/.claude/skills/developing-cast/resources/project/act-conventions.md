@@ -15,58 +15,52 @@ Read this for Act-specific file placement, naming conventions, and project struc
 ## Directory Structure
 
 ```
-act_project/
+{{ cookiecutter.act_slug }}/
 ├── casts/
+│   ├── __init__.py
 │   ├── base_node.py              # BaseNode and AsyncBaseNode (DO NOT MODIFY)
 │   ├── base_graph.py             # BaseGraph (DO NOT MODIFY)
 │   │
-│   └── my_cast/                  # Your cast implementation
+│   └── { cast_name }/                  # Your cast implementation
 │       ├── __init__.py
 │       ├── graph.py              # REQUIRED: Graph class inheriting BaseGraph
-│       ├── state.py              # REQUIRED: State schema (TypedDict/Pydantic)
-│       ├── nodes.py              # REQUIRED: Node classes
-│       ├── conditions.py         # Routing functions for conditional edges
-│       ├── tools.py              # ❌ NO! Tools go in modules/tools/
+│       ├── pyproject.toml
+│       ├── README.md
 │       │
-│       ├── agents/               # Optional: If using multiple agents
-│       │   ├── research_agent.py
-│       │   └── writing_agent.py
-│       │
-│       ├── prompts/              # Optional: Prompt templates
-│       │   └── system_prompts.py
-│       │
-│       └── middlewares/          # Optional: Custom middleware
-│           └── logging_middleware.py
+│       └── modules/              # All cast modules live here
+│           ├── __init__.py
+│           ├── state.py          # REQUIRED: State schema (TypedDict/Pydantic)
+│           ├── nodes.py          # REQUIRED: Node classes
+│           ├── agents.py         # Optional: Agent implementations
+│           ├── conditions.py     # Optional: Routing functions
+│           ├── middlewares.py    # Optional: Custom middleware
+│           ├── models.py         # Optional: LLM model configuration
+│           ├── prompts.py        # Optional: Prompt templates
+│           ├── tools.py          # Optional: Cast-specific tools
+│           └── utils.py          # Optional: Utilities
 │
-├── modules/
-│   ├── tools/                    # ⚠️ ALL tools MUST live here
-│   │   ├── search_tools.py
-│   │   ├── data_tools.py
-│   │   └── memory_tools.py
-│   │
-│   ├── clients/                  # Optional: API clients
-│   │   └── example_api.py
-│   │
-│   └── utils/                    # Optional: Utilities
-│       └── helpers.py
+├── tests/
+│   ├── cast_tests/
+│   │   └── { cast_name }_test.py
+│   └── node_tests/
+│       └── test_node.py
 │
-└── config/                       # Optional: Configuration
-    ├── mcp_config.yaml
-    └── settings.py
+├── .env.example
+├── langgraph.json
+├── pyproject.toml
+└── README.md
 ```
 
 ## CRITICAL Conventions
 
 ### 1. Tools Location
 
-⚠️ **MUST:** All tools in `modules/tools/`
-❌ **NEVER:** Tools in `casts/[cast_name]/tools.py`
-
-**Why:** Tools should be reusable across multiple casts.
+**Location:** Tools go in `casts/[cast]/modules/tools.py`
+**Why:** Keep tools with their cast for clear organization.
 
 ```python
 # ✅ CORRECT
-# modules/tools/search_tools.py
+# casts/{ cast_name }/modules/tools.py
 from langchain_core.tools import tool
 
 @tool
@@ -77,7 +71,7 @@ def web_search(query: str) -> str:
 
 ```python
 # ❌ WRONG
-# casts/my_cast/tools.py
+# casts/{ cast_name }/tools.py
 ```
 
 ### 2. Base Class Inheritance
@@ -89,14 +83,14 @@ def web_search(query: str) -> str:
 from casts.base_node import BaseNode
 
 class MyNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         ...
 ```
 
 ```python
 # ❌ WRONG
 class MyNode:  # Not inheriting from BaseNode
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         ...
 ```
 
@@ -114,15 +108,18 @@ class MyCastGraph(BaseGraph):
 ### 3. Required Files Per Cast
 
 Each cast MUST have:
-- `graph.py` - Graph class
-- `state.py` - State schema
-- `nodes.py` - Node implementations
+- `graph.py` - Graph class (in cast root)
+- `modules/state.py` - State schema
+- `modules/nodes.py` - Node implementations
 
-Optional files:
+Optional files in `modules/`:
 - `conditions.py` - Routing functions
-- `agents/` - Multi-agent implementations
-- `prompts/` - Prompt templates
-- `middlewares/` - Custom middleware
+- `agents.py` - Agent implementations
+- `prompts.py` - Prompt templates
+- `tools.py` - Cast-specific tools
+- `models.py` - LLM configuration
+- `middlewares.py` - Custom middleware
+- `utils.py` - Utilities
 
 ### 4. Naming Conventions
 
@@ -140,11 +137,11 @@ Optional files:
 
 **State:** `PascalCase` ending in `State`
 - ✅ `MyCastState`
-- ❌ `MyState`, `my_cast_state`
+- ❌ `MyState`, `{ cast_name }_state`
 
 **Graph:** `PascalCase` ending in `Graph`
 - ✅ `MyCastGraph`
-- ❌ `MyCast`, `my_cast_graph`
+- ❌ `MyCast`, `{ cast_name }_graph`
 
 ## File Templates
 
@@ -155,9 +152,9 @@ Optional files:
 from langgraph.graph import StateGraph, START, END
 from casts.base_graph import BaseGraph
 
-from .state import MyCastState
-from .nodes import Node1, Node2, Node3
-from .conditions import should_continue
+from casts.{ cast_name }.modules.state import MyCastState
+from casts.{ cast_name }.modules.nodes import Node1, Node2, Node3
+from casts.{ cast_name }.modules.conditions import should_continue
 
 class MyCastGraph(BaseGraph):
     """Main graph for MyCast."""
@@ -208,14 +205,14 @@ from casts.base_node import BaseNode, AsyncBaseNode
 class Node1(BaseNode):
     """First processing node."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         """Process input."""
         return {"processed": True}
 
 class Node2(AsyncBaseNode):
     """Async second node."""
 
-    async def execute(self, state: dict) -> dict:
+    async def execute(self, state) -> dict:
         """Async processing."""
         result = await async_operation()
         return {"result": result}
@@ -250,32 +247,34 @@ def route_by_intent(state: dict) -> str:
 
 ## Import Patterns
 
-**Within cast:**
+### In graph.py (Absolute Imports)
 ```python
-# In casts/my_cast/graph.py
-from .state import MyCastState  # Relative import within cast
-from .nodes import Node1, Node2
-from .conditions import should_continue
+# casts/{ cast_name }/graph.py
+from langgraph.graph import END, START, StateGraph
+
+from casts.base_graph import BaseGraph
+from casts.{ cast_name }.modules.state import MyCastState
+from casts.{ cast_name }.modules.nodes import Node1, Node2
+from casts.{ cast_name }.modules.conditions import should_continue
 ```
 
-**From other modules:**
+**In modules/*.py (Mixed Imports):**
 ```python
-# Importing base classes
+# Base classes (absolute imports)
 from casts.base_node import BaseNode
 from casts.base_graph import BaseGraph
 
-# Importing tools
-from modules.tools.search_tools import web_search
-
-# Importing clients
-from modules.clients.example_api import ExampleAPIClient
+# Sibling modules (relative imports)
+from .tools import my_tool
+from .models import get_llm
+from .prompts import SYSTEM_PROMPT
 ```
 
 ## Memory Location Guidelines
 
 **Checkpointer:** Always in graph.py compilation
 ```python
-# casts/my_cast/graph.py
+# casts/{ cast_name }/graph.py
 return builder.compile(checkpointer=SqliteSaver(...))
 ```
 
@@ -292,7 +291,7 @@ def execute(self, state, runtime=None, **kwargs):
 
 **In-session memory:** In state schema
 ```python
-# casts/my_cast/state.py
+# casts/{ cast_name }/modules/state.py
 class MyCastState(TypedDict):
     conversation_history: list[dict]  # In-session memory
 ```
@@ -306,24 +305,14 @@ import os
 api_key = os.getenv("API_KEY")
 ```
 
-**Config files:**
-```python
-# config/settings.py
-from pydantic_settings import BaseSettings
-
-class Settings(BaseSettings):
-    api_key: str
-    model_name: str = "gpt-4"
-
-    class Config:
-        env_file = ".env"
-```
+Use `.env` file for local development and environment variables in production.
 
 ## Common Violations
 
-❌ **Tools in cast directory**
+❌ **State/nodes not in modules directory**
 ```
-casts/my_cast/tools.py  # ❌ WRONG
+casts/{ cast_name }/state.py  # ❌ WRONG
+casts/{ cast_name }/modules/state.py  # ✓ CORRECT
 ```
 
 ❌ **Not inheriting from base classes**
@@ -333,9 +322,17 @@ class MyNode:  # ❌ Missing BaseNode
 
 ❌ **Missing required files**
 ```
-casts/my_cast/
+casts/{ cast_name }/
 ├── graph.py  # ✓
-└── (missing state.py and nodes.py)  # ❌
+└── modules/
+    └── (missing state.py and nodes.py)  # ❌
+```
+
+❌ **Using relative imports in graph.py**
+```python
+# casts/{ cast_name }/graph.py
+from .modules.state import State  # ❌ WRONG
+from casts.{ cast_name }.modules.state import State  # ✓ CORRECT
 ```
 
 ## References

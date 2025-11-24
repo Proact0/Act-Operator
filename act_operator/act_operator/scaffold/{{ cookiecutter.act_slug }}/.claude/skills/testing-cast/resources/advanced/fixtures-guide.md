@@ -30,13 +30,13 @@ def populated_state():
 @pytest.fixture
 def my_node():
     """Fresh node instance."""
-    from casts.my_cast.nodes import MyNode
+    from casts.{ cast_name }.nodes import MyNode
     return MyNode()
 
 @pytest.fixture
 def configured_node():
     """Pre-configured node."""
-    from casts.my_cast.nodes import ConfiguredNode
+    from casts.{ cast_name }.nodes import ConfiguredNode
     return ConfiguredNode(model="gpt-4", verbose=True)
 ```
 
@@ -46,14 +46,14 @@ def configured_node():
 @pytest.fixture
 def graph():
     """Compiled graph."""
-    from casts.my_cast.graph import MyCastGraph
+    from casts.{ cast_name }.graph import MyCastGraph
     return MyCastGraph().build()
 
 @pytest.fixture
 def graph_with_memory():
     """Graph with checkpointer."""
     from langgraph.checkpoint.memory import MemorySaver
-    from casts.my_cast.graph import MyCastGraph
+    from casts.{ cast_name }.graph import MyCastGraph
 
     checkpointer = MemorySaver()
     return MyCastGraph().build(checkpointer=checkpointer)
@@ -130,7 +130,7 @@ def test_resource():
 def make_node():
     """Factory fixture for creating nodes."""
     def _make_node(**kwargs):
-        from casts.my_cast.nodes import MyNode
+        from casts.{ cast_name }.nodes import MyNode
         return MyNode(**kwargs)
     return _make_node
 

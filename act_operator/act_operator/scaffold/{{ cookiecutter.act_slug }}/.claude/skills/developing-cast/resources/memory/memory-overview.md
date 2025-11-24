@@ -75,7 +75,7 @@ prefs = runtime.store.get(namespace=("user", "123"), key="preferences")
 
 ### State (In GraphState)
 ```python
-# casts/my_cast/state.py
+# casts/{ cast_name }/modules/state.py
 class MyCastState(TypedDict):
     messages: Annotated[list[dict], add]  # Short-term in-session
     current_step: str
@@ -83,7 +83,7 @@ class MyCastState(TypedDict):
 
 ### Checkpoints (In graph.py compilation)
 ```python
-# casts/my_cast/graph.py
+# casts/{ cast_name }/graph.py
 from langgraph.checkpoint.sqlite import SqliteSaver
 
 class MyGraph(BaseGraph):

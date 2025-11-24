@@ -98,7 +98,7 @@ from casts.base_node import BaseNode, AsyncBaseNode
 class InputProcessorNode(BaseNode):
     """Extracts search terms from user input."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         input_text = state["input"]
         search_terms = extract_search_terms(input_text)
 
@@ -110,7 +110,7 @@ class InputProcessorNode(BaseNode):
 class ResearcherNode(AsyncBaseNode):
     """Searches web for each search term."""
 
-    async def execute(self, state: dict) -> dict:
+    async def execute(self, state) -> dict:
         search_terms = state.get("search_terms", [])
 
         results = []
@@ -123,7 +123,7 @@ class ResearcherNode(AsyncBaseNode):
 class ReportGeneratorNode(BaseNode):
     """Generates final report from research."""
 
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         research = state.get("research_results", [])
         report = generate_report(research)
 
@@ -175,9 +175,9 @@ def check_quality(state: dict) -> str:
 from langgraph.graph import StateGraph, START, END
 from casts.base_graph import BaseGraph
 
-from .state import ResearchCastState
-from .nodes import InputProcessorNode, ResearcherNode, ReportGeneratorNode
-from .conditions import check_quality
+from casts.{ cast_name }.modules.state import ResearchCastState
+from casts.{ cast_name }.modules.nodes import InputProcessorNode, ResearcherNode, ReportGeneratorNode
+from casts.{ cast_name }.modules.conditions import check_quality
 
 class ResearchCastGraph(BaseGraph):
     """Research agent graph."""
@@ -225,9 +225,9 @@ Tools Required:
 - extract_entities: Extract named entities from text
 ```
 
-**To modules/tools/:**
+**To modules/tools.py:**
 ```python
-# modules/tools/research_tools.py
+# casts/research_cast/modules/tools.py
 from langchain_core.tools import tool
 
 @tool
@@ -292,7 +292,7 @@ After translating CLAUDE.md to code:
 ✓ **All nodes** from architecture are implemented
 ✓ **Node responsibilities** match CLAUDE.md descriptions
 ✓ **Edge routing** follows CLAUDE.md flow diagram
-✓ **Tools** (if any) are in `modules/tools/`
+✓ **Tools** (if any) are in `casts/[cast]/modules/tools.py`
 ✓ **Conditional logic** implements decision points
 ✓ **Error handling** covers failure scenarios
 ✓ **Memory/persistence** configured as specified
@@ -332,18 +332,18 @@ class PipelineState(TypedDict):
 from casts.base_node import BaseNode
 
 class ValidateInputNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         if not state.get("input"):
             return {"error": "No input"}
         return {"processed": False}
 
 class ProcessDataNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         transformed = transform(state["input"])
         return {"processed": True, "result": transformed}
 
 class FormatOutputNode(BaseNode):
-    def execute(self, state: dict) -> dict:
+    def execute(self, state) -> dict:
         formatted = format_result(state["result"])
         return {"result": formatted}
 
@@ -351,8 +351,8 @@ class FormatOutputNode(BaseNode):
 from langgraph.graph import StateGraph, START, END
 from casts.base_graph import BaseGraph
 
-from .state import PipelineState
-from .nodes import ValidateInputNode, ProcessDataNode, FormatOutputNode
+from casts.{ cast_name }.modules.state import PipelineState
+from casts.{ cast_name }.modules.nodes import ValidateInputNode, ProcessDataNode, FormatOutputNode
 
 class PipelineGraph(BaseGraph):
     def build(self):
