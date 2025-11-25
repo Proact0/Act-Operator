@@ -317,7 +317,3 @@ parent_builder.add_node("sub", SubgraphWrapperNode(subgraph))
 main -> sub1 -> sub2 -> sub3 -> sub4 -> sub5
 ```
 
-## References
-- LangGraph Subgraphs: https://docs.langchain.com/oss/python/langgraph/use-subgraphs
-- Related: `../core/graph-compilation.md` (building subgraphs)
-- Related: `error-handling-retry.md` (error handling across subgraphs)

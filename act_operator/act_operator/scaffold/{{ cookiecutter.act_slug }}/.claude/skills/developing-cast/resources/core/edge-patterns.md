@@ -262,7 +262,3 @@ def safe_router(state):
     return "same_node"
 ```
 
-## References
-- Related: `implementing-nodes.md` (what nodes return affects routing)
-- Related: `graph-compilation.md` (how edges fit in graph building)
-- Related: `../advanced/error-handling-retry.md` (error routing patterns)

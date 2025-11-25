@@ -451,7 +451,3 @@ except (NetworkError, TimeoutError) as e:
 # Let other exceptions propagate
 ```
 
-## References
-- Related: `../core/implementing-nodes.md` (error handling in nodes)
-- Related: `../core/edge-patterns.md` (error routing)
-- Related: `subgraphs.md` (error handling across subgraphs)

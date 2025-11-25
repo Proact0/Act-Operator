@@ -115,10 +115,6 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 graph = builder.compile(
     checkpointer=SqliteSaver.from_conn_string("memory.db")
 )
-
-# Invoke with thread_id
-config = {"configurable": {"thread_id": "user-123"}}
-result = graph.invoke({"input": "..."}, config=config)
 ```
 
 ### Store (Cross-Thread Memory)
@@ -149,15 +145,9 @@ graph = builder.compile(
     checkpointer=MemorySaver(),
     interrupt_before=["approval_node"]
 )
-
-# Invoke - will pause
-graph.invoke({"input": "..."}, config=config)
-
-# Resume
-graph.invoke(None, config=config)
 ```
 
-### Or use interrupt() function
+### interrupt() function
 ```python
 from langgraph.graph import interrupt
 
@@ -168,21 +158,6 @@ class ApprovalNode(BaseNode):
         if approval.get("approved"):
             return {"status": "approved"}
         return {"status": "rejected"}
-```
-
-### Streaming
-```python
-# Stream updates
-for chunk in graph.stream({"input": "..."}, stream_mode="updates"):
-    print(chunk)
-
-# Stream full state
-for chunk in graph.stream({"input": "..."}, stream_mode="values"):
-    print(chunk)
-
-# Async stream
-async for chunk in graph.astream({"input": "..."}, stream_mode="values"):
-    await process(chunk)
 ```
 
 ### Error Handling
@@ -322,5 +297,3 @@ LLM should call it?
 └─ No  → Node in modules/nodes.py
 ```
 
-## References
-See detailed resources in `resources/` for comprehensive patterns and best practices.

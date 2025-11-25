@@ -225,8 +225,3 @@ graph.invoke({"input": "Hi"}, config=config)
 - **Checkpointer:** For conversation state (messages, current step)
 - **Store:** For facts, preferences, knowledge base
 
-## References
-- LangGraph Memory Docs: https://docs.langchain.com/oss/python/langgraph/add-memory
-- Related: `checkpoints-persistence.md` (short-term memory)
-- Related: `cross-thread-memory.md` (long-term memory)
-- Related: `../core/state-management.md` (in-session memory)

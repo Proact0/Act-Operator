@@ -395,8 +395,3 @@ mcp_config = {"server": {"command": "/usr/bin/mcp-server"}}
 mcp_config = load_config("config/mcp_config.yaml")
 ```
 
-## References
-- LangChain MCP Adapters: https://docs.langchain.com/oss/python/langchain/mcp
-- MCP Protocol: https://modelcontextprotocol.io
-- Related: `../core/tools-integration.md` (using tools generally)
-- Related: `external-apis.md` (non-MCP API integration)

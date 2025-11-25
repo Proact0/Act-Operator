@@ -378,7 +378,3 @@ If CLAUDE.md is updated:
 3. Test changes
 4. Ensure edge routing still makes sense
 
-## References
-- All core resources for implementation details
-- Related: architecting-act skill (creates CLAUDE.md)
-- Related: testing-cast skill (tests the implementation)

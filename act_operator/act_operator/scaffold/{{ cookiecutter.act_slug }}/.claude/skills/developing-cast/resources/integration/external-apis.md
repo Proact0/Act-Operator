@@ -429,7 +429,3 @@ async def execute(self, state):
         result = await client.get(url)
 ```
 
-## References
-- Related: `../core/tools-integration.md` (creating tools for APIs)
-- Related: `../advanced/error-handling-retry.md` (robust API error handling)
-- Related: `mcp-adapter.md` (MCP-based API integration)

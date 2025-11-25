@@ -398,9 +398,3 @@ def cleanup_temp_data(store, older_than_days=7):
 - Cache frequently accessed data in state
 - Consider partitioning large namespaces
 
-## References
-- LangGraph Store: https://docs.langchain.com/oss/python/langgraph/add-memory
-- LangMem: https://docs.langchain.com/oss/python/langmem
-- Related: `memory-overview.md` (when to use Store vs checkpoints)
-- Related: `checkpoints-persistence.md` (short-term memory)
-- Related: `../core/tools-integration.md` (InjectedToolRuntime)

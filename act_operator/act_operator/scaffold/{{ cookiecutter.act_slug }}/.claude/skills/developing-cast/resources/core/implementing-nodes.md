@@ -233,8 +233,3 @@ node = MyNode(verbose=True)
 # [MyNode] Completed | result_keys=['result']
 ```
 
-## References
-- BaseNode source: `casts/base_node.py`
-- Related: `state-management.md` (what to return)
-- Related: `tools-integration.md` (calling tools from nodes)
-- Related: `../advanced/error-handling-retry.md`

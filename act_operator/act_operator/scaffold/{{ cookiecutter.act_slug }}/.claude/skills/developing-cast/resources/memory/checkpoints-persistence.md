@@ -271,8 +271,3 @@ graph = builder.compile(
 )
 ```
 
-## References
-- LangGraph Persistence: https://docs.langchain.com/oss/python/langgraph/persistence
-- Related: `memory-overview.md` (when to use checkpoints vs Store)
-- Related: `cross-thread-memory.md` (long-term memory)
-- Related: `../advanced/interrupts-hitl.md` (using checkpoints with interrupts)

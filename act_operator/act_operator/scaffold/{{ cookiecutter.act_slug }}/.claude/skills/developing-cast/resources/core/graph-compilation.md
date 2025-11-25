@@ -277,18 +277,4 @@ config = {"configurable": {"thread_id": "conversation-1"}}
 result = graph.invoke({"input": "test"}, config=config)
 ```
 
-### Streaming Results
-```python
-for chunk in graph.stream({"input": "test"}, config=config):
-    print(chunk)
-```
 
-**See:** `../advanced/streaming.md` for streaming patterns.
-
-## References
-- BaseGraph source: `casts/base_graph.py`
-- Related: `state-management.md` (StateGraph state schema)
-- Related: `implementing-nodes.md` (nodes to add to graph)
-- Related: `edge-patterns.md` (edges to add to graph)
-- Related: `../memory/checkpoints-persistence.md`
-- Related: `../advanced/interrupts-hitl.md`

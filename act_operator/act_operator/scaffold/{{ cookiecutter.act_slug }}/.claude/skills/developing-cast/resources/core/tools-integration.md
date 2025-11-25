@@ -264,8 +264,3 @@ def should_use_tools(state):
     return END
 ```
 
-## References
-- LangChain Tools: https://docs.langchain.com/oss/python/langchain/tools
-- Related: `implementing-nodes.md` (custom tool execution nodes)
-- Related: `../integration/external-apis.md` (tools calling APIs)
-- Related: `../memory/cross-thread-memory.md` (InjectedToolRuntime)

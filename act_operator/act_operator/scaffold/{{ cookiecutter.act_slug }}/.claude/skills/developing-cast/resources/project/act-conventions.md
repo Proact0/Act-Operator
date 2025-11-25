@@ -335,6 +335,3 @@ from .modules.state import State  # ❌ WRONG
 from casts.{ cast_name }.modules.state import State  # ✓ CORRECT
 ```
 
-## References
-- Related: `../core/implementing-nodes.md`
-- Related: `../core/graph-compilation.md`

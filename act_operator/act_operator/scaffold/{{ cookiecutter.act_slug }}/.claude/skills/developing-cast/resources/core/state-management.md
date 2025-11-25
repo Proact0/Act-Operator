@@ -167,7 +167,3 @@ class MyNode(BaseNode):
 - LangGraph merges with existing state
 - Reducers determine merge behavior
 
-## References
-- LangGraph State Docs: https://docs.langchain.com/oss/python/langgraph/persistence
-- Related: `implementing-nodes.md` (how nodes update state)
-- Related: `graph-compilation.md` (passing state to StateGraph)

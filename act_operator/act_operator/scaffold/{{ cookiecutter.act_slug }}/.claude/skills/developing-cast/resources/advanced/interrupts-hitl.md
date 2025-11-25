@@ -326,7 +326,3 @@ class ApprovalQueue:
         del self.pending[thread_id]
 ```
 
-## References
-- LangGraph Interrupts: https://docs.langchain.com/oss/python/langgraph/interrupts
-- Related: `../memory/checkpoints-persistence.md` (required for interrupts)
-- Related: `streaming.md` (streaming during interrupts)

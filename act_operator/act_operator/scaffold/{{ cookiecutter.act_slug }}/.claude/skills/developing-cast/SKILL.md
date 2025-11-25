@@ -93,14 +93,12 @@ resources/memory/
 resources/advanced/
 ├── interrupts-hitl.md           # Human-in-the-loop, approvals
 ├── subgraphs.md                 # Modular graphs, composition
-├── streaming.md                 # Real-time updates, progress
 └── error-handling-retry.md      # Robust error handling, retries
 ```
 
 **When to read:**
 - Approval workflows? → `interrupts-hitl.md`
 - Complex multi-agent? → `subgraphs.md`
-- Need real-time UI? → `streaming.md`
 - Production resilience? → `error-handling-retry.md`
 
 ### Integration Patterns
@@ -216,50 +214,6 @@ All patterns are verified against LangGraph 1.0 (released Oct 2025):
 - ✅ MCP adapters support
 - ❌ NO deprecated 0.x APIs
 
-## Decision Frameworks
-
-### "Which resource should I read?"
-
-```
-Implementing...
-├─ State schema → core/state-management.md
-├─ Node → core/implementing-nodes.md
-├─ Routing → core/edge-patterns.md
-├─ Tools → core/tools-integration.md
-├─ Graph → core/graph-compilation.md
-├─ Memory → memory/memory-overview.md (then specific)
-├─ Approvals → advanced/interrupts-hitl.md
-├─ Subgraphs → advanced/subgraphs.md
-├─ Streaming → advanced/streaming.md
-├─ Errors → advanced/error-handling-retry.md
-├─ MCP → integration/mcp-adapter.md
-├─ APIs → integration/external-apis.md
-└─ Quick lookup → quick-reference.md
-```
-
-### "Where should this code live?"
-
-```
-What are you creating?
-├─ Tool → casts/[cast]/modules/tools.py
-├─ Node → casts/[cast]/modules/nodes.py
-├─ State → casts/[cast]/modules/state.py
-├─ Graph → casts/[cast]/graph.py
-├─ Routing function → casts/[cast]/modules/conditions.py
-├─ Prompts → casts/[cast]/modules/prompts.py
-├─ Models/LLM → casts/[cast]/modules/models.py
-└─ Utilities → casts/[cast]/modules/utils.py
-```
-
-### "What type of memory do I need?"
-
-```
-Data needed for...
-├─ Just this execution → State (state-management.md)
-├─ Across conversation turns → Checkpointer (checkpoints-persistence.md)
-└─ Across all conversations → Store (cross-thread-memory.md)
-```
-
 ## Troubleshooting
 
 ### Common Issues
@@ -288,45 +242,5 @@ Data needed for...
 
 ## Integration with Other Skills
 
-### From architecting-act
-**Input:** CLAUDE.md (architecture specification)
-**Action:** Translate to code using `resources/project/from-architecture-to-code.md`
-
-### To testing-cast
-**Output:** Implemented code (state, nodes, graph, tools)
-**Next:** Testing and validation (use testing-cast skill)
-
-## Best Practices
-
-### Communication Style
-- **Be resource-aware:** Don't duplicate entire resources - point to them
-- **Be decision-focused:** Help choose between options
-- **Be convention-enforcing:** Always validate Act conventions
-- **Be practical:** Show minimal working examples, not exhaustive tutorials
-
-### Helping Developers
-1. **Understand context:** What are they building? Where are they stuck?
-2. **Right-size guidance:** Quick question = quick-reference; complex = detailed resource
-3. **Validate early:** Check Act conventions before deep implementation
-4. **Connect resources:** "You'll also need X after Y"
-
-### Anti-Patterns to Prevent
-- Not inheriting from base classes
-- Using deprecated LangGraph 0.x APIs
-- Forgetting checkpointer for interrupts
-- Confusing Store with checkpointer
-- Not using thread_id with checkpointer
-
-## Success Criteria
-
-You've succeeded when:
-✓ Developer understands WHICH resource to read
-✓ Developer follows Act conventions
-✓ Code uses LangGraph 1.0 patterns
-✓ Implementation matches CLAUDE.md architecture
-✓ Developer can navigate resources independently
-✓ Common mistakes are avoided
-
----
-
-**Remember:** You're a guide to the resources and conventions, not a code generator. Help developers build correctly, efficiently, and in compliance with Act standards.
+- **From architecting-act:** CLAUDE.md → `resources/project/from-architecture-to-code.md`
+- **To testing-cast:** Implemented code → testing and validation
