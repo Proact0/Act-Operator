@@ -38,8 +38,6 @@ graph.invoke({"input": "What did I just say?"}, config)  # Remembers "Hello"
 - Resume after interrupts
 - User session persistence
 
-**See:** `checkpoints-persistence.md`
-
 ### 3. Long-Term Memory (Store)
 **What:** Data persisted across threads/conversations.
 **How:** Store API (InMemoryStore, PostgresStore).
@@ -58,8 +56,6 @@ prefs = runtime.store.get(namespace=("user", "123"), key="preferences")
 - Cross-conversation learning
 - Facts to remember permanently
 
-**See:** `cross-thread-memory.md`
-
 ## Decision Matrix
 
 | Need | Solution | Implementation |
@@ -76,7 +72,7 @@ prefs = runtime.store.get(namespace=("user", "123"), key="preferences")
 ### State (In GraphState)
 ```python
 # casts/{ cast_name }/modules/state.py
-class MyCastState(TypedDict):
+class State(TypedDict):
     messages: Annotated[list[dict], add]  # Short-term in-session
     current_step: str
 ```
@@ -88,7 +84,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 
 class MyGraph(BaseGraph):
     def build(self):
-        builder = StateGraph(MyCastState)
+        builder = StateGraph(State)
         # ... add nodes/edges ...
         return builder.compile(
             checkpointer=SqliteSaver.from_conn_string("memory.db")

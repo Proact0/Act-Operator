@@ -20,7 +20,6 @@
 - [Validation Checklist](#validation-checklist)
 - [Example: Complete Translation](#example-complete-translation)
 - [When Architecture Changes](#when-architecture-changes)
-- [References](#references)
 
 ## When to Use This Resource
 Read this when translating CLAUDE.md (from architecting-act) into actual implementation code.
@@ -44,30 +43,12 @@ CLAUDE.md contains:
 
 ### Step 1: Create State Schema
 
-**From CLAUDE.md:**
-```
-State Schema:
-- input: str - User's input query
-- messages: list[dict] with add reducer - Conversation messages
-- research_results: list[dict] with add reducer - Accumulated research
-- final_report: str | None - Generated report
-```
+**Translation:** Extract state fields from CLAUDE.md and create TypedDict in `modules/state.py`.
 
-**To state.py:**
-```python
-# casts/research_cast/state.py
-from typing import TypedDict, Annotated
-from langgraph.graph import add
-
-class ResearchCastState(TypedDict):
-    """State for ResearchCast graph."""
-    input: str
-    messages: Annotated[list[dict], add]
-    research_results: Annotated[list[dict], add]
-    final_report: str | None
-```
-
-**See:** `../core/state-management.md`
+Key mappings:
+- Field names and types → TypedDict fields
+- "with add reducer" → `Annotated[list, add]`
+- Optional fields → Union with `None`
 
 ### Step 2: Create Node Classes
 
@@ -130,8 +111,6 @@ class ReportGeneratorNode(BaseNode):
         return {"final_report": report}
 ```
 
-**See:** `../core/implementing-nodes.md`
-
 ### Step 3: Create Routing Functions
 
 **From CLAUDE.md:**
@@ -162,8 +141,6 @@ def check_quality(state: dict) -> str:
     else:
         return "error_handler"
 ```
-
-**See:** `../core/edge-patterns.md`
 
 ### Step 4: Build Graph
 
@@ -214,8 +191,6 @@ class ResearchCastGraph(BaseGraph):
         return builder.compile()
 ```
 
-**See:** `../core/graph-compilation.md`
-
 ### Step 5: Implement Tools (if specified)
 
 **From CLAUDE.md:**
@@ -257,14 +232,10 @@ def extract_entities(text: str) -> list[str]:
     ...
 ```
 
-**See:** `../core/tools-integration.md`
-
 ## Decision Points During Translation
 
 ### When CLAUDE.md says "ReAct Pattern"
 → **Implement:** Agent node with tools + conditional routing
-
-**See:** `../core/tools-integration.md` for agent+tools pattern
 
 ### When CLAUDE.md says "Plan-Execute"
 → **Implement:** Planning node → Execution nodes → Review node
@@ -272,17 +243,11 @@ def extract_entities(text: str) -> list[str]:
 ### When CLAUDE.md says "Map-Reduce"
 → **Implement:** Parallel nodes + aggregation node
 
-**See:** `../advanced/subgraphs.md` if pattern suggests modularity
-
 ### When CLAUDE.md mentions "Human Approval"
 → **Implement:** Interrupts with checkpointer
 
-**See:** `../advanced/interrupts-hitl.md`
-
 ### When CLAUDE.md specifies "Persistent Memory"
 → **Implement:** Checkpointer + Store
-
-**See:** `../memory/checkpoints-persistence.md`, `../memory/cross-thread-memory.md`
 
 ## Validation Checklist
 
@@ -292,7 +257,7 @@ After translating CLAUDE.md to code:
 ✓ **All nodes** from architecture are implemented
 ✓ **Node responsibilities** match CLAUDE.md descriptions
 ✓ **Edge routing** follows CLAUDE.md flow diagram
-✓ **Tools** (if any) are in `casts/[cast]/modules/tools.py`
+✓ **Tools** (if any) are in `casts/{ cast_name }/modules/tools.py`
 ✓ **Conditional logic** implements decision points
 ✓ **Error handling** covers failure scenarios
 ✓ **Memory/persistence** configured as specified

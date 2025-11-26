@@ -19,7 +19,6 @@
   - [Pattern 2: OAuth2](#pattern-2-oauth2)
   - [Pattern 3: JWT](#pattern-3-jwt)
 - [Common Mistakes](#common-mistakes)
-- [References](#references)
 
 ## When to Use This Resource
 Read this when integrating REST APIs, GraphQL, webhooks, or any external services not using MCP.
@@ -391,15 +390,6 @@ def create_jwt_token(secret: str, user_id: str) -> str:
 ```
 
 ## Common Mistakes
-
-❌ **Hardcoded API keys**
-```python
-# ❌ Never do this
-api_key = "sk-1234567890"
-
-# ✅ Use environment variables
-api_key = os.getenv("API_KEY")
-```
 
 ❌ **No timeout**
 ```python

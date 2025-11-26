@@ -167,10 +167,10 @@ class CustomToolNode(BaseNode):
 
 ## Act Project Convention
 
-⚠️ **Tools MUST live in:** `casts/[cast]/modules/tools.py`
+⚠️ **Tools MUST live in:** `casts/{ cast_name }/modules/tools.py`
 
 ```python
-# casts/[cast]/modules/tools.pysearch_tools.py
+# casts/{ cast_name }/modules/tools.pysearch_tools.py
 from langchain_core.tools import tool
 
 @tool
@@ -204,7 +204,7 @@ Need LLM to call external functions?
 └─ Yes → Create tools with @tool decorator
 
 Tools location:
-└─ ALWAYS → casts/[cast]/modules/tools.py[category]_tools.py
+└─ ALWAYS → casts/{ cast_name }/modules/tools.py[category]_tools.py
 
 Execution approach:
 ├─ Standard agent pattern → Use ToolNode
@@ -223,7 +223,7 @@ Tool needs Store/Runtime access?
 # casts/{ cast_name }/tools.py
 
 # ✅ Right - tools in modules
-# casts/[cast]/modules/tools.pymy_tools.py
+# casts/{ cast_name }/modules/tools.pymy_tools.py
 ```
 
 ❌ **Poor docstrings**

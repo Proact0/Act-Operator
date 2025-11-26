@@ -20,7 +20,6 @@
   - [Pattern 2: Graceful Degradation](#pattern-2-graceful-degradation)
   - [Pattern 3: Error Aggregation](#pattern-3-error-aggregation)
 - [Common Mistakes](#common-mistakes)
-- [References](#references)
 
 ## When to Use This Resource
 Read this when implementing resilient graphs, adding retry logic, handling failures gracefully, or building production-ready error handling.
@@ -419,20 +418,6 @@ except Exception:
 # ✅ Preserve error info
 except Exception as e:
     return {"error": str(e), "error_type": type(e).__name__}
-```
-
-❌ **Infinite retry loops**
-```python
-# ❌ No limit
-def should_retry(state):
-    if state.get("error"):
-        return "retry"  # Infinite loop!
-
-# ✅ Add counter
-def should_retry(state):
-    if state.get("error") and state.get("retry_count", 0) < 3:
-        return "retry"
-    return "give_up"
 ```
 
 ❌ **Catching too broadly**

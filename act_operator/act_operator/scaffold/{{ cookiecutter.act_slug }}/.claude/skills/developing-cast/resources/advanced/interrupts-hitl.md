@@ -62,10 +62,10 @@ graph.invoke(None, config=config)
 
 ## Modern Pattern: interrupt() Function
 
-**As of LangGraph 0.2.31**, use the `interrupt()` function for more control:
+**In LangGraph 1.0**, use the `interrupt()` function for dynamic interrupts:
 
 ```python
-from langgraph.graph import interrupt
+from langgraph.types import interrupt
 from casts.base_node import BaseNode
 
 class ApprovalNode(BaseNode):

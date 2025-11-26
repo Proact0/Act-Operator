@@ -35,9 +35,8 @@ python scripts/run_tests.py
 
 ```
 resources/core/
-├── testing-nodes.md       # Unit tests for BaseNode/AsyncBaseNode classes
 ├── testing-graphs.md      # Integration tests for graphs
-└── testing-state.md       # Testing state schemas and flow
+└── testing-nodes.md       # Unit tests for BaseNode/AsyncBaseNode classes
 ```
 
 **When to read:**
@@ -52,7 +51,6 @@ resources/advanced/
 ├── async-testing.md             # pytest-asyncio patterns
 ├── mocking-strategies.md        # Mock LLMs, tools, APIs, Store
 ├── fixtures-guide.md            # Reusable pytest fixtures
-├── integration-testing.md       # End-to-end workflow tests
 └── coverage-best-practices.md   # Coverage goals and strategies
 ```
 
@@ -60,7 +58,6 @@ resources/advanced/
 - **async-testing.md:** Testing AsyncBaseNode classes
 - **mocking-strategies.md:** Need to mock LLMs, APIs, or dependencies
 - **fixtures-guide.md:** Creating reusable test fixtures
-- **integration-testing.md:** Testing complete workflows
 - **coverage-best-practices.md:** Improving test coverage
 
 ## Common Testing Patterns

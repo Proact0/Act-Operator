@@ -42,23 +42,6 @@ class TestConcurrent:
         assert all("result" in r for r in results)
 ```
 
-## Async Fixtures
-
-```python
-@pytest.fixture
-async def async_resource():
-    """Async fixture setup/teardown."""
-    resource = await setup_resource()
-    yield resource
-    await teardown_resource(resource)
-
-class TestWithAsyncFixture:
-    @pytest.mark.asyncio
-    async def test_uses_async_fixture(self, async_resource):
-        result = await async_resource.query("test")
-        assert result is not None
-```
-
 ## Mocking Async Functions
 
 ```python
@@ -127,7 +110,3 @@ class TestAsyncErrors:
 [tool.pytest.ini_options]
 asyncio_mode = "auto"  # Auto-detect async tests
 ```
-
-## References
-- Related: `testing-nodes.md` (sync node patterns)
-- Related: `mocking-strategies.md` (mocking async operations)

@@ -20,17 +20,17 @@ Read this when creating graph.py, compiling StateGraph, or using BaseGraph to bu
 from langgraph.graph import StateGraph, START, END
 from casts.base_graph import BaseGraph
 
-from .state import MyCastState
+from .state import State
 from .nodes import InputNode, ProcessNode, OutputNode
 from .conditions import should_continue
 
-class MyCastGraph(BaseGraph):
-    """Main graph for MyCast."""
+class { CastName }Graph(BaseGraph):
+    """Main graph for { CastName }."""
 
     def build(self) -> CompiledStateGraph:
         """Build and compile the graph."""
         # 1. Create StateGraph with state schema
-        builder = StateGraph(MyCastState)
+        builder = StateGraph(State)
 
         # 2. Instantiate nodes
         input_node = InputNode()
@@ -63,22 +63,6 @@ class MyCastGraph(BaseGraph):
 4. Define edges (static and conditional)
 5. Compile and return
 
-### Using the Graph
-
-```python
-# Somewhere else (e.g., main.py, API endpoint)
-from casts.{ cast_name }.graph import MyCastGraph
-
-# Instantiate graph class
-graph_builder = MyCastGraph()
-
-# Build (compile) the graph
-compiled_graph = graph_builder.build()  # or graph_builder()
-
-# Invoke
-result = compiled_graph.invoke({"input": "Hello"})
-```
-
 ## Adding Checkpointing (Persistence)
 
 **When to use:** Need to save state between runs, support interrupts, or enable time-travel debugging.
@@ -87,28 +71,15 @@ result = compiled_graph.invoke({"input": "Hello"})
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.checkpoint.sqlite import SqliteSaver
 
-class MyCastGraph(BaseGraph):
+class { CastName }Graph(BaseGraph):
     def build(self, checkpointer=None) -> CompiledStateGraph:
-        builder = StateGraph(MyCastState)
+        builder = StateGraph(State)
 
         # ... add nodes and edges ...
 
         # Compile with checkpointer
         return builder.compile(checkpointer=checkpointer)
-
-# Usage
-memory_saver = MemorySaver()  # In-memory (dev/testing)
-# OR
-sqlite_saver = SqliteSaver.from_conn_string("checkpoints.db")  # Persistent
-
-graph = MyCastGraph().build(checkpointer=sqlite_saver)
-
-# Now supports thread_id for separate conversations
-config = {"configurable": {"thread_id": "user-123"}}
-result = graph.invoke({"input": "..."}, config=config)
 ```
-
-**See:** `../memory/checkpoints-persistence.md` for details.
 
 ## Advanced Compilation Options
 
@@ -129,15 +100,9 @@ class MemoryEnabledGraph(BaseGraph):
         )
 
         return compiled
-
-# Usage
-store = InMemoryStore()
-graph = MemoryEnabledGraph().build(store=store, checkpointer=MemorySaver())
 ```
 
 **When to use:** Need memory across different threads/conversations.
-
-**See:** `../memory/cross-thread-memory.md` for Store details.
 
 ### Pattern: Graph with Interrupts
 
@@ -161,20 +126,18 @@ class InterruptibleGraph(BaseGraph):
 
 **When to use:** Human-in-the-loop workflows, approval steps.
 
-**See:** `../advanced/interrupts-hitl.md` for complete patterns.
-
 ## Act Project Structure
 
 Complete graph.py example:
 
 ```python
 # casts/{ cast_name }/graph.py
-"""Graph definition for MyCast."""
+"""Graph definition for { CastName }."""
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 from casts.base_graph import BaseGraph
 
-from .state import MyCastState
+from .state import State
 from .nodes import (
     InputNode,
     ProcessNode,
@@ -182,8 +145,8 @@ from .nodes import (
 )
 from .conditions import should_continue, route_by_intent
 
-class MyCastGraph(BaseGraph):
-    """MyCast main graph."""
+class { CastName }Graph(BaseGraph):
+    """{ CastName } main graph."""
 
     def __init__(self, checkpointer=None, **kwargs):
         super().__init__()
@@ -191,7 +154,7 @@ class MyCastGraph(BaseGraph):
 
     def build(self):
         """Build the graph structure."""
-        builder = StateGraph(MyCastState)
+        builder = StateGraph(State)
 
         # Initialize nodes
         input_node = InputNode()
@@ -263,18 +226,3 @@ builder.add_edge(START, "first")    # ✅ Imported START constant
 
 from langgraph.graph import START, END  # Must import
 ```
-
-## Invoking Compiled Graphs
-
-### Simple Invocation
-```python
-result = graph.invoke({"input": "test"})
-```
-
-### With Thread Support
-```python
-config = {"configurable": {"thread_id": "conversation-1"}}
-result = graph.invoke({"input": "test"}, config=config)
-```
-
-

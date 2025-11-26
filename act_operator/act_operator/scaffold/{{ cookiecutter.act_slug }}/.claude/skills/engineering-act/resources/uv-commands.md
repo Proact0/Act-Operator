@@ -67,14 +67,12 @@ uv sync --reinstall
 
 ## Common Workflows
 
-### Fresh Environment Setup
+### Environment Synchronization
 ```bash
-uv sync --all-packages      # Sync all groups
-```
-
-### After Editing pyproject.toml
-```bash
-# Sync environment to match updated pyproject.toml
+# Sync environment - use for:
+# - Fresh environment setup after cloning
+# - After editing pyproject.toml manually
+# - Resolving import errors or package mismatches
 uv sync --all-packages
 ```
 

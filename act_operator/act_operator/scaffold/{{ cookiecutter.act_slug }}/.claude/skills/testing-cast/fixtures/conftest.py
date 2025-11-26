@@ -105,16 +105,16 @@ def memory_saver():
 @pytest.fixture
 def sample_graph():
     """Example graph fixture - customize for your cast."""
-    # from casts.{ cast_name }.graph import MyCastGraph
-    # return MyCastGraph().build()
+    # from casts.{ cast_name }.graph import { CastName }Graph
+    # return { CastName }Graph().build()
     pass
 
 
 @pytest.fixture
 def graph_with_memory(memory_saver):
     """Example graph with memory - customize for your cast."""
-    # from casts.{ cast_name }.graph import MyCastGraph
-    # return MyCastGraph().build(checkpointer=memory_saver)
+    # from casts.{ cast_name }.graph import { CastName }Graph
+    # return { CastName }Graph().build(checkpointer=memory_saver)
     pass
 
 

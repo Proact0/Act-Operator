@@ -9,15 +9,15 @@ Read this when writing tests for graph classes that inherit from `BaseGraph`.
 # tests/test_graph.py
 import pytest
 from langgraph.checkpoint.memory import MemorySaver
-from casts.{ cast_name }.graph import MyCastGraph
+from casts.{ cast_name }.graph import { CastName }Graph
 
-class TestMyCastGraph:
-    """Test suite for MyCastGraph."""
+class Test{ CastName }Graph:
+    """Test suite for { CastName }Graph."""
 
     @pytest.fixture
     def graph(self):
         """Provides a compiled graph for testing."""
-        graph_builder = MyCastGraph()
+        graph_builder = { CastName }Graph()
         return graph_builder.build()
 
     def test_graph_compiles(self, graph):
@@ -109,7 +109,7 @@ class TestGraphWithCheckpointer:
     @pytest.fixture
     def graph_with_memory(self):
         """Graph with MemorySaver for testing."""
-        graph_builder = MyCastGraph()
+        graph_builder = { CastName }Graph()
         checkpointer = MemorySaver()
         return graph_builder.build(checkpointer=checkpointer)
 
@@ -211,7 +211,7 @@ class TestGraphWithMocks:
         def mock_node(state):
             return {"mocked": True}
 
-        graph_builder = MyCastGraph()
+        graph_builder = { CastName }Graph()
         graph = graph_builder.build()
 
         # Mock specific node

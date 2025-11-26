@@ -149,7 +149,7 @@ graph = builder.compile(
 
 ### interrupt() function
 ```python
-from langgraph.graph import interrupt
+from langgraph.types import interrupt
 
 class ApprovalNode(BaseNode):
     def execute(self, state) -> dict:
@@ -223,12 +223,12 @@ builder.add_node("tools", tool_node)
 
 | What | Where |
 |------|-------|
-| State schema | `casts/[cast]/modules/state.py` |
-| Nodes | `casts/[cast]/modules/nodes.py` |
-| Graph | `casts/[cast]/graph.py` |
-| Routing functions | `casts/[cast]/modules/conditions.py` |
-| Tools | `casts/[cast]/modules/tools.py` |
-| Prompts | `casts/[cast]/modules/prompts.py` |
+| State schema | `casts/{ cast_name }/modules/state.py` |
+| Nodes | `casts/{ cast_name }/modules/nodes.py` |
+| Graph | `casts/{ cast_name }/graph.py` |
+| Routing functions | `casts/{ cast_name }/modules/conditions.py` |
+| Tools | `casts/{ cast_name }/modules/tools.py` |
+| Prompts | `casts/{ cast_name }/modules/prompts.py` |
 | Base classes | `casts/base_node.py`, `casts/base_graph.py` |
 
 ## Common Imports

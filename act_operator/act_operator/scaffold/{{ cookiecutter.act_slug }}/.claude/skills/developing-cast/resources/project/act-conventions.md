@@ -53,28 +53,7 @@ Read this for Act-specific file placement, naming conventions, and project struc
 
 ## CRITICAL Conventions
 
-### 1. Tools Location
-
-**Location:** Tools go in `casts/[cast]/modules/tools.py`
-**Why:** Keep tools with their cast for clear organization.
-
-```python
-# ✅ CORRECT
-# casts/{ cast_name }/modules/tools.py
-from langchain_core.tools import tool
-
-@tool
-def web_search(query: str) -> str:
-    """Search the web."""
-    ...
-```
-
-```python
-# ❌ WRONG
-# casts/{ cast_name }/tools.py
-```
-
-### 2. Base Class Inheritance
+### 1. Base Class Inheritance
 
 ⚠️ **ALL nodes MUST inherit from BaseNode or AsyncBaseNode**
 
@@ -100,12 +79,12 @@ class MyNode:  # Not inheriting from BaseNode
 # ✅ CORRECT
 from casts.base_graph import BaseGraph
 
-class MyCastGraph(BaseGraph):
+class { CastName }Graph(BaseGraph):
     def build(self) -> CompiledStateGraph:
         ...
 ```
 
-### 3. Required Files Per Cast
+### 2. Required Files Per Cast
 
 Each cast MUST have:
 - `graph.py` - Graph class (in cast root)
@@ -121,7 +100,7 @@ Optional files in `modules/`:
 - `middlewares.py` - Custom middleware
 - `utils.py` - Utilities
 
-### 4. Naming Conventions
+### 3. Naming Conventions
 
 **Files:** `snake_case.py`
 - ✅ `research_agent.py`
@@ -136,32 +115,32 @@ Optional files in `modules/`:
 - ❌ `routeByIntent`
 
 **State:** `PascalCase` ending in `State`
-- ✅ `MyCastState`
-- ❌ `MyState`, `{ cast_name }_state`
+- ✅ `PrivateState`
+- ❌ `Private`, `private_state`
 
 **Graph:** `PascalCase` ending in `Graph`
-- ✅ `MyCastGraph`
-- ❌ `MyCast`, `{ cast_name }_graph`
+- ✅ `{ CastName }Graph`
+- ❌ `{ CastName }`, `{ cast_name }_graph`
 
 ## File Templates
 
 ### graph.py Template
 
 ```python
-"""Graph definition for MyCast."""
+"""Graph definition for { CastName }."""
 from langgraph.graph import StateGraph, START, END
 from casts.base_graph import BaseGraph
 
-from casts.{ cast_name }.modules.state import MyCastState
+from casts.{ cast_name }.modules.state import State
 from casts.{ cast_name }.modules.nodes import Node1, Node2, Node3
 from casts.{ cast_name }.modules.conditions import should_continue
 
-class MyCastGraph(BaseGraph):
-    """Main graph for MyCast."""
+class { CastName }Graph(BaseGraph):
+    """Main graph for { CastName }."""
 
     def build(self) -> CompiledStateGraph:
         """Build and compile the graph."""
-        builder = StateGraph(MyCastState)
+        builder = StateGraph(State)
 
         # Instantiate nodes
         node1 = Node1()
@@ -185,12 +164,12 @@ class MyCastGraph(BaseGraph):
 ### state.py Template
 
 ```python
-"""State schema for MyCast."""
+"""State schema."""
 from typing import TypedDict, Annotated
 from langgraph.graph import add
 
-class MyCastState(TypedDict):
-    """State for MyCast graph."""
+class State(TypedDict):
+    """State for graph."""
     input: str
     messages: Annotated[list[dict], add]
     result: str | None
@@ -199,17 +178,17 @@ class MyCastState(TypedDict):
 ### nodes.py Template
 
 ```python
-"""Node implementations for MyCast."""
+"""Node implementations for { CastName }."""
 from casts.base_node import BaseNode, AsyncBaseNode
 
-class Node1(BaseNode):
+class WritingAgentTeam(BaseNode):
     """First processing node."""
 
     def execute(self, state) -> dict:
         """Process input."""
         return {"processed": True}
 
-class Node2(AsyncBaseNode):
+class Retriever(AsyncBaseNode):
     """Async second node."""
 
     async def execute(self, state) -> dict:
@@ -221,7 +200,7 @@ class Node2(AsyncBaseNode):
 ### conditions.py Template
 
 ```python
-"""Routing functions for MyCast."""
+"""Routing functions for { CastName }."""
 from langgraph.graph import END
 
 def should_continue(state: dict) -> str:
@@ -253,7 +232,7 @@ def route_by_intent(state: dict) -> str:
 from langgraph.graph import END, START, StateGraph
 
 from casts.base_graph import BaseGraph
-from casts.{ cast_name }.modules.state import MyCastState
+from casts.{ cast_name }.modules.state import State
 from casts.{ cast_name }.modules.nodes import Node1, Node2
 from casts.{ cast_name }.modules.conditions import should_continue
 ```
@@ -292,7 +271,7 @@ def execute(self, state, runtime=None, **kwargs):
 **In-session memory:** In state schema
 ```python
 # casts/{ cast_name }/modules/state.py
-class MyCastState(TypedDict):
+class State(TypedDict):
     conversation_history: list[dict]  # In-session memory
 ```
 

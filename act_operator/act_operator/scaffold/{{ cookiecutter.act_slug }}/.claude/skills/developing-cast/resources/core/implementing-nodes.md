@@ -86,8 +86,6 @@ class MemoryNode(BaseNode):
 
 **Use when:** Need Store for cross-thread memory, want to stream custom events.
 
-**See:** `../memory/cross-thread-memory.md` for Store details.
-
 ## Node Initialization
 
 ### Stateless Node (Preferred)
@@ -145,8 +143,6 @@ class ValidatingNode(BaseNode):
         # Safe to proceed
         return {"processed": state["required_field"]}
 ```
-
-**See:** `../advanced/error-handling-retry.md` for comprehensive patterns.
 
 ## Decision Framework
 

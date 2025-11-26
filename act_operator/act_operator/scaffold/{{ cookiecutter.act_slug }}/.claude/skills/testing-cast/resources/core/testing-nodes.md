@@ -11,7 +11,7 @@ Read this when writing unit tests for node classes that inherit from `BaseNode` 
 # tests/test_nodes.py
 import pytest
 from casts.{ cast_name }.nodes import ProcessInputNode
-from casts.{ cast_name }.state import MyCastState
+from casts.{ cast_name }.state import State
 
 class TestProcessInputNode:
     """Test suite for ProcessInputNode."""
@@ -191,42 +191,6 @@ class TestNodeErrorHandling:
         assert "error" in caplog.text.lower()
 ```
 
-## Fixtures for Node Testing
-
-```python
-# conftest.py
-import pytest
-
-@pytest.fixture
-def sample_state():
-    """Provides a standard test state."""
-    return {
-        "input": "test input",
-        "messages": [],
-        "result": None
-    }
-
-@pytest.fixture
-def mock_store():
-    """Provides a mock Store for testing."""
-    class MockStore:
-        def __init__(self):
-            self.data = {}
-
-        def get(self, namespace, key):
-            return self.data.get((namespace, key))
-
-        def put(self, namespace, key, value):
-            self.data[(namespace, key)] = value
-
-    return MockStore()
-
-@pytest.fixture
-def mock_config():
-    """Provides a standard test config."""
-    return {"configurable": {"thread_id": "test-123"}}
-```
-
 ## Common Patterns
 
 ### Pattern: Testing State Updates
@@ -281,9 +245,3 @@ def test_something():
     node = MyNode()  # Fresh instance per test
     result = node.execute(state)
 ```
-
-## References
-- Related: `testing-graphs.md` (integration with graphs)
-- Related: `async-testing.md` (advanced async patterns)
-- Related: `mocking-strategies.md` (comprehensive mocking)
-- Related: `fixtures-guide.md` (reusable fixtures)

@@ -113,8 +113,8 @@ State growing too large?
 from typing import TypedDict, Annotated
 from langgraph.graph import add
 
-class MyCastState(TypedDict):
-    """State for MyCast graph."""
+class State(TypedDict):
+    """State for { CastName } graph."""
     input: str
     messages: Annotated[list[dict], add]
     result: str | None

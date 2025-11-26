@@ -169,8 +169,6 @@ print(f"Next node: {state.next}")  # ['approval_node']
 graph.invoke(None, config=config)  # Continues from pause point
 ```
 
-**See:** `../advanced/interrupts-hitl.md` for complete patterns.
-
 ## State Updates During Interrupts
 
 Update state before resuming:

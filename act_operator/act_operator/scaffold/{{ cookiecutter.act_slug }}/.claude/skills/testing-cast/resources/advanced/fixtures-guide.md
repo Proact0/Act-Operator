@@ -46,17 +46,17 @@ def configured_node():
 @pytest.fixture
 def graph():
     """Compiled graph."""
-    from casts.{ cast_name }.graph import MyCastGraph
-    return MyCastGraph().build()
+    from casts.{ cast_name }.graph import { CastName }Graph
+    return { CastName }Graph().build()
 
 @pytest.fixture
 def graph_with_memory():
     """Graph with checkpointer."""
     from langgraph.checkpoint.memory import MemorySaver
-    from casts.{ cast_name }.graph import MyCastGraph
+    from casts.{ cast_name }.graph import { CastName }Graph
 
     checkpointer = MemorySaver()
-    return MyCastGraph().build(checkpointer=checkpointer)
+    return { CastName }Graph().build(checkpointer=checkpointer)
 ```
 
 ### Mock Fixtures

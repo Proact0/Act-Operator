@@ -28,7 +28,6 @@
   - [Cleanup Strategy](#cleanup-strategy)
   - [Namespace Design](#namespace-design)
   - [Performance](#performance)
-- [References](#references)
 
 ## When to Use This Resource
 Read this when implementing memory that persists across different conversations/threads, user preferences, or shared knowledge bases.
@@ -368,7 +367,7 @@ Complex memory logic + state interaction?
 └─ Node (can combine state + Store)
 
 Memory needed by multiple casts?
-└─ Tool in casts/[cast]/modules/tools.py
+└─ Tool in casts/{ cast_name }/modules/tools.py
 
 Memory specific to one cast?
 └─ Node in casts/[cast_name]/nodes.py
