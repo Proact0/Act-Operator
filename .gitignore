@@ -156,3 +156,6 @@ sample-act/
 *-act/
 # Temporary files
 *.bak
+
+# Claude
+.claude/settings.local.json
