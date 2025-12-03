@@ -1,4 +1,27 @@
-# Act Operator
+<div align="center">
+  <a href="https://www.proact0.org/">
+    <picture>
+      <source media="(prefers-color-scheme: light)" srcset=".github/images/light-theme.svg">
+      <source media="(prefers-color-scheme: dark)" srcset=".github/images/dark-theme.svg">
+      <img alt="Proact0 Logo" src=".github/images/light-theme.svg" width="80%">
+    </picture>
+  </a>
+</div>
+
+<div align="center">
+  <h2>Act Operator</h2>
+</div>
+
+<div align="center">
+  <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank"><img src="https://img.shields.io/pypi/l/act-operator" alt="PyPI - License"></a>
+  <a href="https://pypi.org/project/act-operator/#history" target="_blank"><img src="https://img.shields.io/pypi/v/act-operator" alt="Version"></a>
+  <a href="https://www.linkedin.com/company/proact0" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-Proact0-blue?logo=linkedin&style=flat-square" alt="LinkedIn">
+  </a>
+  <a href="https://www.proact0.org/" target="_blank">
+    <img src="https://img.shields.io/badge/Homepage-Proact0.org-brightgreen?logo=internet-explorer&style=flat-square" alt="Homepage">
+  </a>
+</div>
 
 Act Operator는 `cookiecutter`로 `LangChain & LangGraph >= 1.0` 기반의 “Act - AX Template” 블루프린트를 신속히 부트스트랩하기 위한 Proact0의 CLI입니다. 이 도구는 Act 프로젝트를 생성하는 `act new`와, 기존 블루프린트에 추가 캐스트를 스캐폴딩하는 `act cast` 명령을 제공합니다.
 
@@ -10,13 +33,13 @@ Act Operator는 `cookiecutter`로 `LangChain & LangGraph >= 1.0` 기반의 “Ac
 - 기존 Act 프로젝트에 추가 캐스트를 손쉽게 추가하는 내장 명령
 - `pytest`로 충분히 검증된 테스트
 
-## 설치
+## Get Started
 
 ```bash
-uv add act-operator
+uvx --from act-operator act new
 ```
 
-Act Operator는 Python 3.12 이상을 요구합니다. 프로젝트에는 `pyproject.toml`이 포함되어 있어 `uv`가 의존성을 재현 가능하게 관리합니다.
+Act Operator는 Python 3.11 이상을 요구합니다. 프로젝트에는 `pyproject.toml`이 포함되어 있어 `uv`가 의존성을 재현 가능하게 관리합니다.
 
 ## 사용법
 
@@ -48,16 +71,21 @@ my-act/
     ├── base_node.py
     ├── base_graph.py
     └── main-cast/
-        ├── modules/
-        │   ├── chains.py
-        │   ├── conditions.py
-        │   ├── models.py
-        │   ├── nodes.py
-        │   ├── prompts.py
-        │   ├── tools.py
-        │   └── utils.py
-        ├── state.py
-        └── graph.py
+    ├── modules/
+    │   ├── __init__.py
+    │   ├── agents.py (optional)
+    │   ├── conditions.py (optional)
+    │   ├── middlewares.py (optional)
+    │   ├── models.py (optional)
+    │   ├── nodes.py (required)
+    │   ├── prompts.py (optional)
+    │   ├── state.py (required)
+    │   ├── tools.py (optional)
+    │   └── utils.py (optional)
+    ├── __init__.py
+    ├── graph.py
+    ├── pyproject.toml
+    └── README.md
 ```
 
 ## uv로 개발하기
