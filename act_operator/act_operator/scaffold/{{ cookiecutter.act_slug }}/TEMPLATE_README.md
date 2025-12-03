@@ -134,7 +134,7 @@ To add a new graph/feature as a separate Cast, use the `act cast` command. Act O
 
 ```bash
 # Ensure dev dependencies are installed
-uv sync --dev
+uv sync --all-packages
 
 # Add a new Cast (interactive mode)
 uv run act cast
@@ -173,7 +173,7 @@ uv run ruff check . --fix
 uv run ruff format .
 ```
 
-### pre-commit (Optional)
+### pre-commit
 
 This template includes pre-commit configuration.
 
@@ -181,6 +181,9 @@ This template includes pre-commit configuration.
 - `uv-lock`: Dependency lock file synchronization
 
 > If checks fail, the commit will be blocked. All hooks must pass for the commit to complete.
+
+## License
+The structure and tooling of this monorepo template are licensed under the Proact0's [Apache 2.0 License](LICENSE).
 
 ## Frequently Asked Questions (FAQ)
 
@@ -194,6 +197,7 @@ This template includes pre-commit configuration.
 ## References
 
 - LangGraph: https://docs.langchain.com/oss/python/langgraph/overview
+- Claude Agent Skills: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
 - uv: https://docs.astral.sh/uv/
 
 {% else %}
@@ -254,7 +258,7 @@ pip install uv
 
 ### 의존성 설치
 
-- 전체 워크스페이스(모든 Cast 패키지) 설치
+- 전체 워크스페이스(모든 Cast 패키지) + 개발 의존성 설치
 
 ```bash
 uv sync --all-packages
@@ -321,8 +325,8 @@ uv run langgraph dev --tunnel
 새로운 그래프/기능을 별도 Cast로 추가하려면 `act cast` 명령을 사용합니다. Act Operator는 이미 `dev` 의존성 그룹에 포함되어 있습니다.
 
 ```bash
-# dev 의존성이 설치되어 있는지 확인
-uv sync --dev
+# 의존성이 설치되어 있는지 확인
+uv sync --all-packages
 
 # 새 Cast 추가 (대화형 모드)
 uv run act cast
@@ -361,7 +365,7 @@ uv run ruff check . --fix
 uv run ruff format .
 ```
 
-### pre-commit(선택)
+### pre-commit
 
 본 템플릿은 pre-commit 구성을 포함합니다.
 
@@ -369,6 +373,9 @@ uv run ruff format .
 - `uv-lock`: 의존성 락 파일 동기화
 
 > 검사 실패 시 커밋이 차단됩니다. 모든 훅을 통과해야 커밋이 완료됩니다.
+
+## 라이선스
+이 모노레포 템플릿의 구조와 도구는 Proact0의 [Apache 2.0 라이선스](LICENCE)에 따라 라이선스가 부여됩니다.
 
 ## 자주 하는 질문(FAQ)
 
@@ -382,5 +389,6 @@ uv run ruff format .
 ## 참고
 
 - LangGraph: https://docs.langchain.com/oss/python/langgraph/overview
+- Claude Agent Skills: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
 - uv: https://docs.astral.sh/uv/
 {% endif %}

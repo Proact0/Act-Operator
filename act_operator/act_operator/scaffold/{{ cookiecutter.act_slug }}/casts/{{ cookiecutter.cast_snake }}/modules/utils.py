@@ -2,5 +2,5 @@
 
 Guidelines:
     - Extract reusable data processing or formatting logic.
-    - Keep node and chain implementations concise by delegating to helpers.
+    - Keep node implementations concise by delegating to helpers.
 """

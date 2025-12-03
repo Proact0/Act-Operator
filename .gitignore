@@ -158,4 +158,4 @@ sample-act/
 *.bak
 
 # Claude
-.claude/settings.local.json
+settings.local.json

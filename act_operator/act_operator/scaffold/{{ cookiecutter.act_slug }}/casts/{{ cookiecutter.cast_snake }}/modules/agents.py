@@ -10,10 +10,10 @@ Official document URL:
 """
 
 # from langchain.agents import create_agent
-# from casts.{{ cookiecutter.cast_snake }}.modules.models import get_sample_model
-# from casts.{{ cookiecutter.cast_snake }}.modules.prompts import get_sample_prompt
-# from casts.{{ cookiecutter.cast_snake }}.modules.tools import get_sample_tools
-# from casts.{{ cookiecutter.cast_snake }}.modules.middleware import get_sample_middleware
+# from .models import get_sample_model
+# from .prompts import get_sample_prompt
+# from .tools import get_sample_tools
+# from .middleware import get_sample_middleware
 
 
 def set_sample_agent():

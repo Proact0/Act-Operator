@@ -1,378 +1,248 @@
+"""Base node classes for LangGraph graphs.
+
+This module provides foundational classes for building LangGraph nodes with
+flexible execute signatures.
+
+Classes:
+    - ``BaseNode``: Sync node base class
+    - ``AsyncBaseNode``: Async node base class
+"""
+
+from __future__ import annotations
+
 import inspect
 import logging
-from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Mapping, Optional
 
-from langchain_core.runnables import RunnableConfig
-from langgraph.runtime import Runtime
+if TYPE_CHECKING:
+    from langchain_core.runnables import RunnableConfig
+    from langgraph.runtime import Runtime
+
+__all__ = ["BaseNode", "AsyncBaseNode"]
 
 LOGGER = logging.getLogger(__name__)
 
+# Allowed optional parameters for execute()
+_ALLOWED_PARAMS = frozenset({"config", "runtime"})
 
-def _validate_signature(node_name: str, sig: inspect.Signature) -> None:
-    """Ensures execute(state, [config], [runtime]) signature only."""
+
+def _validate_execute(cls: type, *, expect_async: bool) -> None:
+    """Validate that a class defines a proper execute implementation."""
+    try:
+        execute_attr = inspect.getattr_static(cls, "execute")
+    except AttributeError as e:
+        raise TypeError(f"{cls.__name__} must implement an execute() method.") from e
+
+    if isinstance(execute_attr, (staticmethod, classmethod)):
+        raise TypeError(f"{cls.__name__}.execute() must be an instance method.")
+
+    is_async = inspect.iscoroutinefunction(execute_attr)
+    if expect_async and not is_async:
+        raise TypeError(f"{cls.__name__}.execute() must be defined with 'async def'.")
+    if not expect_async and is_async:
+        raise TypeError(f"{cls.__name__}.execute() must not be asynchronous.")
+
+    # Validate signature
+    sig = inspect.signature(execute_attr)
     params = list(sig.parameters.values())
-    if not params:
-        raise TypeError(f"{node_name}.execute() must accept a 'state' argument.")
 
-    state_param = params[0]
-    if state_param.name != "state":
-        raise TypeError(f"{node_name}.execute() must declare 'state' first.")
-    if state_param.kind not in (
-        inspect.Parameter.POSITIONAL_ONLY,
-        inspect.Parameter.POSITIONAL_OR_KEYWORD,
-    ):
+    # Remove 'self'
+    if not params or params[0].name != "self":
+        raise TypeError(f"{cls.__name__}.execute() must define 'self' first.")
+    params = params[1:]
+
+    # Check 'state' parameter
+    if not params or params[0].name != "state":
         raise TypeError(
-            f"{node_name}.execute() must allow passing 'state' as a positional argument."
+            f"{cls.__name__}.execute() must declare 'state' as first argument."
         )
 
-    allowed = {"config", "runtime"}
+    # Check optional parameters
     for param in params[1:]:
-        if param.kind in (
-            inspect.Parameter.VAR_POSITIONAL,
-            inspect.Parameter.VAR_KEYWORD,
-        ):
-            raise TypeError(f"{node_name}.execute() cannot use *args or **kwargs.")
-        if param.name not in allowed:
+        if param.name not in _ALLOWED_PARAMS:
             raise TypeError(
-                f"{node_name}.execute() only supports optional args: {', '.join(sorted(allowed))}."
-            )
-        if param.kind == inspect.Parameter.POSITIONAL_ONLY:
-            raise TypeError(
-                f"{node_name}.execute() parameter '{param.name}' cannot be positional-only."
+                f"{cls.__name__}.execute() only supports optional args: "
+                f"{', '.join(sorted(_ALLOWED_PARAMS))}. Got '{param.name}'."
             )
 
 
-def _build_execute_kwargs(
-    *,
-    node_name: str,
-    sig: inspect.Signature,
-    config: Optional[RunnableConfig],
-    runtime: Optional[Runtime],
+def _build_kwargs(
+    execute_fn: Callable[..., Any],
+    config: Any,
+    runtime: Any,
 ) -> dict[str, Any]:
-    """Returns kwargs for execute based on provided config/runtime."""
-    execute_kwargs: dict[str, Any] = {}
-    expects_config = "config" in sig.parameters
-    expects_runtime = "runtime" in sig.parameters
+    """Build kwargs dict for execute() based on its signature."""
+    params = inspect.signature(execute_fn).parameters
+    kwargs: dict[str, Any] = {}
 
-    if expects_config:
-        config_param = sig.parameters["config"]
-        if config is None and config_param.default is inspect._empty:
-            raise TypeError(f"{node_name}.execute() requires 'config' but none was provided.")
-        execute_kwargs["config"] = config
+    if "config" in params:
+        kwargs["config"] = config
+    if "runtime" in params:
+        kwargs["runtime"] = runtime
 
-    if expects_runtime:
-        runtime_param = sig.parameters["runtime"]
-        if runtime is None and runtime_param.default is inspect._empty:
-            raise TypeError(
-                f"{node_name}.execute() requires 'runtime' but none was provided."
-            )
-        execute_kwargs["runtime"] = runtime
-
-    return execute_kwargs
+    return kwargs
 
 
-class BaseNode(ABC):
-    """Base class for nodes used within LangGraph graphs.
+class BaseNode:
+    """Base class for synchronous nodes in LangGraph graphs.
 
-    This class provides a flexible foundation for creating nodes that work
-    seamlessly with LangGraph's runtime features.
+    Subclasses must implement ``execute`` with ``state`` as the first argument,
+    and may optionally accept ``config`` and/or ``runtime``.
+
+    Supported execute signatures::
+
+        def execute(self, state): ...
+        def execute(self, state, config): ...
+        def execute(self, state, runtime): ...
+        def execute(self, state, config, runtime): ...
 
     Attributes:
         name: Canonical name of the node (class name by default).
         verbose: Flag indicating whether detailed logging is enabled.
+
+    Example:
+        >>> class MyNode(BaseNode):
+        ...     def execute(self, state):
+        ...         return {"processed": state["input"].upper()}
     """
 
-    def __init__(self, **kwargs) -> None:
-        """Initializes a node instance.
+    execute: Callable[..., dict]
 
-        Args:
-            **kwargs: Keyword arguments supporting subclass-specific options.
-                verbose (bool): Enable detailed logging. Defaults to False.
-        """
+    def __init__(self, **kwargs: Any) -> None:
         self.name = self.__class__.__name__
         self.verbose = kwargs.get("verbose", False)
 
-    @abstractmethod
-    def execute(
-        self,
-        state,
-        config: Optional[RunnableConfig] = None,
-        runtime: Optional[Runtime] = None,
-    ) -> dict:
-        """Processes the incoming state and returns updates.
-
-        This is the main method that subclasses must implement.
-        For simple nodes, you only need to work with state.
-        For advanced use cases, access config and runtime via kwargs.
-
-        Args:
-            state: Mutable graph state passed between nodes.
-            config: Optional RunnableConfig containing thread/call metadata.
-            runtime: Optional Runtime providing store, stream writer, etc.
-
-        Returns:
-            dict: Key/value pairs containing state updates.
-
-        Example:
-            Simple node (most common):
-            ```python
-            def execute(self, state):
-                return {"result": state["input"] + " processed"}
-            ```
-
-            Advanced node with config:
-            ```python
-            def execute(self, state, config=None):
-                thread_id = self.get_thread_id(config)
-                return {"thread_id": thread_id}
-            ```
-
-            Advanced node with runtime:
-            ```python
-            def execute(self, state, runtime=None):
-                if runtime and runtime.store:
-                    data = runtime.store.get("key")
-                return {"data": data}
-            ```
-        """
-        raise NotImplementedError("Must be implemented in a subclass")
-
-    def log(self, message: str, **context) -> None:
-        """Logs a message when verbose mode is enabled.
-
-        Args:
-            message: The message to log.
-            **context: Additional context to include in the log.
-        """
-        if not self.verbose:
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        if cls is BaseNode or inspect.isabstract(cls):
             return
-
-        LOGGER.debug("[%s] %s", self.name, message)
-        for key, value in context.items():
-            LOGGER.debug("  %s: %r", key, value)
-
-    def get_thread_id(self, config: Optional[RunnableConfig] = None) -> Optional[str]:
-        """Extracts thread_id from config if available.
-
-        Args:
-            config: Optional RunnableConfig object.
-
-        Returns:
-            Thread ID string or None if not available.
-        """
-        if not config:
-            return None
-        return config.get("configurable", {}).get("thread_id")
-
-    def get_tags(self, config: Optional[RunnableConfig] = None) -> list[str]:
-        """Extracts tags from config if available.
-
-        Args:
-            config: Optional RunnableConfig object.
-
-        Returns:
-            List of tag strings, empty list if not available.
-        """
-        if not config:
-            return []
-        return config.get("tags", [])
+        _validate_execute(cls, expect_async=False)
 
     def __call__(
         self,
-        state,
+        state: Any,
         config: Optional[RunnableConfig] = None,
         runtime: Optional[Runtime] = None,
     ) -> dict:
-        """Allows instances to be invoked like callables.
-
-        This method inspects the execute() signature and only passes
-        the parameters it accepts.
-
-        Args:
-            state: Current graph state.
-            config: Optional RunnableConfig object.
-            runtime: Optional Runtime object.
-
-        Returns:
-            dict: Result from execute().
-        """
-        # Log entry if verbose
+        """Invoke the node as a callable."""
         if self.verbose:
-            thread_id = self.get_thread_id(config)
-            self.log(
-                "Executing",
-                state_keys=list(state.keys()) if hasattr(state, "keys") else None,
-                thread_id=thread_id,
+            LOGGER.debug("[%s] Executing", self.name)
+
+        kwargs = _build_kwargs(self.execute, config, runtime)
+        result = self.execute(state, **kwargs)
+
+        if not isinstance(result, dict):
+            raise TypeError(
+                f"{self.name}.execute() must return a dict, got {type(result).__name__}."
             )
 
-        # Inspect execute signature to see what parameters it accepts
-        sig = inspect.signature(self.execute)
-        _validate_signature(self.name, sig)
-        execute_kwargs = _build_execute_kwargs(
-            node_name=self.name,
-            sig=sig,
-            config=config,
-            runtime=runtime,
-        )
-
-        # Execute the node
-        result = self.execute(state, **execute_kwargs)
-        if not isinstance(result, dict):
-            raise TypeError(f"{self.name}.execute() must return a dict, got {type(result)}.")
-
-        # Log exit if verbose
         if self.verbose:
-            self.log("Completed", result_keys=list(result.keys()) if result else None)
+            LOGGER.debug("[%s] Completed", self.name)
 
         return result
 
-
-class AsyncBaseNode(ABC):
-    """Base class for async nodes used within LangGraph graphs.
-
-    This class provides a flexible foundation for creating async nodes that work
-    seamlessly with LangGraph's runtime features.
-
-    Attributes:
-        name: Canonical name of the node (class name by default).
-        verbose: Flag indicating whether detailed logging is enabled.
-    """
-
-    def __init__(self, **kwargs) -> None:
-        """Initializes an async node instance.
-
-        Args:
-            **kwargs: Keyword arguments supporting subclass-specific options.
-                verbose (bool): Enable detailed logging. Defaults to False.
-        """
-        self.name = self.__class__.__name__
-        self.verbose = kwargs.get("verbose", False)
-
-    @abstractmethod
-    async def execute(
-        self,
-        state,
-        config: Optional[RunnableConfig] = None,
-        runtime: Optional[Runtime] = None,
-    ) -> dict:
-        """Processes the incoming state asynchronously and returns updates.
-
-        This is the main method that subclasses must implement.
-        For simple nodes, you only need to work with state.
-        For advanced use cases, access config and runtime via kwargs.
-
-        Args:
-            state: Mutable graph state passed between nodes.
-            config: Optional RunnableConfig containing thread/call metadata.
-            runtime: Optional Runtime providing store, stream writer, etc.
-
-        Returns:
-            dict: Key/value pairs containing state updates.
-
-        Example:
-            Simple async node (most common):
-            ```python
-            async def execute(self, state):
-                result = await some_async_operation(state["input"])
-                return {"result": result}
-            ```
-
-            Advanced async node with config:
-            ```python
-            async def execute(self, state, config=None):
-                thread_id = self.get_thread_id(config)
-                result = await fetch_data(thread_id)
-                return {"result": result}
-            ```
-        """
-        raise NotImplementedError("Must be implemented in a subclass")
-
-    def log(self, message: str, **context) -> None:
-        """Logs a message when verbose mode is enabled.
-
-        Args:
-            message: The message to log.
-            **context: Additional context to include in the log.
-        """
+    def log(self, message: str, **context: Any) -> None:
+        """Log a debug message when verbose mode is enabled."""
         if not self.verbose:
             return
-
         LOGGER.debug("[%s] %s", self.name, message)
         for key, value in context.items():
             LOGGER.debug("  %s: %r", key, value)
 
-    def get_thread_id(self, config: Optional[RunnableConfig] = None) -> Optional[str]:
-        """Extracts thread_id from config if available.
-
-        Args:
-            config: Optional RunnableConfig object.
-
-        Returns:
-            Thread ID string or None if not available.
-        """
+    def get_thread_id(
+        self, config: Optional[Mapping[str, Any]] = None
+    ) -> Optional[str]:
+        """Extract thread_id from config if available."""
         if not config:
             return None
-        return config.get("configurable", {}).get("thread_id")
+        configurable = config.get("configurable")
+        return configurable.get("thread_id") if configurable else None
 
-    def get_tags(self, config: Optional[RunnableConfig] = None) -> list[str]:
-        """Extracts tags from config if available.
-
-        Args:
-            config: Optional RunnableConfig object.
-
-        Returns:
-            List of tag strings, empty list if not available.
-        """
+    def get_tags(self, config: Optional[Mapping[str, Any]] = None) -> list[str]:
+        """Extract tags from config if available."""
         if not config:
             return []
         return config.get("tags", [])
 
+
+class AsyncBaseNode:
+    """Base class for asynchronous nodes in LangGraph graphs.
+
+    Async subclasses must implement ``async def execute`` following the same
+    signature rules as ``BaseNode``.
+
+    Supported execute signatures::
+
+        async def execute(self, state): ...
+        async def execute(self, state, config): ...
+        async def execute(self, state, runtime): ...
+        async def execute(self, state, config, runtime): ...
+
+    Attributes:
+        name: Canonical name of the node (class name by default).
+        verbose: Flag indicating whether detailed logging is enabled.
+
+    Example:
+        >>> class MyAsyncNode(AsyncBaseNode):
+        ...     async def execute(self, state):
+        ...         result = await fetch_data(state["url"])
+        ...         return {"data": result}
+    """
+
+    execute: Callable[..., Awaitable[dict]]
+
+    def __init__(self, **kwargs: Any) -> None:
+        self.name = self.__class__.__name__
+        self.verbose = kwargs.get("verbose", False)
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        if cls is AsyncBaseNode or inspect.isabstract(cls):
+            return
+        _validate_execute(cls, expect_async=True)
+
     async def __call__(
         self,
-        state,
+        state: Any,
         config: Optional[RunnableConfig] = None,
         runtime: Optional[Runtime] = None,
     ) -> dict:
-        """Allows instances to be invoked like callables.
-
-        This method inspects the execute() signature and only passes
-        the parameters it accepts.
-
-        Args:
-            state: Current graph state.
-            config: Optional RunnableConfig object.
-            runtime: Optional Runtime object.
-
-        Returns:
-            dict: Result from execute().
-        """
-        # Log entry if verbose
+        """Invoke the async node as a callable."""
         if self.verbose:
-            thread_id = self.get_thread_id(config)
-            self.log(
-                "Executing",
-                state_keys=list(state.keys()) if hasattr(state, "keys") else None,
-                thread_id=thread_id,
+            LOGGER.debug("[%s] Executing", self.name)
+
+        kwargs = _build_kwargs(self.execute, config, runtime)
+        result = await self.execute(state, **kwargs)
+
+        if not isinstance(result, dict):
+            raise TypeError(
+                f"{self.name}.execute() must return a dict, got {type(result).__name__}."
             )
 
-        # Inspect execute signature to see what parameters it accepts
-        sig = inspect.signature(self.execute)
-        _validate_signature(self.name, sig)
-        execute_kwargs = _build_execute_kwargs(
-            node_name=self.name,
-            sig=sig,
-            config=config,
-            runtime=runtime,
-        )
-
-        # Execute the node
-        result = await self.execute(state, **execute_kwargs)
-        if not isinstance(result, dict):
-            raise TypeError(f"{self.name}.execute() must return a dict, got {type(result)}.")
-
-        # Log exit if verbose
         if self.verbose:
-            self.log("Completed", result_keys=list(result.keys()) if result else None)
+            LOGGER.debug("[%s] Completed", self.name)
 
         return result
+
+    def log(self, message: str, **context: Any) -> None:
+        """Log a debug message when verbose mode is enabled."""
+        if not self.verbose:
+            return
+        LOGGER.debug("[%s] %s", self.name, message)
+        for key, value in context.items():
+            LOGGER.debug("  %s: %r", key, value)
+
+    def get_thread_id(
+        self, config: Optional[Mapping[str, Any]] = None
+    ) -> Optional[str]:
+        """Extract thread_id from config if available."""
+        if not config:
+            return None
+        configurable = config.get("configurable")
+        return configurable.get("thread_id") if configurable else None
+
+    def get_tags(self, config: Optional[Mapping[str, Any]] = None) -> list[str]:
+        """Extract tags from config if available."""
+        if not config:
+            return []
+        return config.get("tags", [])

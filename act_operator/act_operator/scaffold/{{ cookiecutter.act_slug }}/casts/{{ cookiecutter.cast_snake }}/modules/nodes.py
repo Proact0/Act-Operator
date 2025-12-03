@@ -11,8 +11,7 @@ Guidelines:
     - Use `self.log()` for debugging when `verbose=True`.
 
 Official document URL:
-    - Nodes: https://docs.langchain.com/oss/python/langgraph/nodes
-    - Async Nodes: https://docs.langchain.com/oss/python/langgraph/async-nodes
+    - Nodes: https://docs.langchain.com/oss/python/langgraph/graph-api#nodes
 """
 
 from langchain_core.messages import AIMessage
