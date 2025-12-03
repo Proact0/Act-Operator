@@ -149,11 +149,9 @@ cookiecutter.log
 .ropeproject
 
 # Act-Operator specific
-# Include skills in the template
-!act_operator/scaffold/**/.claude/skills/*-act/
-# Exclude test/sample projects created during development
+# Exclude test/sample projects created during development (but not scaffold templates)
 sample-act/
-*-act/
+/*-act/
 # Temporary files
 *.bak
 

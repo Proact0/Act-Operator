@@ -4,7 +4,9 @@
       "Bash(tree:*)",
       "Bash(cat:*)",
       "Bash(uv run pytest:*)",
-      "Bash(uv run python:*)"
+      "Bash(uv run python:*)",
+      "Skill(writing-skills)",
+      "Bash(wc:*)"
     ],
     "deny": [],
     "ask": []
