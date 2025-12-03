@@ -1,5 +1,10 @@
 # Access and Modify Memory
 
+## Contents
+
+- In Tools (Read State, Write State)
+- In Middleware (Dynamic Prompt, Before Model - Trim Messages, After Model - Validate Response)
+
 ## In Tools
 
 ### Read State

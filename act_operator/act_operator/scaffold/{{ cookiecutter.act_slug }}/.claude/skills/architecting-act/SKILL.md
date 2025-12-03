@@ -26,6 +26,8 @@ Design high-level LangGraph architectures through interactive questioning. Outpu
 
 **IMPORTANT**: This skill is interactive. Use a "20 questions" approach - ask ONE question at a time, narrowing focus based on responses. Never skip steps or make assumptions.
 
+**NO CODE IMPLEMENTATION**: This is the architecture phase. Describe structures, patterns, and specifications ONLY. Do NOT write implementation code (TypedDict, functions, etc.). Code wastes tokens and belongs in `developing-cast`.
+
 ## Workflow
 
 ### Step 1: Requirements Gathering
@@ -62,6 +64,8 @@ Pattern details: [sequential](resources/patterns/sequential.md), [branching](res
 
 Structure: InputState + OutputState + OverallState (combines both + internal fields)
 
+**Present as TABLE format ONLY** - do NOT write code (TypedDict, class definitions, etc.).
+
 Present schema. **Ask: "Any fields to add or modify?"**
 
 ---
@@ -73,7 +77,11 @@ Present schema. **Ask: "Any fields to add or modify?"**
 - Cyclic: "What gets refined? What determines 'done'?"
 - Multi-agent: "What specialized roles?" (e.g., Researcher, Writer)
 
-**YOU design nodes** with single responsibilities. Present to user.
+**YOU design nodes** with single responsibilities.
+
+**NAMING RULE**: Node names MUST be CamelCase (e.g., `Agent`, `SearchTool`, `ResponseGenerator`), NOT lowercase (agent, search_tool).
+
+Present to user.
 
 ---
 
@@ -89,13 +97,15 @@ Present schema. **Ask: "Any fields to add or modify?"**
 
 > `langgraph`, `langchain` already included. Only identify **additional** dependencies.
 
-**Ask conditionally:**
-- If LLM: "Which provider?" (OpenAI/Anthropic/Google)
-- If vector store: "Which one?" (Chroma/Pinecone)
-- If search: "Which tool?" (Tavily/SerpAPI)
-- If docs: "What types?" (PDF/Word/etc.)
+**Ask ONE question at a time, sequentially:**
+1. If architecture uses LLM: "Which LLM provider?" (OpenAI/Anthropic/Google) → Wait for answer
+2. If architecture needs vector store: "Which vector store?" (Chroma/Pinecone) → Wait for answer
+3. If architecture needs search: "Which search tool?" (Tavily/SerpAPI/DuckDuckGo) → Wait for answer
+4. If architecture needs doc processing: "What document types?" (PDF/Word/etc.) → Wait for answer
 
-**YOU determine dependencies** based on architecture. List packages + environment variables.
+**Do NOT ask multiple questions at once.** Ask, wait, then proceed to next question if needed.
+
+**YOU determine dependencies** after gathering answers. List packages + environment variables.
 
 ---
 

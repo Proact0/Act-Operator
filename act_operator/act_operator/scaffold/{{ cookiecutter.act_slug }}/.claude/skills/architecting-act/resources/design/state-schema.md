@@ -19,18 +19,24 @@
 
 ## Output Format
 
-```
-InputState:
-- field_name: type - description
+**IMPORTANT: Present as TABLES ONLY. Do NOT write code (TypedDict, class definitions, etc.).**
 
-OutputState:
-- field_name: type - description
+### InputState
+| Field | Type | Description |
+|-------|------|-------------|
+| field_name | type | description |
 
-OverallState:
-- field_name: type - description (Input)
-- field_name: type - description (Output)
-- field_name: type - description (Internal)
-```
+### OutputState
+| Field | Type | Description |
+|-------|------|-------------|
+| field_name | type | description |
+
+### OverallState
+| Field | Type | Category | Description |
+|-------|------|----------|-------------|
+| field_name | type | Input | description |
+| field_name | type | Output | description |
+| field_name | type | Internal | description |
 
 ## Design Principles
 

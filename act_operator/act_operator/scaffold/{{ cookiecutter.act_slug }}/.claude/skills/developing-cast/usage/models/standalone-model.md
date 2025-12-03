@@ -2,6 +2,13 @@
 
 Models can be used standalone or within agents. Define model factory functions in `casts\{{ cast_name }}\modules\models.py`.
 
+## Contents
+
+- Initialize Models (OpenAI, Anthropic, Azure OpenAI, Google Gemini, AWS Bedrock)
+- Common Parameters
+- Usage in Agents
+- Usage in Nodes (Standalone)
+
 ## Initialize Models
 
 Approache: provider-specific classes.

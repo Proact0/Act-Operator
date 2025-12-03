@@ -1,6 +1,6 @@
 ---
 name: testing-cast
-description: Write pytest tests for LangGraph casts - node/graph testing, mocking, fixtures
+description: Use when writing pytest tests for nodes or graphs, need mocking strategies for LLMs/APIs/Store, or setting up test fixtures - provides patterns for effective cast testing
 ---
 
 # Testing Cast Skill

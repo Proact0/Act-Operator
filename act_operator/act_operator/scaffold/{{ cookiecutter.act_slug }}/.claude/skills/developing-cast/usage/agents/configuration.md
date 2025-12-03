@@ -2,6 +2,15 @@
 
 Agents combine LLMs with tools using the ReAct (Reasoning + Acting) pattern. `create_agent` executes a loop: input → model reasoning → tool execution → observation → final output.
 
+## Contents
+
+- Basic Structure
+- Module Separation Pattern
+- Model Configuration (Static, Dynamic)
+- System Prompt (Static, Dynamic)
+- State Extension (state_schema, middleware.state_schema)
+- Key Constraints
+
 ## Basic Structure
 
 ```python

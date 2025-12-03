@@ -2,6 +2,13 @@
 
 Return structured data from agents in predictable formats using Pydantic models.
 
+## Contents
+
+- Response Format
+- Basic Usage (Auto Strategy)
+- ToolStrategy (Explicit, Union Types, Custom Tool Message, Error Handling)
+- Node Usage
+
 ## Response Format
 
 The `response_format` parameter accepts:

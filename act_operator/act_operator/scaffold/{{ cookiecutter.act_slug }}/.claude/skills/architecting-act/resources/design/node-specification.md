@@ -18,6 +18,8 @@
 
 ## Output Format
 
+**IMPORTANT: Describe node structure only. Do NOT write other modules(tool, middleware etc.) or implementation code (def functions, classes etc.).**
+
 ```
 Nodes:
 - NodeName - Single responsibility description
@@ -38,9 +40,9 @@ Nodes:
 
 ## Naming Convention
 
-**Use VerbNoun:** `ParseInput`, `ValidateData`, `GenerateResponse`
-
-**Avoid vague:** Bad: `Process`, `Handle` → Good: `ExtractEntities`, `ClassifyIntent`
+**REQUIRED: CamelCase format** (not lowercase or snake_case)
+- ✅ Good: `InspectorAgent`, `ResponseGenerater`
+- ❌ Bad: `inspect_agent`, `generate_response`
 
 ## Checklist
 

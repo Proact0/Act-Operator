@@ -1,5 +1,4 @@
-{% if cookiecutter.language == 'en' %}
-# Act Template
+{% if cookiecutter.language == 'en' %}# Act Template
 
 This document provides a quick guide to understand and properly use the project generated from this scaffold (template).
 
@@ -41,8 +40,7 @@ This document provides a quick guide to understand and properly use the project 
 ├── tests/
 │   ├── __init__.py
 │   ├── cast_tests/
-│   ├── node_tests/
-│   ├── node_tests/
+│   └── node_tests/
 ├── langgraph.json
 ├── pyproject.toml
 └── README.md
@@ -158,6 +156,68 @@ uv run act cast --path . --cast-name "New Cast Name"
 uv sync --all-packages
 ```
 
+## Claude Skills
+
+This project includes pre-configured Claude skills in `.claude/skills/` to assist with development. Use the `@skill-name` syntax in Claude Code or Cursor to invoke them.
+
+### Available Skills
+
+| Skill | Purpose | When to Use |
+|-------|---------|-------------|
+| `@architecting-act` | Design architecture | Planning new cast, unclear about structure, need CLAUDE.md |
+| `@developing-cast` | Implement code | Building nodes/agents/tools, need LangGraph patterns |
+| `@engineering-act` | Project setup | Creating cast package, adding dependencies, syncing env |
+| `@testing-cast` | Write tests | Creating pytest tests, mocking strategies, fixtures |
+
+### How to Use
+
+1. **Invoke a skill**: Type `@skill-name` in your prompt
+   ```
+   @architecting-act Help me design a RAG pipeline
+   @developing-cast Implement the SearchNode from CLAUDE.md
+   @engineering-act Add langchain-openai to this cast
+   @testing-cast Write tests for MyNode
+   ```
+
+2. **Skill workflow**: Skills guide you through their specific domain
+   - `architecting-act`: Interactive Q&A → generates `CLAUDE.md`
+   - `developing-cast`: Reads `CLAUDE.md` → implements code
+   - `engineering-act`: Manages packages and dependencies
+   - `testing-cast`: Creates pytest test files
+
+### Recommended Development Flow
+
+```
+1. @architecting-act  →  Design & create CLAUDE.md
+        ↓
+2. @engineering-act   →  Create cast, add dependencies
+        ↓
+3. @developing-cast   →  Implement nodes, agents, graphs
+        ↓
+4. @testing-cast      →  Write and run tests
+```
+
+### Skill Resources
+
+Each skill contains reference materials in its directory:
+
+```
+.claude/skills/
+├── architecting-act/
+│   ├── SKILL.md              # Main skill definition
+│   ├── resources/            # Patterns, templates, checklists
+│   └── scripts/              # Validation scripts
+├── developing-cast/
+│   ├── SKILL.md
+│   └── usage/                # LangGraph patterns & examples
+├── engineering-act/
+│   ├── SKILL.md
+│   └── resources/            # Package management guides
+└── testing-cast/
+    ├── SKILL.md
+    └── resources/            # Test patterns, mocking guides
+```
+
 ## Testing and Quality Management
 
 ### Testing (pytest)
@@ -200,8 +260,10 @@ The structure and tooling of this monorepo template are licensed under the Proac
 - Claude Agent Skills: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
 - uv: https://docs.astral.sh/uv/
 
-{% else %}
-# Act Template
+---
+
+**This template is powered by [Proact0](https://www.proact0.org/)**
+{% else %}# Act Template
 
 이 문서는 본 스캐폴드(템플릿)로 생성된 프로젝트를 빠르게 이해하고, 올바르게 사용하는 방법을 안내합니다.
 
@@ -220,24 +282,33 @@ The structure and tooling of this monorepo template are licensed under the Proac
 
 ```
 {{ cookiecutter.act_slug }}/
-├── pyproject.toml
-├── README.md
+├── casts/
+│   ├── __init__.py
+│   ├── base_node.py
+│   ├── base_graph.py
+│   └── {{ cookiecutter.cast_snake }}/
+│       ├── modules/
+│       │   ├── __init__.py
+│       │   ├── agents.py (선택)
+│       │   ├── conditions.py (선택)
+│       │   ├── middlewares.py (선택)
+│       │   ├── models.py (선택)
+│       │   ├── nodes.py (필수)
+│       │   ├── prompts.py (선택)
+│       │   ├── state.py (필수)
+│       │   ├── tools.py (선택)
+│       │   └── utils.py (선택)
+│       ├── __init__.py
+│       ├── graph.py
+│       ├── pyproject.toml
+│       └── README.md
+├── tests/
+│   ├── __init__.py
+│   ├── cast_tests/
+│   └── node_tests/
 ├── langgraph.json
-└── casts/
-    ├── __init__.py
-    ├── base_node.py
-    ├── base_graph.py
-    └── {{ cookiecutter.cast_snake }}/
-        ├── modules/
-        │   ├── agents.py (선택)
-        │   ├── conditions.py (선택)
-        │   ├── models.py (선택)
-        │   ├── nodes.py (필수)
-        │   ├── prompts.py (선택)
-        │   ├── state.py (필수)
-        │   ├── tools.py (선택)
-        │   └── utils.py (선택)
-        └── graph.py
+├── pyproject.toml
+└── README.md
 ```
 
 ## 설치 및 준비
@@ -350,6 +421,68 @@ uv run act cast --path . --cast-name "새 Cast 이름"
 uv sync --all-packages
 ```
 
+## Claude Skills
+
+이 프로젝트는 개발을 지원하기 위해 `.claude/skills/`에 사전 구성된 Claude 스킬을 포함하고 있습니다. Claude Code나 Cursor에서 `@skill-name` 구문을 사용하여 호출할 수 있습니다.
+
+### 사용 가능한 스킬
+
+| 스킬 | 목적 | 사용 시점 |
+|------|------|----------|
+| `@architecting-act` | 아키텍처 설계 | 새 cast 계획, 구조 불명확, CLAUDE.md 필요 시 |
+| `@developing-cast` | 코드 구현 | 노드/에이전트/툴 구현, LangGraph 패턴 필요 시 |
+| `@engineering-act` | 프로젝트 설정 | cast 패키지 생성, 의존성 추가, 환경 동기화 |
+| `@testing-cast` | 테스트 작성 | pytest 테스트 생성, 모킹 전략, 픽스처 |
+
+### 사용 방법
+
+1. **스킬 호출**: 프롬프트에 `@skill-name`을 입력합니다
+   ```
+   @architecting-act RAG 파이프라인 설계를 도와줘
+   @developing-cast CLAUDE.md의 SearchNode를 구현해줘
+   @engineering-act 이 cast에 langchain-openai를 추가해줘
+   @testing-cast MyNode에 대한 테스트를 작성해줘
+   ```
+
+2. **스킬 워크플로우**: 각 스킬은 해당 도메인에 맞게 안내합니다
+   - `architecting-act`: 대화형 Q&A → `CLAUDE.md` 생성
+   - `developing-cast`: `CLAUDE.md` 읽기 → 코드 구현
+   - `engineering-act`: 패키지 및 의존성 관리
+   - `testing-cast`: pytest 테스트 파일 생성
+
+### 권장 개발 흐름
+
+```
+1. @architecting-act  →  설계 & CLAUDE.md 생성
+        ↓
+2. @engineering-act   →  cast 생성, 의존성 추가
+        ↓
+3. @developing-cast   →  노드, 에이전트, 그래프 구현
+        ↓
+4. @testing-cast      →  테스트 작성 및 실행
+```
+
+### 스킬 리소스
+
+각 스킬은 해당 디렉터리에 참조 자료를 포함하고 있습니다:
+
+```
+.claude/skills/
+├── architecting-act/
+│   ├── SKILL.md              # 메인 스킬 정의
+│   ├── resources/            # 패턴, 템플릿, 체크리스트
+│   └── scripts/              # 검증 스크립트
+├── developing-cast/
+│   ├── SKILL.md
+│   └── usage/                # LangGraph 패턴 & 예제
+├── engineering-act/
+│   ├── SKILL.md
+│   └── resources/            # 패키지 관리 가이드
+└── testing-cast/
+    ├── SKILL.md
+    └── resources/            # 테스트 패턴, 모킹 가이드
+```
+
 ## 테스트 및 품질 관리
 
 ### 테스트(pytest)
@@ -375,7 +508,7 @@ uv run ruff format .
 > 검사 실패 시 커밋이 차단됩니다. 모든 훅을 통과해야 커밋이 완료됩니다.
 
 ## 라이선스
-이 모노레포 템플릿의 구조와 도구는 Proact0의 [Apache 2.0 라이선스](LICENCE)에 따라 라이선스가 부여됩니다.
+이 모노레포 템플릿의 구조와 도구는 Proact0의 [Apache 2.0 라이선스](LICENSE)에 따라 라이선스가 부여됩니다.
 
 ## 자주 하는 질문(FAQ)
 
@@ -391,4 +524,8 @@ uv run ruff format .
 - LangGraph: https://docs.langchain.com/oss/python/langgraph/overview
 - Claude Agent Skills: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
 - uv: https://docs.astral.sh/uv/
+
+---
+
+**본 템플릿은 [Proact0](https://www.proact0.org/)에서 관리하고 있습니다.**
 {% endif %}

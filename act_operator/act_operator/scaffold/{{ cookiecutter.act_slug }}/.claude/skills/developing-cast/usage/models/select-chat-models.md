@@ -21,12 +21,12 @@ Use `ChatOpenAI` with custom `base_url` for compatible providers.
 
 ```python
 # casts.{cast_name}.modules.models
+# write api key in .env
 from langchain_openai import ChatOpenAI
 
 def get_openrouter_model():
     return ChatOpenAI(
         model="...",  # Model available on OpenRouter
-        api_key="OPENROUTER_API_KEY",
         base_url="https://openrouter.ai/api/v1",
     )
 ```

@@ -2,6 +2,12 @@
 
 Vector stores hold embedded data and perform similarity search.
 
+## Contents
+
+- Interface Methods
+- Top Integrations (In-Memory, Chroma, FAISS, Pinecone, PGVector, Qdrant)
+- Usage in Nodes
+
 ## Interface Methods
 
 | Method | Description |

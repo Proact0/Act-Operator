@@ -2,6 +2,14 @@
 
 Middleware designed for Claude models.
 
+## Contents
+
+- Prompt Caching
+- Bash Tool
+- Text Editor (State-based, Filesystem-based)
+- Memory (State-based, Filesystem-based)
+- File Search (State-based)
+
 ## Prompt Caching
 
 Reduce costs and latency by caching static prompt content.

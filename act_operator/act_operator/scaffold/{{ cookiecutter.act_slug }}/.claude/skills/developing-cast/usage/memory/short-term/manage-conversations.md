@@ -2,6 +2,13 @@
 
 Strategies for handling long conversations that exceed context windows.
 
+## Contents
+
+- Trim Messages
+- Delete Messages (Specific, All)
+- Summarize Messages
+- Combined Strategy
+
 ## Trim Messages
 
 Keep only recent messages using `@before_model` middleware.

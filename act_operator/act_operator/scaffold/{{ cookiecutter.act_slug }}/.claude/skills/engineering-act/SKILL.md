@@ -1,6 +1,6 @@
 ---
 name: engineering-act
-description: Act project operations - cast(package) creation, dependency management, environment sync
+description: Use when creating new cast package, adding dependencies to monorepo or cast, syncing uv environment, or running langgraph dev server - handles project setup and package management
 ---
 
 # Engineering Act Skill

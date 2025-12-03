@@ -1,5 +1,4 @@
-{% if cookiecutter.language == 'en' %}
-# Act: {{ cookiecutter.act_name }}
+{% if cookiecutter.language == 'en' %}# Act: {{ cookiecutter.act_name }}
 
 A LangGraph-based Act project scaffolded with Act Operator.
 
@@ -21,9 +20,7 @@ A LangGraph-based Act project scaffolded with Act Operator.
    - API Docs: http://127.0.0.1:2024/docs
 
 For detailed documentation, see [TEMPLATE_README.md](TEMPLATE_README.md).
-
-{% else %}
-# Act: {{ cookiecutter.act_name }}
+{% else %}# Act: {{ cookiecutter.act_name }}
 
 Act Operator로 스캐폴딩된 LangGraph 기반 Act 프로젝트입니다.
 
@@ -45,5 +42,4 @@ Act Operator로 스캐폴딩된 LangGraph 기반 Act 프로젝트입니다.
    - API 문서: http://127.0.0.1:2024/docs
 
 자세한 문서는 [TEMPLATE_README.md](TEMPLATE_README.md)를 참고하세요.
-
 {% endif %}

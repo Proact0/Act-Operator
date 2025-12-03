@@ -2,6 +2,14 @@
 
 Use `ToolRuntime` to access state, context, store, and stream writer. The `runtime` parameter is hidden from the model.
 
+## Contents
+
+- Access State
+- Update State
+- Access Context
+- Access Store (Long-term Memory)
+- Stream Writer
+
 ## Access State
 
 ```python

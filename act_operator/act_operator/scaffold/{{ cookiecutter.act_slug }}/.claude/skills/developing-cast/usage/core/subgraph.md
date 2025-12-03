@@ -2,6 +2,15 @@
 
 A subgraph is a graph used as a node in another graph.
 
+## Contents
+
+- Communication Methods
+- Method 1: Invoke from Node (different state schemas)
+- Method 2: Add as Node (shared state keys)
+- Persistence
+- Streaming Subgraph Outputs
+- Decision Framework
+
 **Use cases:**
 - Multi-agent systems
 - Reusable node sets

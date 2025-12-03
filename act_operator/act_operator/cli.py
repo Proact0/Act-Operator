@@ -258,27 +258,25 @@ def _select_language_menu() -> str:
 
 
 def _resolve_language(language: str | None) -> str:
-    """Resolve language to display name.
+    """Resolve language to language code.
 
     Args:
         language: Language code string or None.
 
     Returns:
-        Language display name ("English" or "한국어").
+        Language code string ("en" or "kr").
     """
-    # If language is provided, validate and return display name
+    # If language is provided, validate and return language code
     if language and language.strip():
         try:
             lang = Language.from_string(language)
-            return lang.display_name
+            return lang.value
         except ValueError as e:
             console.print(f"[red]{e}[/red]")
             raise typer.Exit(code=EXIT_CODE_ERROR) from e
 
     # No language provided - show menu
-    lang_code = _select_language_menu()
-    lang = Language.from_string(lang_code)
-    return lang.display_name
+    return _select_language_menu()
 
 
 def _determine_target_directory(
@@ -422,13 +420,14 @@ def _display_project_summary(
     Args:
         act_title: Act name in title case.
         cast_title: Cast name in title case.
-        language: Language display name.
+        language: Language code ("en" or "kr").
         target_dir: Project directory path.
     """
+    lang_display = Language.from_string(language).display_name
     table = Table(show_header=False)
     table.add_row("Act", act_title)
     table.add_row("Cast", cast_title)
-    table.add_row("Language", language)
+    table.add_row("Language", lang_display)
     table.add_row("Location", str(target_dir))
     console.print(table)
     console.print("[bold green]Act project created successfully![/bold green]")

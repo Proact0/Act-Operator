@@ -2,6 +2,16 @@
 
 Graphs are implemented in `casts/{cast_name}/graph.py` by extending `BaseGraph`.
 
+## Contents
+
+- Import
+- Basic Pattern
+- With Checkpointing (Persistence)
+- With Store (Cross-Thread Memory)
+- With Interrupts (Human-in-the-Loop)
+- Decision Framework
+- Common Mistakes
+
 ## Import
 
 ```python

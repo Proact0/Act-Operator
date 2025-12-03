@@ -1,5 +1,9 @@
-
 ## Message content
+
+### Contents
+
+- Content formats (String, Provider-native, Standard content blocks)
+- Multimodal inputs (Image, PDF document, Audio, Video)
 
 You can think of a message's content as the payload of data that gets sent to the model. Messages have a `content` attribute that is loosely-typed, supporting strings and lists of untyped objects (e.g., dictionaries). This allows support for provider-native structures directly in LangChain chat models, such as [multimodal](#multimodal) content and other data.
 

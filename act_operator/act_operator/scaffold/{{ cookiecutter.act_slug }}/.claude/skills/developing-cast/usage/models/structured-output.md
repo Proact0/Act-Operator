@@ -2,6 +2,14 @@
 
 Request standalone models to return structured data using Pydantic schemas.
 
+## Contents
+
+- Basic Usage
+- Node Usage
+- Include Raw Response
+- Nested Structures
+- Method Parameter
+
 ## Basic Usage
 
 ```python

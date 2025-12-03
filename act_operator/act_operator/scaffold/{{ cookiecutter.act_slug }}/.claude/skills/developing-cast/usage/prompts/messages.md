@@ -2,6 +2,12 @@
 
 Messages are the fundamental unit of context for models in LangChain. They represent the input and output of models, carrying both the content and metadata needed to represent the state of a conversation when interacting with an LLM.
 
+## Contents
+
+- Basic usage (Text prompts, Message prompts, Dictionary format)
+- Message types (System, Human, AI, Tool)
+- AI Message details (Attributes, Tool calls, Token usage, Streaming)
+
 Messages are objects that contain:
 
 * <Icon icon="user" size={16} /> [**Role**](#message-types) - Identifies the message type (e.g. `system`, `user`)

@@ -17,18 +17,27 @@
 
 ## Output Format
 
-```
-Normal Edges:
-- START → [first_node]
-- [node_a] → [node_b]
-- [last_node] → END
+**IMPORTANT: Describe routing logic only. Do NOT write implementation code (def functions, if/else, etc.).**
 
-Conditional Edges:
-- [decision_node] → {
-    "[condition]": [target],
-    "default": [fallback]
-  }
-```
+### Normal Edges Table
+| Source | Target |
+|--------|--------|
+| START | FirstNode |
+| NodeA | NodeB |
+| LastNode | END |
+
+### Conditional Edges Table
+| Source | Condition | Target |
+|--------|-----------|--------|
+| DecisionNode | condition_a | TargetA |
+| DecisionNode | condition_b | TargetB |
+| DecisionNode | default | FallbackNode |
+
+### Routing Logic (Description Only)
+Describe the condition logic in plain text:
+- "If message contains tool_calls, route to ToolNode"
+- "If quality score > 0.8, route to END"
+- "Otherwise, route back to RefineNode"
 
 ## Design Principles
 

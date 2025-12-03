@@ -2,6 +2,13 @@
 
 Implement safety checks and content filtering at key execution points.
 
+## Contents
+
+- Built-in: PII Detection
+- Custom: Before Agent Guardrail
+- Custom: After Agent Guardrail
+- Combining Guardrails
+
 ## Built-in: PII Detection
 
 ```python

@@ -151,7 +151,6 @@ cookiecutter.log
 # Act-Operator specific
 # Exclude test/sample projects created during development (but not scaffold templates)
 sample-act/
-/*-act/
 # Temporary files
 *.bak
 

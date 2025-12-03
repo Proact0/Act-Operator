@@ -2,6 +2,20 @@
 
 Build custom middleware by implementing hooks that run at specific points in the agent execution flow.
 
+## Contents
+
+- Hook Types
+- Basic Class Structure
+- Node-style Hooks (Message Limit Example)
+- Wrap-style Hooks (Retry, Tool Monitoring)
+- Custom State Schema
+- Agent Jumps
+- Dynamic Model Selection
+- Dynamic Tool Selection
+- System Message Modification
+- Execution Order
+- Best Practices
+
 ## Hook Types
 
 | Type | Hooks | Description |
