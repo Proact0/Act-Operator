@@ -14,12 +14,13 @@
 
 <div align="center">
   <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank"><img src="https://img.shields.io/pypi/l/act-operator" alt="PyPI - License"></a>
+  <a href="https://pypistats.org/packages/act-operator" target="_blank"><img src="https://img.shields.io/pepy/dt/act-operator?color=deeppink" alt="PyPI - Downloads"></a>
   <a href="https://pypi.org/project/act-operator/#history" target="_blank"><img src="https://img.shields.io/pypi/v/act-operator" alt="Version"></a>
   <a href="https://www.linkedin.com/company/proact0" target="_blank">
-    <img src="https://img.shields.io/badge/LinkedIn-Proact0-blue?logo=linkedin&style=flat-square" alt="LinkedIn">
+    <img src="https://img.shields.io/badge/LinkedIn-Proact0-blue?logo=linkedin" alt="LinkedIn">
   </a>
   <a href="https://www.proact0.org/" target="_blank">
-    <img src="https://img.shields.io/badge/Homepage-Proact0.org-brightgreen?logo=internet-explorer&style=flat-square" alt="Homepage">
+    <img src="https://img.shields.io/badge/Homepage-Proact0.org-brightgreen?logo=internet-explorer" alt="Homepage">
   </a>
 </div>
 

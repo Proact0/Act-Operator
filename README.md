@@ -1,4 +1,28 @@
-# Act Operator
+<div align="center">
+  <a href="https://www.proact0.org/">
+    <picture>
+      <source media="(prefers-color-scheme: light)" srcset=".github/images/light-theme.png">
+      <source media="(prefers-color-scheme: dark)" srcset=".github/images/dark-theme.png">
+      <img alt="Proact0 Logo" src=".github/images/light-theme.png" width="80%">
+    </picture>
+  </a>
+</div>
+
+<div align="center">
+  <h2>Act Operator</h2>
+</div>
+
+<div align="center">
+  <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank"><img src="https://img.shields.io/pypi/l/act-operator" alt="PyPI - License"></a>
+  <a href="https://pypistats.org/packages/act-operator" target="_blank"><img src="https://img.shields.io/pepy/dt/act-operator?color=deeppink" alt="PyPI - Downloads"></a>
+  <a href="https://pypi.org/project/act-operator/#history" target="_blank"><img src="https://img.shields.io/pypi/v/act-operator" alt="Version"></a>
+  <a href="https://www.linkedin.com/company/proact0" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-Proact0-blue?logo=linkedin" alt="LinkedIn">
+  </a>
+  <a href="https://www.proact0.org/" target="_blank">
+    <img src="https://img.shields.io/badge/Homepage-Proact0.org-brightgreen?logo=internet-explorer" alt="Homepage">
+  </a>
+</div>
 
 Act Operator is Proact0’s CLI for bootstrapping `LangChain & LangGraph >= 1.0 based` “Act - AX Template” blueprints with `cookiecutter`. The tool exposes `act new` to build an Act project and `act cast` to scaffold additional casts inside an existing blueprint.
 
@@ -10,10 +34,10 @@ Act Operator is Proact0’s CLI for bootstrapping `LangChain & LangGraph >= 1.0 
 - Built-in command to add extra casts to an existing Act project
 - Fully tested with `pytest`
 
-## Installation
+## Get Started
 
 ```bash
-uv add act-operator
+uvx --from act-operator act new
 ```
 
 Act Operator requires Python 3.12 or newer. The project ships with `pyproject.toml` so `uv` manages dependencies reproducibly.
@@ -23,70 +47,53 @@ Act Operator requires Python 3.12 or newer. The project ships with `pyproject.to
 ### Create a new Act project
 
 ```bash
-uv run act new --path ./my-act --act-name "My Act" --cast-name "Main Cast"
+uv run act new
 ```
 
-You can omit any option to trigger interactive prompts. When `--path` points to a custom directory, the Act name defaults to that directory name.
+You can omit any option to trigger interactive prompts. When `path` points to a custom directory, the Act name defaults to that directory name.
 
 ### Add an additional cast
 
 ```bash
-uv run act cast --path ./my-act --cast-name "Sub Cast"
+uv run act cast
 ```
 
-The command validates that `--path` is an Act project (presence of `pyproject.toml`, `langgraph.json`, `casts/base_node.py`, and `casts/base_graph.py`) before rendering the new cast.
+The command validates that `path` is an Act project before rendering the new cast.
 
 ### Resulting layout
 
 ```
-my-act/
-├── pyproject.toml
-├── README.md
+your_act_name/
+├── casts/
+│   ├── __init__.py
+│   ├── base_node.py
+│   ├── base_graph.py
+│   └── your_cast_name/
+│       ├── modules/
+│       │   ├── __init__.py
+│       │   ├── agents.py (optional)
+│       │   ├── conditions.py (optional)
+│       │   ├── middlewares.py (optional)
+│       │   ├── models.py (optional)
+│       │   ├── nodes.py (required)
+│       │   ├── prompts.py (optional)
+│       │   ├── state.py (required)
+│       │   ├── tools.py (optional)
+│       │   └── utils.py (optional)
+│       ├── __init__.py
+│       ├── graph.py
+│       ├── pyproject.toml
+│       └── README.md
+├── tests/
+│   ├── __init__.py
+│   ├── cast_tests/
+│   └── node_tests/
 ├── langgraph.json
-└── casts/
-    ├── __init__.py
-    ├── base_node.py
-    ├── base_graph.py
-    └── main-cast/
-        ├── modules/
-        │   ├── chains.py
-        │   ├── conditions.py
-        │   ├── models.py
-        │   ├── nodes.py
-        │   ├── prompts.py
-        │   ├── tools.py
-        │   └── utils.py
-        ├── state.py
-        └── graph.py
+├── pyproject.toml
+└── README.md
 ```
 
-## Development with uv
-
-```bash
-uv sync --dev
-uv run pytest
-uv run act new
-uv run act cast
-uv build
-```
-
-- `uv sync --dev` installs runtime and test dependencies into a local virtualenv.
-- `uv run pytest` executes the suite against the managed environment.
-- `uv run act new ...` exercises the CLI exactly as users would experience it.
-- `uv build` produces the wheel and sdist artifacts.
-
-## Testing
-
-```bash
-uv run pytest
-```
-
-The suite ensures `act new` and `act cast` render the expected structure, validate directories, and surface clear error messages.
 
 ## Contributing
 
-- Read the guides: [CONTRIBUTING.md](CONTRIBUTING.md) (KR), [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md) (EN)
-- Issue templates:
-  - Feature Request: [.github/ISSUE_TEMPLATE/backlog-kr.md](.github/ISSUE_TEMPLATE/backlog-kr.md), [.github/ISSUE_TEMPLATE/backlog-en.md](.github/ISSUE_TEMPLATE/backlog-en.md)
-  - Bug Report: [.github/ISSUE_TEMPLATE/bug-report-kr.md](.github/ISSUE_TEMPLATE/bug-report-kr.md), [.github/ISSUE_TEMPLATE/bug-report-en.md](.github/ISSUE_TEMPLATE/bug-report-en.md)
-- PR template: [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md)
+- Read the guides: [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md) (EN)
