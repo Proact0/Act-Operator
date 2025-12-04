@@ -1,65 +1,42 @@
-<div align="center">
-  <a href="https://www.proact0.org/">
-    <picture>
-      <source media="(prefers-color-scheme: light)" srcset=".github/images/light-theme.svg">
-      <source media="(prefers-color-scheme: dark)" srcset=".github/images/dark-theme.svg">
-      <img alt="Proact0 Logo" src=".github/images/light-theme.svg" width="80%">
-    </picture>
-  </a>
-</div>
+# Act Operator
 
-<div align="center">
-  <h2>Act Operator</h2>
-</div>
+Act Operator is Proact0’s CLI for bootstrapping `LangChain & LangGraph >= 1.0 based` “Act - AX Template” blueprints with `cookiecutter`. The tool exposes `act new` to build an Act project and `act cast` to scaffold additional casts inside an existing blueprint.
 
-<div align="center">
-  <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank"><img src="https://img.shields.io/pypi/l/act-operator" alt="PyPI - License"></a>
-  <a href="https://pypi.org/project/act-operator/#history" target="_blank"><img src="https://img.shields.io/pypi/v/act-operator" alt="Version"></a>
-  <a href="https://www.linkedin.com/company/proact0" target="_blank">
-    <img src="https://img.shields.io/badge/LinkedIn-Proact0-blue?logo=linkedin&style=flat-square" alt="LinkedIn">
-  </a>
-  <a href="https://www.proact0.org/" target="_blank">
-    <img src="https://img.shields.io/badge/Homepage-Proact0.org-brightgreen?logo=internet-explorer&style=flat-square" alt="Homepage">
-  </a>
-</div>
+## Key Features
 
-Act Operator는 `cookiecutter`로 `LangChain & LangGraph >= 1.0` 기반의 “Act - AX Template” 블루프린트를 신속히 부트스트랩하기 위한 Proact0의 CLI입니다. 이 도구는 Act 프로젝트를 생성하는 `act new`와, 기존 블루프린트에 추가 캐스트를 스캐폴딩하는 `act cast` 명령을 제공합니다.
+- Typer-powered CLI exposed as `act`
+- `cookiecutter` rendering with slug/snake/title variants for Act and Cast names
+- Safe directory checks to avoid overwriting non-empty folders
+- Built-in command to add extra casts to an existing Act project
+- Fully tested with `pytest`
 
-## 주요 기능
-
-- Typer로 구현된 CLI로 `act` 명령 제공
-- Act/Cast 이름에 대해 slug/snake/title 변형을 지원하는 `cookiecutter` 렌더링
-- 비어 있지 않은 폴더를 덮어쓰지 않도록 하는 안전한 디렉터리 검사
-- 기존 Act 프로젝트에 추가 캐스트를 손쉽게 추가하는 내장 명령
-- `pytest`로 충분히 검증된 테스트
-
-## Get Started
+## Installation
 
 ```bash
-uvx --from act-operator act new
+uv add act-operator
 ```
 
-Act Operator는 Python 3.11 이상을 요구합니다. 프로젝트에는 `pyproject.toml`이 포함되어 있어 `uv`가 의존성을 재현 가능하게 관리합니다.
+Act Operator requires Python 3.12 or newer. The project ships with `pyproject.toml` so `uv` manages dependencies reproducibly.
 
-## 사용법
+## Usage
 
-### 새 Act 프로젝트 생성
+### Create a new Act project
 
 ```bash
 uv run act new --path ./my-act --act-name "My Act" --cast-name "Main Cast"
 ```
 
-어떤 옵션이든 생략하면 대화형 프롬프트가 표시됩니다. `--path`가 사용자 지정 디렉터리를 가리키는 경우, Act 이름은 기본적으로 해당 디렉터리 이름으로 설정됩니다.
+You can omit any option to trigger interactive prompts. When `--path` points to a custom directory, the Act name defaults to that directory name.
 
-### 추가 캐스트 추가
+### Add an additional cast
 
 ```bash
 uv run act cast --path ./my-act --cast-name "Sub Cast"
 ```
 
-새 캐스트를 렌더링하기 전에, 명령은 `--path`가 Act 프로젝트인지 검증합니다(`pyproject.toml`, `langgraph.json`, `casts/base_node.py`, `casts/base_graph.py`의 존재 확인).
+The command validates that `--path` is an Act project (presence of `pyproject.toml`, `langgraph.json`, `casts/base_node.py`, and `casts/base_graph.py`) before rendering the new cast.
 
-### 생성 결과 구조
+### Resulting layout
 
 ```
 my-act/
@@ -71,24 +48,19 @@ my-act/
     ├── base_node.py
     ├── base_graph.py
     └── main-cast/
-    ├── modules/
-    │   ├── __init__.py
-    │   ├── agents.py (optional)
-    │   ├── conditions.py (optional)
-    │   ├── middlewares.py (optional)
-    │   ├── models.py (optional)
-    │   ├── nodes.py (required)
-    │   ├── prompts.py (optional)
-    │   ├── state.py (required)
-    │   ├── tools.py (optional)
-    │   └── utils.py (optional)
-    ├── __init__.py
-    ├── graph.py
-    ├── pyproject.toml
-    └── README.md
+        ├── modules/
+        │   ├── chains.py
+        │   ├── conditions.py
+        │   ├── models.py
+        │   ├── nodes.py
+        │   ├── prompts.py
+        │   ├── tools.py
+        │   └── utils.py
+        ├── state.py
+        └── graph.py
 ```
 
-## uv로 개발하기
+## Development with uv
 
 ```bash
 uv sync --dev
@@ -98,23 +70,23 @@ uv run act cast
 uv build
 ```
 
-- `uv sync --dev`: 로컬 가상환경에 런타임/테스트 의존성 설치
-- `uv run pytest`: 관리되는 환경에서 테스트 스위트 실행
-- `uv run act new ...`: 실제 사용자 경험과 동일하게 CLI 동작 검증
-- `uv build`: wheel과 sdist 아티팩트 생성
+- `uv sync --dev` installs runtime and test dependencies into a local virtualenv.
+- `uv run pytest` executes the suite against the managed environment.
+- `uv run act new ...` exercises the CLI exactly as users would experience it.
+- `uv build` produces the wheel and sdist artifacts.
 
-## 테스트
+## Testing
 
 ```bash
 uv run pytest
 ```
 
-테스트 스위트는 `act new`와 `act cast`가 기대한 구조를 생성하는지, 디렉터리 검증이 정상 동작하는지, 오류 메시지가 명확한지를 보장합니다.
+The suite ensures `act new` and `act cast` render the expected structure, validate directories, and surface clear error messages.
 
-## 기여하기
+## Contributing
 
-- 가이드 문서: [CONTRIBUTING.md](CONTRIBUTING.md) (KR), [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md) (EN)
-- 이슈 템플릿:
-  - 기능 제안: [.github/ISSUE_TEMPLATE/backlog-kr.md](.github/ISSUE_TEMPLATE/backlog-kr.md), [.github/ISSUE_TEMPLATE/backlog-en.md](.github/ISSUE_TEMPLATE/backlog-en.md)
-  - 버그 제보: [.github/ISSUE_TEMPLATE/bug-report-kr.md](.github/ISSUE_TEMPLATE/bug-report-kr.md), [.github/ISSUE_TEMPLATE/bug-report-en.md](.github/ISSUE_TEMPLATE/bug-report-en.md)
-- PR 템플릿: [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md)
+- Read the guides: [CONTRIBUTING.md](CONTRIBUTING.md) (KR), [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md) (EN)
+- Issue templates:
+  - Feature Request: [.github/ISSUE_TEMPLATE/backlog-kr.md](.github/ISSUE_TEMPLATE/backlog-kr.md), [.github/ISSUE_TEMPLATE/backlog-en.md](.github/ISSUE_TEMPLATE/backlog-en.md)
+  - Bug Report: [.github/ISSUE_TEMPLATE/bug-report-kr.md](.github/ISSUE_TEMPLATE/bug-report-kr.md), [.github/ISSUE_TEMPLATE/bug-report-en.md](.github/ISSUE_TEMPLATE/bug-report-en.md)
+- PR template: [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md)
