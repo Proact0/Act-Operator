@@ -14,17 +14,23 @@
 
 <div align="center">
   <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank"><img src="https://img.shields.io/pypi/l/act-operator" alt="PyPI - License"></a>
-  <a href="https://pypistats.org/packages/act-operator" target="_blank"><img src="https://img.shields.io/pepy/dt/act-operator?color=deeppink" alt="PyPI - Downloads"></a>
   <a href="https://pypi.org/project/act-operator/#history" target="_blank"><img src="https://img.shields.io/pypi/v/act-operator" alt="Version"></a>
+  <a href="https://pypistats.org/packages/act-operator" target="_blank"><img src="https://img.shields.io/pepy/dt/act-operator?color=deeppink" alt="PyPI - Downloads"></a>
   <a href="https://www.linkedin.com/company/proact0" target="_blank">
     <img src="https://img.shields.io/badge/LinkedIn-Proact0-blue?logo=linkedin" alt="LinkedIn">
+  </a>  
+  <a href="https://www.linkedin.com/company/proact0" target="_blank">
+    <img src="https://img.shields.io/badge/Discord-Proact0 Community-5865F2?logo=discord" alt="LinkedIn">
   </a>
   <a href="https://www.proact0.org/" target="_blank">
-    <img src="https://img.shields.io/badge/Homepage-Proact0.org-brightgreen?logo=internet-explorer" alt="Homepage">
+    <img src="https://img.shields.io/badge/Homepage-Proact0.org-brightgreen?logo=homepage&logoColor=2563EB&color=2563EB" alt="Homepage">
   </a>
 </div>
 
-Act Operator는 `cookiecutter`로 `LangChain & LangGraph >= 1.0` 기반의 “Act - AX Template” 블루프린트를 신속히 부트스트랩하기 위한 CLI 도구입니다. 
+Act Operator는 `LangChain & LangGraph >= 1.0` 기반의 “Act - AX Template” 블루프린트를 신속히 부트스트랩하기 위한 CLI 도구입니다.
+
+## Act가 무엇인가요?
+
 
 ## 시작하기
 
@@ -34,7 +40,7 @@ uvx --from act-operator act new
 
 대화형 프롬프트가 표시됩니다. `path`가 사용자 지정 디렉터리를 가리키는 경우, Act 이름은 기본적으로 해당 디렉터리 이름으로 설정됩니다.
 
-그러면 다음 모노레포 프로젝트 구조가 셋팅됩니다.
+그러면 다음 모노레포 프로젝트 구조의 템플릿이 셋팅됩니다.
 
 ```
 your_act_name/
