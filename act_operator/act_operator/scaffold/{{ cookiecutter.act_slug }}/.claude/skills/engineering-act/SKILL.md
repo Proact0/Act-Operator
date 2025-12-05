@@ -1,6 +1,6 @@
 ---
 name: engineering-act
-description: Use when creating new cast package, adding dependencies to monorepo or cast, syncing uv environment, or running langgraph dev server - handles project setup and package management
+description: Use when creating new cast package in monorepo, adding dependencies to workspace or specific cast, facing uv sync issues, or launching langgraph dev server - handles all project setup and package management infrastructure
 ---
 
 # Engineering Act Skill

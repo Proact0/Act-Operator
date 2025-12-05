@@ -1,17 +1,16 @@
 ---
 name: developing-cast
-description: Use when implementing cast from CLAUDE.md, building nodes/agents/tools from scratch, or need LangGraph patterns for state/edge/graph - provides systematic workflow from architecture to working code
+description: Use when implementing LangGraph nodes/edges/state from CLAUDE.md, stuck on specific patterns (conditional routing, parallel execution, state updates), or need code examples for 50+ situations - provides systematic reference from architecture to working implementation
 ---
-
 # Developing Cast
 
 Implement LangGraph casts following Act-Operator patterns.
 
 ## When to Use
 
-- Have CLAUDE.md and need to implement
 - Building nodes, agents, tools, or graphs
 - Need LangGraph implementation patterns
+- Have architecture specs to implement
 
 ## When NOT to Use
 
@@ -21,15 +20,42 @@ Implement LangGraph casts following Act-Operator patterns.
 
 ---
 
-## Mode 1: From Architecture (CLAUDE.md exists)
+## Implementation Workflow
 
-**Use:** [from-architecture-to-code.md](usage/from-architecture-to-code.md)
+### Step 1: Check for CLAUDE.md
 
-1. Read CLAUDE.md → 2. Implement: state → other modules → nodes → conditions(if need) → graph
+First, check if `CLAUDE.md` exists in the project root
+
+**If CLAUDE.md exists:**
+- Use [architecture-analysis.md](analysis-architecture.md) to analyze the project architecture specification
+- Extract state schema, nodes, edges, and other requirements
+- Proceed to Step 2 (Architecture-First Implementation)
+
+**If CLAUDE.md not found:**
+- Skip architecture analysis
+- Proceed to Step 2 (Direct Implementation)
+
+### Step 2: Branch Based on Result
+
+#### If CLAUDE.md EXISTS → Architecture-First Implementation
+
+1. **Read & Analyze CLAUDE.md**
+   - Identify state schema definitions
+   - Extract node specifications
+   - Map edge/routing logic
+   - Note middleware requirements
+
+2. **Follow:** [from-architecture-to-code.md](usage/from-architecture-to-code.md)
+
+3. **Implement in order:** state → dependencies → nodes → conditions → graph
+
+#### If CLAUDE.md NOT FOUND → Direct Implementation
+
+Skip architecture analysis and proceed directly to component implementation using the reference tables below.
 
 ---
 
-## Mode 2: Direct Implementation
+## Component Reference
 
 ### Core Components
 
@@ -54,9 +80,9 @@ Implement LangGraph casts following Act-Operator patterns.
 |-------------|----------|
 | choosing between OpenAI/Anthropic/Google | [models/select-chat-models.md](usage/models/select-chat-models.md) |
 | configuring model (temperature, tokens) | [models/standalone-model.md](usage/models/standalone-model.md) |
-| need model to return Pydantic schema | [models/structured-output.md](usage/models/structured-output.md) |
+| need model to return structured output(Pydantic schema) | [models/structured-output.md](usage/models/structured-output.md) |
 | creating agent with tools | [agents/configuration.md](usage/agents/configuration.md) |
-| need agent to return Pydantic schema | [agents/structured-output.md](usage/agents/structured-output.md) |
+| need agent to return structured output(Pydantic schema) | [agents/structured-output.md](usage/agents/structured-output.md) |
 
 ### Tools
 
@@ -134,7 +160,7 @@ Implement LangGraph casts following Act-Operator patterns.
 ```
 1. State (state.py)           # Foundation
    ↓
-2. Dependencies modules       # models, tools, prompts, middlewares, agents, utils (if needed)
+2. Dependencies modules       # agents, models, tools, prompts, middlewares, utils (if needed)
    ↓
 3. Nodes (nodes.py)           # Business logic
    ↓
@@ -147,6 +173,7 @@ Implement LangGraph casts following Act-Operator patterns.
 
 ## Verification
 
+- [ ] CLAUDE.md checked (analyzed if exists, skipped if not)
 - [ ] Files in order: state → deps → nodes → conditions → graph
 - [ ] Node names lowercase in graph.py
 - [ ] START/END imported from `langgraph.graph`

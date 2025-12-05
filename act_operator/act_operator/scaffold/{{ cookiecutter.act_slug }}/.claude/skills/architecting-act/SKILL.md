@@ -1,6 +1,6 @@
 ---
 name: architecting-act
-description: Use when planning LangGraph cast, unclear about node/edge/state structure, starting new architecture, or need CLAUDE.md specification - guides interactive architecture design through 20-questions approach with automated validation
+description: Use when facing blank slate on new cast design, unsure which LangGraph pattern fits requirements, unclear about state schema or node boundaries, or need validated CLAUDE.md specification - guides from requirements to architecture through interactive 20-questions workflow
 ---
 
 # Architecting Act

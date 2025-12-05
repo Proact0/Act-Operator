@@ -1,6 +1,6 @@
 ---
 name: testing-cast
-description: Use when writing pytest tests for nodes or graphs, need mocking strategies for LLMs/APIs/Store, or setting up test fixtures - provides patterns for effective cast testing
+description: Use when writing pytest for cast nodes or casts(graphs), need mocking strategies for LLM/API/Store calls, setting up test fixtures, or organizing sync/async test suites - provides comprehensive patterns for effective cast verification
 ---
 
 # Testing Cast Skill

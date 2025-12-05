@@ -26,77 +26,77 @@
 
 <br>
 
-Act Operator is a production-ready CLI that scaffolds structured LangGraph projects with built-in AI collaboration capabilities. Generate clean, modular graph architectures with cookiecutter templates that include specialized Claude Code skills for architecture design, development, engineering, and testing—enabling you to build complex agentic workflows, business automations, or data pipelines with optimal maintainability and AI-assisted development.
-
-## What is Act?
-
-Act (AX Template) is a standardized project structure for LangGraph applications, designed to solve common challenges in building production-grade AI systems:
-
-- **Modular by Design**: Each graph component (state, nodes, agents, tools, middlewares) lives in its own module with clear responsibilities
-- **Scalable Architecture**: Organize multiple graphs (casts) within a monorepo, each as an independent package
-- **AI-Native Development**: Built-in Claude Code skills guide you through architecture decisions, implementation patterns, and testing strategies
-- **Beginner-Friendly**: Comprehensive documentation and inline guides make LangGraph accessible to newcomers
-
-**Use Cases**: Agentic AI systems, business workflow automation, multi-step data pipelines, conversational agents, document processing flows, or any application requiring stateful graph orchestration.
-
-## Quick Start
-
-### Installation
+Act Operator is a production-ready CLI that scaffolds structured LangGraph projects with built-in AI collaboration capabilities. 
 
 ```bash
 uvx --from act-operator act new
 ```
 
-Requires Python 3.11+. The CLI will prompt you for project details or you can pass them as options.
+Generate clean, modular graph architectures with cookiecutter templates that include specialized Agent skills for architecture design, development, engineering, and testing—enabling you to build complex agentic workflows, business automations, or data pipelines with optimal maintainability and AI-assisted development.
 
-### Create Your First Project
+## What is Act?
+
+Act (AX Template) is a standardized project structure for LangGraph applications, designed to solve common challenges in building production-grade AI systems:
+
+- **Modular by Design**: Each graph component (state, nodes, agents, tools, middlewares, ...) lives in its own module with clear responsibilities
+- **Scalable Architecture**: Organize multiple graphs (casts) within a monorepo, each as an independent package
+- **AI-Native Development**: Built-in Agent skills guide you through architecture decisions, implementation patterns, and testing strategies
+- **Beginner-Friendly**: Comprehensive documentation and inline guides make LangGraph accessible to newcomers
+
+**Use Cases**: Agentic AI systems, Business Workflow Automation, Multi-step data pipelines, conversational agents, document processing flows, or **any application requiring stateful graph/workflow orchestration.**
+
+## Quick Start
+
+Requires Python 3.11+. The CLI will prompt you for project details or you can pass them as options.
 
 ```bash
 # Create a new Act project
 uvx --from act-operator act new
 
 # Follow interactive prompts:
-# - Act name: my_workflow
+# - Path & Act name: my_workflow
 # - Cast name: chatbot
-# - Path: ./my_workflow (or custom location)
-```
-
-### Sync Dependencies
-
-```bash
-cd my_workflow
-uv sync --all-packages
 ```
 
 ### Start Building with AI
 
-Open your project in Claude Code and leverage the built-in skills:
+If you're using Claude Code, you can leverage built-in agent skills to accelerate development:
 
 ```bash
-# In Claude Code, reference the skills directory:
-@.claude/skills
+claude
 ```
+
+Reference the skills directory in your prompts: `.claude/skills`
 
 **Available Skills**:
 - `architecting-act`: Design graph architectures through interactive questioning
 - `developing-cast`: Implement nodes, agents, tools with best practice patterns
-- `engineering-act`: Manage dependencies, create new casts, run dev server
+- `engineering-act`: Manage casts & their dependencies, create new casts
 - `testing-cast`: Write effective pytest tests with mocking strategies
 
-### Example Workflow with Claude Code
+### Working with Skills
 
+Skills can be used individually or as a complete workflow:
+
+**Individual Use**:
+- Need to add a new cast? → Use `engineering-act`
+- Want to implement a specific node? → Use `developing-cast`
+- Writing tests for existing code? → Use `testing-cast`
+- Redesigning your architecture? → Use `architecting-act`
+
+**Complete Workflow**:
 ```plaintext
-1. You: "Design a customer support chatbot architecture"
-   → Claude (using architecting-act skill) will guide you through requirements,
-     suggest patterns, and generate a CLAUDE.md specification
+1. Architecture → "Design a customer support chatbot"
+   (architecting-act: guides requirements, suggests patterns, generates CLAUDE.md)
 
-2. You: "Implement the chatbot based on CLAUDE.md"
-   → Claude (using developing-cast skill) will create state, nodes, and graph
-     following the architecture specification
+2. Project Setup → "Create a new cast called chatbot"
+   (engineering-act: scaffolds cast structure, configures dependencies)
 
-3. You: "Write tests for the chatbot"
-   → Claude (using testing-cast skill) will generate pytest tests with
-     appropriate mocking for LLMs and external services
+3. Implementation → "Implement the chatbot based on CLAUDE.md"
+   (developing-cast: creates state, nodes, agents, tools, and graph)
+
+4. Testing → "Write comprehensive tests for the chatbot"
+   (testing-cast: generates pytest tests with LLM/API mocking)
 ```
 
 ## Project Structure
@@ -129,6 +129,7 @@ my_workflow/
 │   └── node_tests/               # Unit tests
 ├── langgraph.json                # LangGraph configuration
 ├── pyproject.toml                # Monorepo dependencies
+├── TEMPLATE_README.md            # Template Using Guideline
 └── README.md
 ```
 
@@ -249,13 +250,9 @@ We welcome contributions from the community! Please read our contributing guide:
 
 Thank you to all our contributors! Your contributions make Act Operator better.
 
-<!-- Add contributor section when you have contributors -->
-
-## Community & Support
-
-- **Website**: [proact0.org](https://www.proact0.org/)
-- **LinkedIn**: [Proact0 Company](https://www.linkedin.com/company/proact0)
-- **Issues**: [GitHub Issues](https://github.com/proact0/act-operator/issues)
+<a href="https://github.com/Proact0/Act-Operator/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Proact0/Act-Operator" />
+</a>
 
 ## License
 
