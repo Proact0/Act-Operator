@@ -1,4 +1,4 @@
-## 컨트리뷰팅 가이드
+## 컨트리뷰팅 가이드 (한국어)
 
 - 영어로 읽기: [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md)
 

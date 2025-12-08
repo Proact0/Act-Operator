@@ -1,4 +1,4 @@
-## Contributing Guide (EN)
+## Contributing Guide
 
 - Read this in Korean: [CONTRIBUTING.md](CONTRIBUTING.md)
 
