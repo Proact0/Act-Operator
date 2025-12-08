@@ -20,7 +20,6 @@ body:
     id: checks
     attributes:
       label: Checked other resources
-    
       description: Before submitting, please confirm the following.
       options:
         - label: This is a feature request/enhancement for Act Operator CLI, not a bug report.

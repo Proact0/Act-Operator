@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discord Community
+    url: https://discord.gg/4GTNbEy5EB
+    about: Ask questions and discuss with community members
+  - name: Documentation
+    url: https://github.com/Proact0/Act-Operator#readme
+    about: Read the Act Operator documentation

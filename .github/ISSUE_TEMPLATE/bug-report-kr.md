@@ -67,11 +67,10 @@ body:
       render: shell
   - type: textarea
     id: description
-    attributes:
-      label: 설명
     validations:
       required: true
     attributes:
+      label: 설명
       description: |
         문제를 설명해주세요.
         무엇을 하려 했는지, 기대한 동작, 실제 동작을 간단히 작성합니다.

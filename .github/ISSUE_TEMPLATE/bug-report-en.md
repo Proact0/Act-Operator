@@ -67,11 +67,10 @@ body:
       render: shell
   - type: textarea
     id: description
-    attributes:
-      label: Description
     validations:
       required: true
     attributes:
+      label: Description
       description: |
         What is the problem?
         Write a short description telling what you are doing, what you expect to happen, and what is currently happening.
