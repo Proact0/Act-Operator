@@ -58,6 +58,17 @@ uvx --from act-operator act new
 # - Cast name: chatbot
 ```
 
+### Sync
+
+After creating the project, install dependencies and sync the virtual environment:
+
+```bash
+uv sync
+```
+
+This command installs all dependencies defined in `pyproject.toml` and prepares the project for execution.
+
+
 ### Start Building with AI
 
 If you're using Claude Code, you can leverage built-in agent skills to accelerate development:
@@ -79,10 +90,10 @@ Reference the skills directory in your prompts: `.claude/skills`
 Skills can be used individually or as a complete workflow:
 
 **Individual Use**:
+- Need to design your project architecture? → Use `architecting-act`
 - Need to add a new cast? → Use `engineering-act`
-- Want to implement a specific node? → Use `developing-cast`
-- Writing tests for existing code? → Use `testing-cast`
-- Redesigning your architecture? → Use `architecting-act`
+- Need to implement a specific node? → Use `developing-cast`
+- Need to write tests? → Use `testing-cast`
 
 **Complete Workflow**:
 ```plaintext
@@ -92,7 +103,7 @@ Skills can be used individually or as a complete workflow:
 2. Project Setup → "Create a new cast called chatbot"
    (engineering-act: scaffolds cast structure, configures dependencies)
 
-3. Implementation → "Implement the chatbot based on CLAUDE.md"
+3. Implementation → "Implement the chatbot based on our project"
    (developing-cast: creates state, nodes, agents, tools, and graph)
 
 4. Testing → "Write comprehensive tests for the chatbot"
