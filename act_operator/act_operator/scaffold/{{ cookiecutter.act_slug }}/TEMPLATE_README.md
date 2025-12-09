@@ -11,7 +11,8 @@ This document provides a quick guide to understand and properly use the project 
 - Provides a modular/hierarchical graph structure based on LangGraph.
 - Individual Casts are managed as packages in the `casts/` directory (including `pyproject.toml`).
 - Common base classes are imported from `casts/base_node.py` and `casts/base_graph.py`.
-- Each Cast consists of `modules/` (agents/conditions/models/nodes/prompts/state/tools/utils) and `graph.py`.
+- Each Cast consists of `modules/` (agents/conditions/middlewares/models/nodes/prompts/state/tools/utils) and `graph.py`.
+- State management uses separate schemas: `InputState` for inputs, `OutputState` for outputs, and `State` for internal processing.
 
 ### Directory Core Structure (Summary)
 
@@ -123,8 +124,12 @@ To stop: Press `Ctrl + C` (Windows) or `Cmd + C` (macOS) in the terminal
 
 ## Input/State Management
 
-- Input schemas and state for each Cast are defined/managed in `casts/{{ cookiecutter.cast_snake }}/modules/state.py`.
+- Each Cast uses three distinct state schemas defined in `casts/{{ cookiecutter.cast_snake }}/modules/state.py`:
+  - **InputState**: Defines the input schema for graph invocation
+  - **OutputState**: Defines the output schema returned by the graph
+  - **State**: The main state container (inherits from `MessagesState` for message handling)
 - When executing, specify values in the input fields displayed in the left panel of Studio UI, then click Invoke.
+- The graph automatically validates input against `InputState` and formats output according to `OutputState`.
 
 ## Adding a New Cast
 
@@ -181,7 +186,7 @@ This project includes pre-configured Claude skills in `.claude/skills/` to assis
 
 2. **Skill workflow**: Skills guide you through their specific domain
    - `architecting-act`: Interactive Q&A → generates `CLAUDE.md`
-   - `developing-cast`: Reads `CLAUDE.md` → implements code
+   - `developing-cast`: Reads `CLAUDE.md` (Optional) → implements code
    - `engineering-act`: Manages packages and dependencies
    - `testing-cast`: Creates pytest test files
 
@@ -197,26 +202,43 @@ This project includes pre-configured Claude skills in `.claude/skills/` to assis
 4. @testing-cast      →  Write and run tests
 ```
 
-### Skill Resources
+## Node Implementation
 
-Each skill contains reference materials in its directory:
+### Creating Nodes
 
+Each Cast includes two types of base nodes for different use cases:
+
+- **BaseNode**: For synchronous operations (file I/O, database queries)
+- **AsyncBaseNode**: For asynchronous operations (API calls, concurrent tasks)
+
+### Node Signatures
+
+Choose the appropriate signature based on what your node needs:
+
+```python
+# Simple - only needs state
+def execute(self, state):
+    return {"result": "value"}
+
+# With config - needs thread_id, tags, etc.
+def execute(self, state, config):
+    thread_id = config.get("configurable", {}).get("thread_id")
+    return {"result": "value"}
+
+# With runtime - needs store, stream capabilities
+def execute(self, state, runtime):
+    runtime.store.put(("memories", "1"), {"key": "value"})
+    return {"result": "value"}
+
+# Full - needs everything
+def execute(self, state, config, runtime):
+    # Access all capabilities
+    return {"result": "value"}
 ```
-.claude/skills/
-├── architecting-act/
-│   ├── SKILL.md              # Main skill definition
-│   ├── resources/            # Patterns, templates, checklists
-│   └── scripts/              # Validation scripts
-├── developing-cast/
-│   ├── SKILL.md
-│   └── usage/                # LangGraph patterns & examples
-├── engineering-act/
-│   ├── SKILL.md
-│   └── resources/            # Package management guides
-└── testing-cast/
-    ├── SKILL.md
-    └── resources/            # Test patterns, mocking guides
-```
+
+### Example Implementation
+
+See `casts/{{ cookiecutter.cast_snake }}/modules/nodes.py` for working examples of both `SampleNode` (sync) and `AsyncSampleNode` (async).
 
 ## Testing and Quality Management
 
@@ -276,7 +298,8 @@ The structure and tooling of this monorepo template are licensed under the Proac
 - LangGraph 기반의 모듈화/계층화된 그래프 구조를 제공합니다.
 - `casts/` 디렉터리에 개별 Cast를 패키지로 관리합니다(`pyproject.toml` 포함).
 - 공통 베이스는 `casts/base_node.py`, `casts/base_graph.py`에서 가져옵니다.
-- 각 Cast는 `modules/`(에이전트/조건/모델/노드/프롬프트/상태/툴/유틸), `graph.py`로 구성됩니다.
+- 각 Cast는 `modules/`(에이전트/조건/미들웨어/모델/노드/프롬프트/상태/툴/유틸), `graph.py`로 구성됩니다.
+- 상태 관리는 분리된 스키마를 사용합니다: 입력용 `InputState`, 출력용 `OutputState`, 내부 처리용 `State`.
 
 ### 디렉터리 구조(요약)
 
@@ -388,8 +411,12 @@ uv run langgraph dev --tunnel
 
 ## 입력/상태 관리
 
-- 각 Cast의 입력 스키마 및 상태는 `casts/{{ cookiecutter.cast_snake }}/modules/state.py`에서 정의/관리됩니다.
+- 각 Cast는 `casts/{{ cookiecutter.cast_snake }}/modules/state.py`에서 세 가지 구분된 상태 스키마를 사용합니다:
+  - **InputState**: 그래프 호출을 위한 입력 스키마 정의
+  - **OutputState**: 그래프가 반환하는 출력 스키마 정의
+  - **State**: 메인 상태 컨테이너 (메시지 처리를 위해 `MessagesState`를 상속)
 - 실행 시 Studio UI 좌측 패널에 표시되는 입력 필드에 값을 지정한 뒤 Invoke 하십시오.
+- 그래프는 자동으로 `InputState`에 대해 입력을 검증하고 `OutputState`에 따라 출력 형식을 지정합니다.
 
 ## 새 Cast 추가
 
@@ -430,8 +457,8 @@ uv sync --all-packages
 | 스킬 | 목적 | 사용 시점 |
 |------|------|----------|
 | `@architecting-act` | 아키텍처 설계 | 새 cast 계획, 구조 불명확, CLAUDE.md 필요 시 |
-| `@developing-cast` | 코드 구현 | 노드/에이전트/툴 구현, LangGraph 패턴 필요 시 |
 | `@engineering-act` | 프로젝트 설정 | cast 패키지 생성, 의존성 추가, 환경 동기화 |
+| `@developing-cast` | 코드 구현 | 노드/에이전트/툴 구현, LangGraph 패턴 필요 시 |
 | `@testing-cast` | 테스트 작성 | pytest 테스트 생성, 모킹 전략, 픽스처 |
 
 ### 사용 방법
@@ -446,7 +473,7 @@ uv sync --all-packages
 
 2. **스킬 워크플로우**: 각 스킬은 해당 도메인에 맞게 안내합니다
    - `architecting-act`: 대화형 Q&A → `CLAUDE.md` 생성
-   - `developing-cast`: `CLAUDE.md` 읽기 → 코드 구현
+   - `developing-cast`: `CLAUDE.md` 읽기(선택) → 코드 구현
    - `engineering-act`: 패키지 및 의존성 관리
    - `testing-cast`: pytest 테스트 파일 생성
 
@@ -455,33 +482,50 @@ uv sync --all-packages
 ```
 1. @architecting-act  →  설계 & CLAUDE.md 생성
         ↓
-2. @engineering-act   →  cast 생성, 의존성 추가
+2. @engineering-act   →  (필요 시) cast 생성, 의존성 추가
         ↓
-3. @developing-cast   →  노드, 에이전트, 그래프 구현
+3. @developing-cast   →  노드, 에이전트, 그래프, 기타 모듈 구현
         ↓
 4. @testing-cast      →  테스트 작성 및 실행
 ```
 
-### 스킬 리소스
+## 노드 구현
 
-각 스킬은 해당 디렉터리에 참조 자료를 포함하고 있습니다:
+### 노드 생성
 
+각 Cast는 서로 다른 사용 사례를 위한 두 가지 유형의 베이스 노드를 포함합니다:
+
+- **BaseNode**: 동기 작업용 (파일 I/O, 데이터베이스 쿼리)
+- **AsyncBaseNode**: 비동기 작업용 (API 호출, 동시 작업)
+
+### 노드 시그니처
+
+노드에 필요한 것에 따라 적절한 시그니처를 선택하세요:
+
+```python
+# 단순 - state만 필요
+def execute(self, state):
+    return {"result": "value"}
+
+# config 포함 - thread_id, tags 등이 필요
+def execute(self, state, config):
+    thread_id = config.get("configurable", {}).get("thread_id")
+    return {"result": "value"}
+
+# runtime 포함 - store, stream 기능이 필요
+def execute(self, state, runtime):
+    runtime.store.put(("memories", "1"), {"key": "value"})
+    return {"result": "value"}
+
+# 전체 - 모든 기능이 필요
+def execute(self, state, config, runtime):
+    # 모든 기능에 접근
+    return {"result": "value"}
 ```
-.claude/skills/
-├── architecting-act/
-│   ├── SKILL.md              # 메인 스킬 정의
-│   ├── resources/            # 패턴, 템플릿, 체크리스트
-│   └── scripts/              # 검증 스크립트
-├── developing-cast/
-│   ├── SKILL.md
-│   └── usage/                # LangGraph 패턴 & 예제
-├── engineering-act/
-│   ├── SKILL.md
-│   └── resources/            # 패키지 관리 가이드
-└── testing-cast/
-    ├── SKILL.md
-    └── resources/            # 테스트 패턴, 모킹 가이드
-```
+
+### 구현 예제
+
+`Node` (동기) 및 `AsyncNode` (비동기)의 실제 예제는 `casts/{{ cookiecutter.cast_snake }}/modules/nodes.py`를 참조하세요.
 
 ## 테스트 및 품질 관리
 

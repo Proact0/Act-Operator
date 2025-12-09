@@ -1,10 +1,10 @@
 ---
 name: developing-cast
-description: Use when implementing LangGraph nodes/edges/state from CLAUDE.md, stuck on specific patterns (conditional routing, parallel execution, state updates), or need code examples for 50+ situations - provides systematic reference from architecture to working implementation
+description: Use when implementing LangGraph components (state, nodes, edges, graph) with or without CLAUDE.md specs, stuck on workflow order (what order to implement), or need patterns for agents/models/tools/memory/middlewares/prompts (conversation memory, retry/fallback, guardrails, vector stores, tool management, etc.) - provides systematic workflow (state → deps → nodes → conditions → graph)
 ---
-# Developing Cast
+# Developing {{ cookiecutter.act_name }}'s Cast
 
-Implement LangGraph casts following Act-Operator patterns.
+Implement LangGraph casts following {{ cookiecutter.act_name }} Act patterns.
 
 ## When to Use
 
@@ -22,36 +22,55 @@ Implement LangGraph casts following Act-Operator patterns.
 
 ## Implementation Workflow
 
-### Step 1: Check for CLAUDE.md
+### Step 1: Understand CLAUDE.md
 
-First, check if `CLAUDE.md` exists in the project root
-
-**If CLAUDE.md exists:**
-- Use [architecture-analysis.md](analysis-architecture.md) to analyze the project architecture specification
-- Extract state schema, nodes, edges, and other requirements
-- Proceed to Step 2 (Architecture-First Implementation)
+**If CLAUDE.md exists (distributed structure):**
+- **Root `/CLAUDE.md`** contains:
+  - **Act Overview**: {{ cookiecutter.act_name }} Act purpose and domain
+  - **Casts Table**: All available casts in the project with links
+- **Cast `/casts/{cast_slug}/CLAUDE.md`** contains:
+  - **Cast Overview**: Purpose, Pattern, Latency
+  - **Architecture Diagram**: Mermaid diagram with nodes and edges
+  - **State Schema**: InputState, OutputState, OverallState
+  - **Node Specifications**: Detailed node descriptions
+  - **Technology Stack**: Additional dependencies and environment variables
+- Identify which Cast to implement (check root Casts table)
+- Read the cast's CLAUDE.md: `/casts/{cast_slug}/CLAUDE.md`
+- Proceed to Step 2
 
 **If CLAUDE.md not found:**
 - Skip architecture analysis
-- Proceed to Step 2 (Direct Implementation)
+- Proceed to Step 2
 
-### Step 2: Branch Based on Result
+### Step 2: Implementation
 
-#### If CLAUDE.md EXISTS → Architecture-First Implementation
+**Implement in order:** state → dependency modules → nodes → conditions → graph
+  - Use Component Reference tables below for each component type
 
-1. **Read & Analyze CLAUDE.md**
-   - Identify state schema definitions
-   - Extract node specifications
-   - Map edge/routing logic
-   - Note middleware requirements
+```
+1. State (state.py)           # Foundation
+   ↓
+2. Dependency modules         # agents, models, tools, prompts, middlewares, utils (if needed)
+   ↓
+3. Nodes (nodes.py)           # Business logic
+   ↓
+4. Conditions (conditions.py) # Route Functions (if needed)
+   ↓
+5. Graph (graph.py)           # Assembly
+```
 
-2. **Follow:** [from-architecture-to-code.md](usage/from-architecture-to-code.md)
+### Option Step 3: Create required environment variables (if needed)
 
-3. **Implement in order:** state → dependencies → nodes → conditions → graph
+Update to `.env.example` (project root)
 
-#### If CLAUDE.md NOT FOUND → Direct Implementation
+```bash
+OPENAI_API_KEY=your_key
+ANTHROPIC_API_KEY=your_key
+```
 
-Skip architecture analysis and proceed directly to component implementation using the reference tables below.
+### Option Step 4: Install dpendency packages (if needed)
+
+Use `engineering-act`
 
 ---
 
@@ -155,26 +174,12 @@ Skip architecture analysis and proceed directly to component implementation usin
 
 ---
 
-## Implementation Order
-
-```
-1. State (state.py)           # Foundation
-   ↓
-2. Dependencies modules       # agents, models, tools, prompts, middlewares, utils (if needed)
-   ↓
-3. Nodes (nodes.py)           # Business logic
-   ↓
-4. Conditions (conditions.py) # Routing (if needed)
-   ↓
-5. Graph (graph.py)           # Assembly
-```
-
----
-
 ## Verification
 
-- [ ] CLAUDE.md checked (analyzed if exists, skipped if not)
-- [ ] Files in order: state → deps → nodes → conditions → graph
+- [ ] CLAUDE.md checked (root + cast-specific if exists, skipped if not)
+  - [ ] Root `/CLAUDE.md` reviewed for Act context
+  - [ ] Cast `/casts/{cast_slug}/CLAUDE.md` reviewed for specifications
+- [ ] Files in order: state → dependency modules → nodes → conditions → graph
 - [ ] Node names lowercase in graph.py
 - [ ] START/END imported from `langgraph.graph`
 - [ ] Nodes added as instances

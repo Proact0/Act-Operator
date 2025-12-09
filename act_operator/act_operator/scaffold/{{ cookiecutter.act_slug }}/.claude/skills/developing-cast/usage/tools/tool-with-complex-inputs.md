@@ -61,12 +61,25 @@ def get_weather_json(location: str, units: str = "celsius", include_forecast: bo
 ```python
 # casts.{cast_name}.modules.agents
 from langchain.agents import create_agent
-from .models import get_sample_model
+from .models import get_model
 from .tools import get_weather
 
 def set_weather_agent():
     return create_agent(
-        model=get_sample_model(),
+        model=get_model(),
         tools=[get_weather],
     )
+```
+
+## Model(Standalone) Usage
+
+```python
+# casts.{cast_name}.modules.models
+from langchain_openai import ChatOpenAI
+from .tools import get_weather
+
+def get_tool_model():
+    model = ChatOpenAI(model="gpt-4o")
+    model.bind_tools([get_weather])
+    return model
 ```

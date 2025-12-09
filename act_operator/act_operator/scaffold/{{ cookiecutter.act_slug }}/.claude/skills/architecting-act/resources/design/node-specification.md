@@ -25,18 +25,7 @@ Nodes:
 - NodeName - Single responsibility description
   - Reads: [state fields]
   - Writes: [state fields]
-  - Type: [Input/Process/Decision/Output/Tool]
 ```
-
-## Node Types
-
-| Type | Purpose | Example |
-|------|---------|---------|
-| **Input** | Parse/validate | `ParseQuery` |
-| **Process** | Transform/compute | `ExtractEntities` |
-| **Decision** | Determine routing | `ClassifyIntent` |
-| **Output** | Format response | `FormatResult` |
-| **Tool** | External action | `CallAPI` |
 
 ## Naming Convention
 

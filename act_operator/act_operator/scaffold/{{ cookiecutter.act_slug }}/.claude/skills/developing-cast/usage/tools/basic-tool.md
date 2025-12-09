@@ -21,9 +21,9 @@ def search_database(query: str, limit: int = 10) -> str:
 
 **Requirements:**
 - Type hints are **required** (define input schema)
-- Docstring should be concise and informative
+- Google docstring should be concise and informative
 
-## Custom Name & Description
+## Custom Name
 
 ```python
 # casts.{cast_name}.modules.tools
@@ -31,21 +31,13 @@ from langchain.tools import tool
 
 @tool("web_search")
 def search(query: str) -> str:
-    """Search the web for information."""
+    """Search the web for information.
+
+    Args:
+        query: Search terms to look for
+    """
     return f"Results for: {query}"
-
-@tool("calculator", description="Performs arithmetic calculations. Use for math problems.")
-def calc(expression: str) -> str:
-    """Evaluate mathematical expressions."""
-    return str(eval(expression))
 ```
-
-## Reserved Parameter Names
-
-| Name | Purpose |
-|------|---------|
-| `config` | Reserved for `RunnableConfig` |
-| `runtime` | Reserved for `ToolRuntime` (state, context, store access) |
 
 ---
 
@@ -54,12 +46,25 @@ def calc(expression: str) -> str:
 ```python
 # casts.{cast_name}.modules.agents
 from langchain.agents import create_agent
-from .models import get_sample_model
+from .models import get_model
 from .tools import search_database, calc
 
 def set_tool_agent():
     return create_agent(
-        model=get_sample_model(),
+        model=get_model(),
         tools=[search_database, calc],
     )
+```
+
+## Model(Standalone) Usage
+
+```python
+# casts.{cast_name}.modules.models
+from langchain_openai import ChatOpenAI
+from .tools import search_database, calc
+
+def get_tool_model():
+    model = ChatOpenAI(model="gpt-4o")
+    model.bind_tools([search_database, calc])
+    return model
 ```

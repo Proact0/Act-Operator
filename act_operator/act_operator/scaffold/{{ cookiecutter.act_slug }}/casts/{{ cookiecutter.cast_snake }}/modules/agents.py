@@ -6,7 +6,6 @@ Guidelines:
 
 Official document URL:
     - Agents: https://docs.langchain.com/oss/python/langchain/agents
-    - Built-in Middleware: https://docs.langchain.com/oss/python/langchain/middleware/built-in
 """
 
 # from langchain.agents import create_agent

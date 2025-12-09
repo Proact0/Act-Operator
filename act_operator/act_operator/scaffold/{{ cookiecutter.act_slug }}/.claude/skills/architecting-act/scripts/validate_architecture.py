@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Validate architecture specification for completeness.
+"""Validate distributed architecture specification for completeness.
 
 Usage:
-    python scripts/validate_architecture.py [CLAUDE.md]
+    python scripts/validate_architecture.py
 
-Validates that the architecture specification is complete and consistent.
+Validates that the distributed architecture specification (root CLAUDE.md + cast CLAUDE.md files) is complete and consistent.
 """
 
 import argparse
@@ -12,13 +12,12 @@ import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 
 @dataclass
 class ValidationResult:
     """Result of validation check."""
-    
+
     passed: bool
     message: str
     severity: str = "error"  # error, warning, info
@@ -27,65 +26,67 @@ class ValidationResult:
 @dataclass
 class ValidationReport:
     """Complete validation report."""
-    
+
     results: list[ValidationResult] = field(default_factory=list)
-    
+
     def add(self, passed: bool, message: str, severity: str = "error"):
         """Add a validation result."""
         self.results.append(ValidationResult(passed, message, severity))
-    
+
     @property
     def errors(self) -> list[ValidationResult]:
         """Get all errors."""
         return [r for r in self.results if not r.passed and r.severity == "error"]
-    
+
     @property
     def warnings(self) -> list[ValidationResult]:
         """Get all warnings."""
         return [r for r in self.results if not r.passed and r.severity == "warning"]
-    
+
     @property
     def passed(self) -> bool:
         """Check if validation passed (no errors)."""
         return len(self.errors) == 0
-    
+
     def print_report(self):
         """Print formatted report."""
         print("\n" + "=" * 60)
         print("ARCHITECTURE VALIDATION REPORT")
         print("=" * 60 + "\n")
-        
+
         # Group by status
         passed = [r for r in self.results if r.passed]
         errors = self.errors
         warnings = self.warnings
-        
+
         # Print passed
         if passed:
             print("PASSED:")
             for r in passed:
                 print(f"  [OK] {r.message}")
             print()
-        
+
         # Print warnings
         if warnings:
             print("WARNINGS:")
             for r in warnings:
                 print(f"  [!] {r.message}")
             print()
-        
+
         # Print errors
         if errors:
             print("ERRORS:")
             for r in errors:
                 print(f"  [X] {r.message}")
             print()
-        
+
         # Summary
         print("-" * 60)
-        print(f"Total: {len(passed)} passed, {len(warnings)} warnings, {len(errors)} errors")
+        print(
+            f"Total: {len(passed)} passed, {len(warnings)} warnings, {len(errors)} errors"
+        )
         print("-" * 60)
-        
+
         if self.passed:
             print("\nValidation PASSED")
         else:
@@ -101,39 +102,60 @@ def get_project_root() -> Path:
     return current
 
 
-def parse_claude_md(content: str) -> dict:
-    """Parse CLAUDE.md content into structured data."""
+def parse_act_claude_md(content: str) -> dict:
+    """Parse root CLAUDE.md (Act-level) content into structured data."""
     data = {
+        "has_act_overview": False,
+        "has_casts_table": False,
+        "has_next_steps": False,
+        "casts_in_table": [],
+    }
+
+    # Check Act-level sections
+    data["has_act_overview"] = "## Act Overview" in content
+    data["has_casts_table"] = "## Casts" in content
+    data["has_next_steps"] = "## Next Steps" in content
+
+    # Extract casts from table
+    # Format: | CastName | purpose | [link](path) |
+    cast_table_pattern = r"\| ([A-Z][a-zA-Z0-9]+) \| .* \| \[.*?\]\((casts/[^/]+/CLAUDE\.md)\)"
+    matches = re.findall(cast_table_pattern, content)
+    data["casts_in_table"] = [
+        {"name": name, "path": path} for name, path in matches
+    ]
+
+    return data
+
+
+def parse_cast_claude_md(content: str, cast_name: str) -> dict:
+    """Parse Cast-level CLAUDE.md content into structured data."""
+    data = {
+        "name": cast_name,
         "has_overview": False,
         "has_diagram": False,
         "has_input_state": False,
         "has_output_state": False,
         "has_overall_state": False,
         "has_nodes": False,
-        "has_edges": False,
         "has_tech_stack": False,
-        "has_next_steps": False,
+        "has_parent_link": False,
         "nodes": [],
     }
-    
-    # Check sections
+
+    # Check required sections
     data["has_overview"] = "## Overview" in content
     data["has_diagram"] = "## Architecture Diagram" in content
     data["has_input_state"] = "### InputState" in content
     data["has_output_state"] = "### OutputState" in content
     data["has_overall_state"] = "### OverallState" in content
     data["has_nodes"] = "## Node Specifications" in content
-    data["has_edges"] = "## Edge Definitions" in content
     data["has_tech_stack"] = "## Technology Stack" in content
-    data["has_next_steps"] = "## Next Steps" in content
-    
+    data["has_parent_link"] = "**Parent Act:**" in content
+
     # Extract node names
     node_pattern = r"### (\w+)\s*\n\s*\| Attribute"
     data["nodes"] = re.findall(node_pattern, content)
-    
-    # Check for placeholder text
-    data["has_placeholders"] = "[" in content and "]" in content
-    
+
     # Check mermaid diagram
     if "```mermaid" in content:
         mermaid_match = re.search(r"```mermaid\s*(.*?)\s*```", content, re.DOTALL)
@@ -142,149 +164,211 @@ def parse_claude_md(content: str) -> dict:
             data["mermaid_has_start"] = "START" in mermaid_content
             data["mermaid_has_end"] = "END" in mermaid_content
             data["mermaid_node_count"] = len(re.findall(r"\[.*?\]", mermaid_content))
-    
+
     return data
 
 
-def validate_completeness(data: dict, report: ValidationReport):
-    """Validate that all required sections exist."""
-    
-    # Required sections
+def validate_act_level(data: dict, report: ValidationReport):
+    """Validate Act-level CLAUDE.md completeness."""
+
     report.add(
-        data["has_overview"],
-        "Overview section present",
+        data["has_act_overview"],
+        "Root CLAUDE.md: Act Overview section present",
     )
     report.add(
-        data["has_diagram"],
-        "Architecture diagram present",
-    )
-    report.add(
-        data["has_input_state"],
-        "InputState schema defined",
-    )
-    report.add(
-        data["has_output_state"],
-        "OutputState schema defined",
-    )
-    report.add(
-        data["has_overall_state"],
-        "OverallState schema defined",
-    )
-    report.add(
-        data["has_nodes"],
-        "Node specifications present",
-    )
-    report.add(
-        data["has_edges"],
-        "Edge definitions present",
-    )
-    report.add(
-        data["has_tech_stack"],
-        "Technology stack section present",
+        data["has_casts_table"],
+        "Root CLAUDE.md: Casts table present",
     )
     report.add(
         data["has_next_steps"],
-        "Next steps section present",
+        "Root CLAUDE.md: Next Steps section present",
+    )
+
+    # Check at least one cast in table
+    cast_count = len(data["casts_in_table"])
+    report.add(
+        cast_count > 0,
+        f"Root CLAUDE.md: At least one Cast in table (found {cast_count})",
     )
 
 
-def validate_diagram(data: dict, report: ValidationReport):
-    """Validate the mermaid diagram."""
-    
+def validate_cast_level(data: dict, report: ValidationReport):
+    """Validate Cast-level CLAUDE.md completeness."""
+
+    cast_name = data["name"]
+
+    report.add(
+        data.get("has_parent_link", False),
+        f"Cast {cast_name}: Parent Act link present",
+    )
+    report.add(
+        data.get("has_overview", False),
+        f"Cast {cast_name}: Overview section present",
+    )
+    report.add(
+        data.get("has_diagram", False),
+        f"Cast {cast_name}: Architecture diagram present",
+    )
+    report.add(
+        data.get("has_input_state", False),
+        f"Cast {cast_name}: InputState schema defined",
+    )
+    report.add(
+        data.get("has_output_state", False),
+        f"Cast {cast_name}: OutputState schema defined",
+    )
+    report.add(
+        data.get("has_overall_state", False),
+        f"Cast {cast_name}: OverallState schema defined",
+    )
+    report.add(
+        data.get("has_nodes", False),
+        f"Cast {cast_name}: Node specifications present",
+    )
+    report.add(
+        data.get("has_tech_stack", False),
+        f"Cast {cast_name}: Technology stack section present",
+    )
+
+
+def validate_cast_diagram(data: dict, report: ValidationReport):
+    """Validate Cast-level mermaid diagram."""
+
+    cast_name = data["name"]
+
     if not data.get("mermaid_has_start"):
-        report.add(False, "Diagram missing START node", "warning")
+        report.add(False, f"Cast {cast_name}: Diagram missing START node", "warning")
     else:
-        report.add(True, "Diagram has START node")
-    
+        report.add(True, f"Cast {cast_name}: Diagram has START node")
+
     if not data.get("mermaid_has_end"):
-        report.add(False, "Diagram missing END node", "warning")
+        report.add(False, f"Cast {cast_name}: Diagram missing END node", "warning")
     else:
-        report.add(True, "Diagram has END node")
-    
+        report.add(True, f"Cast {cast_name}: Diagram has END node")
+
     node_count = data.get("mermaid_node_count", 0)
     if node_count == 0:
-        report.add(False, "Diagram has no nodes defined")
+        report.add(False, f"Cast {cast_name}: Diagram has no nodes defined")
     else:
-        report.add(True, f"Diagram has {node_count} nodes")
+        report.add(True, f"Cast {cast_name}: Diagram has {node_count} nodes")
 
 
-def validate_nodes(data: dict, report: ValidationReport):
-    """Validate node specifications."""
-    
-    if len(data["nodes"]) == 0:
-        report.add(False, "No node specifications found")
+def validate_cast_nodes(data: dict, report: ValidationReport):
+    """Validate Cast-level node specifications."""
+
+    cast_name = data["name"]
+    nodes = data.get("nodes", [])
+
+    if len(nodes) == 0:
+        report.add(False, f"Cast {cast_name}: No node specifications found")
     else:
-        report.add(True, f"Found {len(data['nodes'])} node specifications")
+        report.add(True, f"Cast {cast_name}: Found {len(nodes)} node specifications")
 
 
-def validate_placeholders(data: dict, report: ValidationReport):
-    """Check for unfilled placeholders."""
-    
-    if data.get("has_placeholders"):
-        report.add(
-            False,
-            "Document contains placeholder text (text in [brackets])",
-            "warning"
-        )
-    else:
-        report.add(True, "No placeholder text found")
+def validate_cross_references(
+    act_data: dict, cast_files: dict[str, Path], report: ValidationReport
+):
+    """Validate cross-references between Act and Cast CLAUDE.md files."""
+
+    # Check that all casts in table have corresponding files
+    for cast_info in act_data["casts_in_table"]:
+        cast_name = cast_info["name"]
+        expected_path = cast_info["path"]
+
+        if cast_name not in cast_files:
+            report.add(
+                False,
+                f"Cross-ref: Cast '{cast_name}' in table but CLAUDE.md not found at {expected_path}",
+            )
+        else:
+            report.add(
+                True,
+                f"Cross-ref: Cast '{cast_name}' has corresponding CLAUDE.md file",
+            )
+
+    # Check for cast files not in table
+    table_cast_names = {c["name"] for c in act_data["casts_in_table"]}
+    for cast_name in cast_files.keys():
+        if cast_name not in table_cast_names:
+            report.add(
+                False,
+                f"Cross-ref: Cast '{cast_name}' has CLAUDE.md but not listed in root Casts table",
+                "warning",
+            )
 
 
-def validate_architecture(content: str) -> ValidationReport:
-    """Run all validation checks on CLAUDE.md content.
-    
+def validate_distributed_architecture(project_root: Path) -> ValidationReport:
+    """Validate distributed CLAUDE.md structure.
+
     Args:
-        content: CLAUDE.md file content
-        
+        project_root: Project root directory
+
     Returns:
         ValidationReport with all results
     """
     report = ValidationReport()
-    data = parse_claude_md(content)
-    
-    validate_completeness(data, report)
-    validate_diagram(data, report)
-    validate_nodes(data, report)
-    validate_placeholders(data, report)
-    
+
+    # 1. Validate root CLAUDE.md exists
+    root_claude = project_root / "CLAUDE.md"
+    if not root_claude.exists():
+        report.add(False, "Root CLAUDE.md not found at project root")
+        return report
+
+    report.add(True, "Root CLAUDE.md exists")
+
+    # 2. Parse root CLAUDE.md
+    root_content = root_claude.read_text(encoding="utf-8")
+    act_data = parse_act_claude_md(root_content)
+    validate_act_level(act_data, report)
+
+    # 3. Find all cast CLAUDE.md files
+    casts_dir = project_root / "casts"
+    cast_files = {}  # cast_name -> Path
+
+    if casts_dir.exists():
+        for cast_dir in casts_dir.iterdir():
+            if cast_dir.is_dir():
+                cast_claude = cast_dir / "CLAUDE.md"
+                if cast_claude.exists():
+                    # Extract cast name from file
+                    cast_content = cast_claude.read_text(encoding="utf-8")
+                    cast_name_match = re.search(r"# Cast: (\w+)", cast_content)
+                    if cast_name_match:
+                        cast_name = cast_name_match.group(1)
+                        cast_files[cast_name] = cast_claude
+    else:
+        report.add(False, "Casts directory not found at project root", "warning")
+
+    # 4. Validate each cast CLAUDE.md
+    for cast_name, cast_path in cast_files.items():
+        cast_content = cast_path.read_text(encoding="utf-8")
+        cast_data = parse_cast_claude_md(cast_content, cast_name)
+
+        validate_cast_level(cast_data, cast_path, report)
+        validate_cast_diagram(cast_data, report)
+        validate_cast_nodes(cast_data, report)
+
+    # 5. Cross-reference validation
+    validate_cross_references(act_data, cast_files, report)
+
     return report
 
 
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Validate architecture specification completeness"
+        description="Validate distributed architecture specification completeness"
     )
-    parser.add_argument(
-        "path",
-        type=Path,
-        nargs="?",
-        default=None,
-        help="Path to CLAUDE.md (default: PROJECT_ROOT/CLAUDE.md)"
-    )
-    parser.add_argument(
-        "--quiet", "-q",
-        action="store_true",
-        help="Only output errors"
-    )
-    
+    parser.add_argument("--quiet", "-q", action="store_true", help="Only output errors")
+
     args = parser.parse_args()
-    
-    # Determine file path
-    file_path = args.path
-    if file_path is None:
-        file_path = get_project_root() / "CLAUDE.md"
-    
-    # Check file exists
-    if not file_path.exists():
-        print(f"Error: File not found: {file_path}")
-        print("\nCreate CLAUDE.md first using the architecting-act skill.")
-        return 1
-    
-    # Read and validate
-    content = file_path.read_text(encoding="utf-8")
-    report = validate_architecture(content)
-    
+
+    # Get project root
+    project_root = get_project_root()
+
+    # Validate
+    report = validate_distributed_architecture(project_root)
+
     # Output
     if not args.quiet:
         report.print_report()
@@ -292,10 +376,9 @@ def main():
         if not report.passed:
             for error in report.errors:
                 print(f"ERROR: {error.message}")
-    
+
     return 0 if report.passed else 1
 
 
 if __name__ == "__main__":
     sys.exit(main())
-

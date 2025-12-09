@@ -5,7 +5,7 @@ description: Use when writing pytest for cast nodes or casts(graphs), need mocki
 
 # Testing Cast Skill
 
-Write effective pytest tests for Act Operator casts.
+Write effective pytest tests for {{ cookiecutter.act_name }} Act's casts.
 
 ## When NOT to Use
 

@@ -23,7 +23,10 @@ Guide for Step 2: Pattern Selection based on requirements.
 
 **Example:** Document parsing → Cleaning → Entity extraction → Summary generation
 
-**Resource:** [patterns/sequential.md](patterns/sequential.md)
+**Design notes:**
+- 3-7 nodes typical
+- Each step has single responsibility
+- Fail fast on bad input
 
 ---
 
@@ -37,7 +40,10 @@ Guide for Step 2: Pattern Selection based on requirements.
 
 **Example:** Customer query → Classify → [Billing | Technical | Sales] → Response
 
-**Resource:** [patterns/branching.md](patterns/branching.md)
+**Design notes:**
+- Always include default/fallback path
+- Make conditions mutually exclusive
+- <5 branches recommended
 
 ---
 
@@ -51,7 +57,10 @@ Guide for Step 2: Pattern Selection based on requirements.
 
 **Example:** Generate draft → Review quality → [Refine draft | Finalize]
 
-**Resource:** [patterns/cyclic.md](patterns/cyclic.md)
+**Design notes:**
+- Set max iterations (3-10)
+- Track progress per iteration
+- Use numeric thresholds for exit
 
 ---
 
@@ -65,7 +74,10 @@ Guide for Step 2: Pattern Selection based on requirements.
 
 **Example:** Research task → [Researcher, Analyzer, Writer] → Final report
 
-**Resource:** [patterns/multi-agent.md](patterns/multi-agent.md)
+**Design notes:**
+- Start with 2-3 agents
+- Define clear handoff criteria
+- Coordinator should ONLY route
 
 ---
 

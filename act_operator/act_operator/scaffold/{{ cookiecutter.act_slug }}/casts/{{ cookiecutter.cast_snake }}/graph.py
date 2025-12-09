@@ -27,7 +27,7 @@ from casts.{{ cookiecutter.cast_snake }}.modules.state import InputState, Output
 
 class {{ cookiecutter.cast_pascal }}Graph(BaseGraph):
     """Graph definition for {{ cookiecutter.cast_name }}.
-    
+
     Attributes:
         input: Input schema for the graph.
         output: Output schema for the graph.
@@ -46,7 +46,9 @@ class {{ cookiecutter.cast_pascal }}Graph(BaseGraph):
         Returns:
             CompiledStateGraph: Compiled graph ready for execution.
         """
-        builder = StateGraph(self.state, input_schema=self.input, output_schema=self.output)
+        builder = StateGraph(
+            self.state, input_schema=self.input, output_schema=self.output
+        )
 
         # Register node as an INSTANCE so it returns a dict update, not the class object
         builder.add_node("SampleNode", SampleNode())

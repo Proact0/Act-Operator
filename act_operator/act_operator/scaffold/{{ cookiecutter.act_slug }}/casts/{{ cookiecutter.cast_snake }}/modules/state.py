@@ -1,4 +1,4 @@
-"""[Required] State definition shared across {{ cookiecutter.cast_slug }} graphs.
+"""[Required] State definition shared across sam graphs.
 
 Guidelines:
     - Create TypedDict classes for input, output, overall state, and any other state you need.
@@ -29,6 +29,7 @@ class OutputState(TypedDict):
     Attributes:
         messages: Additional messages (inherited from MessagesState)
     """
+
     result: str
 
 

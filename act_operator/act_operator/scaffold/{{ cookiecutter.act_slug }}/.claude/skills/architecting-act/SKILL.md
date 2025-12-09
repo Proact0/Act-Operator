@@ -1,49 +1,112 @@
 ---
 name: architecting-act
-description: Use when facing blank slate on new cast design, unsure which LangGraph pattern fits requirements, unclear about state schema or node boundaries, or need validated CLAUDE.md specification - guides from requirements to architecture through interactive 20-questions workflow
+description: Use when starting new Act project (CLAUDE.md doesn't exist), adding cast to existing Act (CLAUDE.md exists), or facing complex cast needing sub-cast extraction (>10 nodes) - guides through interactive questioning (one question at a time) from requirements to validated architecture with mermaid diagrams, emphasizing design before implementation, no code generation
 ---
 
-# Architecting Act
+# Architecting {{ cookiecutter.act_name }} Act
 
-Design high-level LangGraph architectures through interactive questioning. Outputs `CLAUDE.md` at project root.
+Design and manage Act (project) and Cast (graph) architectures through interactive questioning. Outputs `CLAUDE.md` at project root containing Act overview and all Cast specifications.
 
 ## When to Use
 
-- Planning a new cast (graph)
-- Unclear about node, edge, or state structure
-- Need to create architecture specification
-- Starting from scratch with no clear design
+- Planning initial Act architecture (after `act new`)
+- Adding new Cast to existing Act
+- Analyzing Cast complexity for Sub-Cast extraction
+- Unclear about architecture design
 
 ## When NOT to Use
 
 - Implementing code → use `developing-cast`
-- Project setup → use `engineering-act`
+- Creating cast files → use `engineering-act`
 - Writing tests → use `testing-cast`
 
 ---
 
-## Core Principle
+## Core Principles
 
-**IMPORTANT**: This skill is interactive. Use a "20 questions" approach - ask ONE question at a time, narrowing focus based on responses. Never skip steps or make assumptions.
+**INTERACTIVE**: Ask ONE question at a time. Wait for response before proceeding.
 
-**NO CODE IMPLEMENTATION**: This is the architecture phase. Describe structures, patterns, and specifications ONLY. Do NOT write implementation code (TypedDict, functions, etc.). Code wastes tokens and belongs in `developing-cast`.
+**NO CODE**: Describe structures only. No TypedDict, functions, or implementation code.
 
-## Workflow
-
-### Step 1: Requirements Gathering
-
-**Ask sequentially** using [question-templates.md](resources/question-templates.md):
-- Q1: Goal (one sentence)
-- Q2: Input/Output
-- Q3: Constraints
-
-After Q3, summarize and confirm. **Wait for user confirmation.**
+**DIAGRAMS SHOW EDGES**: Mermaid diagram contains all nodes and edges. No separate tables.
 
 ---
 
-### Step 2: Pattern Selection
+## Mode Detection
 
-**YOU suggest a pattern** based on requirements. Use [pattern-decision-matrix.md](resources/pattern-decision-matrix.md):
+**First, determine which mode:**
+
+- **CLAUDE.md doesn't exist?** → **Mode 1: Initial Design**
+- **CLAUDE.md exists + adding cast?** → **Mode 2: Add Cast**
+- **CLAUDE.md exists + cast complex?** → **Mode 3: Extract Sub-Cast**
+
+---
+
+## Mode 1: Initial Design
+
+**When:** First time designing (no CLAUDE.md)
+
+**Steps:**
+1. **{{ cookiecutter.act_name }} Act Questions** → [modes/initial-design-questions.md](resources/modes/initial-design-questions.md)
+   - Act Purpose, Cast Identification, Cast Goal, Input/Output, Constraints
+2. **{{ cookiecutter.cast_name }} Cast Design** → Follow "Cast Design Workflow" below
+3. **Generate CLAUDE.md files** → Use [act-template.md](resources/act-template.md) and [cast-template.md](resources/cast-template.md)
+   - Create `/CLAUDE.md` (Act info + Casts table)
+   - Create `/casts/{{ cookiecutter.cast_slug }}/CLAUDE.md` (Cast details)
+   - Note: Initial cast directory already exists from `act new` command
+4. **Validate** → Run validation script
+
+---
+
+## Mode 2: Add Cast
+
+**When:** CLAUDE.md exists, adding new cast
+
+**Steps:**
+1. **Read CLAUDE.md** → Understand existing {{ cookiecutter.act_name }} Act and Casts
+   - Read `/CLAUDE.md` for Act overview and existing casts
+   - Read existing `/casts/*/CLAUDE.md` files as needed for context
+2. **Questions** → [modes/add-cast-questions.md](resources/modes/add-cast-questions.md)
+   - New Cast Purpose, Goal, Relationship, Input/Output, Constraints
+3. **Cast Design** → Follow "Cast Design Workflow" below
+4. **Create Cast Package** (if not exists) → Run command
+   - Run: `uv run act cast -c "{New Cast Name}"`
+   - This creates `/casts/{new_cast_slug}/` directory structure
+5. **Update CLAUDE.md files** → Use [act-template.md](resources/act-template.md) and [cast-template.md](resources/cast-template.md)
+   - Update `/CLAUDE.md` Casts table (add new row)
+   - Create `/casts/{new_cast_slug}/CLAUDE.md` (new Cast details)
+6. **Validate** → Run validation script
+
+---
+
+## Mode 3: Extract Sub-Cast
+
+**When:** Cast has >10 nodes or complexity mentioned
+
+**Steps:**
+1. **Analyze** → Use [cast-analysis-guide.md](resources/cast-analysis-guide.md)
+   - Read `/casts/{parent_cast}/CLAUDE.md` to analyze complexity
+2. **Questions** → [modes/extract-subcast-questions.md](resources/modes/extract-subcast-questions.md)
+   - Complexity Check, Extraction Proposal, Sub-Cast Purpose, Input/Output
+3. **Sub-Cast Design** → Follow "Cast Design Workflow" below
+4. **Create Sub-Cast Package** → Run command
+   - Run: `uv run act cast -c "{Sub-Cast Name}"`
+   - This creates `/casts/{subcast_slug}/` directory structure
+5. **Update CLAUDE.md files** → Use [act-template.md](resources/act-template.md) and [cast-template.md](resources/cast-template.md)
+   - Update `/CLAUDE.md` Casts table (add sub-cast row)
+   - Create `/casts/{subcast_slug}/CLAUDE.md` (sub-cast details)
+   - Update `/casts/{parent_cast}/CLAUDE.md` (reference sub-cast)
+6. **Validate** → Run validation script
+
+---
+
+## Cast Design Workflow
+
+**Use for all modes when designing a cast:**
+
+### 1. Pattern Selection
+
+**YOU suggest pattern** using [pattern-decision-matrix.md](resources/pattern-decision-matrix.md):
 
 | Requirements | Pattern |
 |-------------|---------|
@@ -52,80 +115,49 @@ After Q3, summarize and confirm. **Wait for user confirmation.**
 | Refinement loop | Cyclic |
 | Specialized roles | Multi-agent |
 
-Present recommendation with diagram. **Ask: "Does this pattern fit your needs?"**
+Ask: "Does this pattern fit?" Wait for confirmation.
 
-Pattern details: [sequential](resources/patterns/sequential.md), [branching](resources/patterns/branching.md), [cyclic](resources/patterns/cyclic.md), [multi-agent](resources/patterns/multi-agent.md)
+### 2. State Schema
 
----
+**YOU design schema** using [state-schema.md](resources/design/state-schema.md).
 
-### Step 3: State Schema Design
+Present as **TABLES ONLY** (InputState, OutputState, OverallState).
 
-**YOU design schema** using Step 1 requirements. See [state-schema.md](resources/design/state-schema.md).
+Ask: "Any fields to modify?" Wait for response.
 
-Structure: InputState + OutputState + OverallState (combines both + internal fields)
+### 3. Node Specification
 
-**Present as TABLE format ONLY** - do NOT write code (TypedDict, class definitions, etc.).
+**Ask pattern-specific question** using [node-specification.md](resources/design/node-specification.md):
+- Sequential/Branching: "Main processing steps?" (3-7 nodes)
+- Cyclic: "What gets refined? Exit condition?"
+- Multi-agent: "What specialized roles?"
 
-Present schema. **Ask: "Any fields to add or modify?"**
+**YOU design nodes** (single responsibility, CamelCase naming).
 
----
+### 4. Architecture Diagram
 
-### Step 4: Node Specification
+**YOU create Mermaid diagram** using [edge-routing.md](resources/design/edge-routing.md).
 
-**Ask pattern-specific question** (see [node-specification.md](resources/design/node-specification.md)):
-- Sequential/Branching: "Main processing steps?" (3-7 steps)
-- Cyclic: "What gets refined? What determines 'done'?"
-- Multi-agent: "What specialized roles?" (e.g., Researcher, Writer)
+Ensure: All nodes connected, all paths reach END, conditionals labeled.
 
-**YOU design nodes** with single responsibilities.
+### 5. Technology Stack
 
-**NAMING RULE**: Node names MUST be CamelCase (e.g., `Agent`, `SearchTool`, `ResponseGenerator`), NOT lowercase (agent, search_tool).
+> `langgraph`, `langchain` included. Identify **additional** dependencies only.
 
-Present to user.
+**Ask ONE at a time:**
+1. LLM provider? → Wait
+2. Vector store? → Wait
+3. Search tool? → Wait
+4. Document types? → Wait
 
----
+**YOU determine** packages + environment variables.
 
-### Step 5: Edge Routing
+### 6. Validate
 
-**YOU design edges** matching pattern. See [edge-routing.md](resources/design/edge-routing.md).
-
-**Critical:** Ensure all paths reach END. Present flow diagram.
-
----
-
-### Step 6: Technology Stack
-
-> `langgraph`, `langchain` already included. Only identify **additional** dependencies.
-
-**Ask ONE question at a time, sequentially:**
-1. If architecture uses LLM: "Which LLM provider?" (OpenAI/Anthropic/Google) → Wait for answer
-2. If architecture needs vector store: "Which vector store?" (Chroma/Pinecone) → Wait for answer
-3. If architecture needs search: "Which search tool?" (Tavily/SerpAPI/DuckDuckGo) → Wait for answer
-4. If architecture needs doc processing: "What document types?" (PDF/Word/etc.) → Wait for answer
-
-**Do NOT ask multiple questions at once.** Ask, wait, then proceed to next question if needed.
-
-**YOU determine dependencies** after gathering answers. List packages + environment variables.
-
----
-
-### Step 7: Generate CLAUDE.md
-
-Create CLAUDE.md at project root using [output-template.md](resources/output-template.md).
-
-Include all gathered information from Steps 1-6.
-
----
-
-### Step 8: Review & Validate
-
-**Run validation:**
 ```bash
-python .claude/skills/architecting-act/scripts/validate_architecture.py CLAUDE.md
+python .claude/skills/architecting-act/scripts/validate_architecture.py
 ```
 
-See [validation-checklist.md](resources/validation-checklist.md) for manual review.
+See [validation-checklist.md](resources/validation-checklist.md).
 
-**If issues found:** Return to relevant step and fix.
-
-**If passed:** Present summary and hand off to `engineering-act`.
+Fix issues if found, then present summary.

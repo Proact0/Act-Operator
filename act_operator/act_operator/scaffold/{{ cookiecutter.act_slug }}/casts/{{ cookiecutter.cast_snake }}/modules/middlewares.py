@@ -1,4 +1,4 @@
-"""[Optional] Middleware Classes for {{ cookiecutter.cast_name }} graphs.
+"""[Optional] Middleware Classes for Sam graphs.
 
 Guidelines:
     - Use built-in middleware (e.g., PIIMiddleware) for common use cases.
@@ -13,5 +13,6 @@ Guidelines:
     - Register middleware in modules/agents.py `create_agent()`.
 
 Official document URL:
+    - Built-in Middleware: https://docs.langchain.com/oss/python/langchain/middleware/built-in
     - Custom Middleware: https://docs.langchain.com/oss/python/langchain/middleware/custom
 """

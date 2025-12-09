@@ -1,56 +1,67 @@
-# Edge Routing Guide
+# Architecture Diagram Guide
 
-## Edge Types
-
-| Type | Use Case |
-|------|----------|
-| **Normal** | Always same next node |
-| **Conditional** | Decision-based routing |
-| **Loop** | Repeat until condition met |
+Guide for creating clear Mermaid diagrams that represent your Cast architecture.
 
 ## Design Process
 
-1. Connect nodes based on selected pattern
-2. Add conditional edges at decision points
-3. Ensure all paths reach END
-4. Add exit conditions for loops
+1. Start with START node
+2. Add nodes based on selected pattern
+3. Connect nodes with edges (normal or conditional)
+4. Ensure all paths reach END
+5. Add exit conditions for loops
 
-## Output Format
+## Mermaid Syntax
 
-**IMPORTANT: Describe routing logic only. Do NOT write implementation code (def functions, if/else, etc.).**
+### Basic Structure
+```mermaid
+graph TD
+    START((START)) --> NodeName[NodeName]
+    NodeName --> END((END))
+```
 
-### Normal Edges Table
-| Source | Target |
-|--------|--------|
-| START | FirstNode |
-| NodeA | NodeB |
-| LastNode | END |
+### Conditional Routing
+```mermaid
+graph TD
+    START((START)) --> DecisionNode{DecisionNode}
+    DecisionNode -->|condition_a| NodeA[NodeA]
+    DecisionNode -->|condition_b| NodeB[NodeB]
+    DecisionNode -->|default| FallbackNode[FallbackNode]
+    NodeA --> END((END))
+    NodeB --> END((END))
+    FallbackNode --> END((END))
+```
 
-### Conditional Edges Table
-| Source | Condition | Target |
-|--------|-----------|--------|
-| DecisionNode | condition_a | TargetA |
-| DecisionNode | condition_b | TargetB |
-| DecisionNode | default | FallbackNode |
+### Loops
+```mermaid
+graph TD
+    START((START)) --> ProcessNode[ProcessNode]
+    ProcessNode --> EvaluateNode{EvaluateNode}
+    EvaluateNode -->|pass| END((END))
+    EvaluateNode -->|fail| RefineNode[RefineNode]
+    RefineNode --> ProcessNode
+```
 
-### Routing Logic (Description Only)
-Describe the condition logic in plain text:
-- "If message contains tool_calls, route to ToolNode"
-- "If quality score > 0.8, route to END"
-- "Otherwise, route back to RefineNode"
+## Node Shapes
+
+- **START/END**: `((START))`, `((END))`
+- **Normal Node**: `[NodeName]`
+- **Decision Node**: `{DecisionNode}` (diamond shape for conditional routing)
 
 ## Design Principles
 
-**Normal:** Use when next node is always the same.
+**Clarity:** Each node should be clearly labeled with CamelCase names
 
-**Conditional:** ALWAYS include default case.
+**Completeness:** All paths must reach END
 
-**Loop:** Must have exit condition AND iteration limit.
+**Loops:** Must show exit condition and loop path
+
+**Conditionals:** Label edges with conditions (e.g., `|condition|`)
 
 ## Checklist
 
-- [ ] START has outgoing edge
-- [ ] Every node has outgoing edge(s)
-- [ ] All conditional edges have default
+- [ ] START node present
+- [ ] All nodes connected
 - [ ] All paths reach END
-- [ ] Loops have exit conditions
+- [ ] Conditional edges labeled with conditions
+- [ ] Loop exit conditions shown
+- [ ] Node names use CamelCase

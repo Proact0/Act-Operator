@@ -1,5 +1,12 @@
 # Create Cast
 
+## Before Creating
+
+**Check CLAUDE.md files if they exist:**
+- **Root `/CLAUDE.md`**: Review existing Casts in "Casts" table
+- **Cast `/casts/{cast_slug}/CLAUDE.md`**: Check if design already exists for this cast
+- Understand how new Cast relates to existing ones
+
 ## Command
 
 ```bash
