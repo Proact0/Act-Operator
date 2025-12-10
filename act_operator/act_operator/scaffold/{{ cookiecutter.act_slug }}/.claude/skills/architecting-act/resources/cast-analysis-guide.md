@@ -8,7 +8,7 @@ Analyze Cast complexity when:
 - User mentions cast is "too complex" or "hard to understand"
 - You notice a cast has many nodes during design
 - User wants to add similar logic to another cast
-- During review of existing CLAUDE.md
+- During review of existing CLAUDE.md files (root + cast-specific)
 
 ## Complexity Indicators
 
@@ -45,7 +45,7 @@ Look for:
 
 ### Step 3: Check for Shared Logic
 
-Compare with other Casts in CLAUDE.md:
+Compare with other Casts (check root CLAUDE.md's Casts table and their respective cast CLAUDE.md files):
 - Do multiple casts have similar node sequences?
 - Is there common preprocessing/postprocessing?
 - Are there shared validation steps?

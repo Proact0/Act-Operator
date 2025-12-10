@@ -26,7 +26,7 @@
 
 <br>
 
-Act Operator is a production-ready CLI that scaffolds structured LangGraph projects with built-in AI collaboration capabilities. 
+Act Operator is a production-ready CLI that scaffolds structured LangGraph 1.0+ projects with built-in AI collaboration capabilities. 
 
 ```bash
 uvx --from act-operator act new
@@ -34,9 +34,11 @@ uvx --from act-operator act new
 
 Generate clean, modular graph architectures with cookiecutter templates that include specialized Agent skills for architecture design, development, engineering, and testing—enabling you to build complex agentic workflows, business automations, or data pipelines with optimal maintainability and AI-assisted development.
 
+- Read this in Korean: [README_KR.md](README_KR.md)
+
 ## What is Act?
 
-Act (AX Template) is a standardized project structure for LangGraph applications, designed to solve common challenges in building production-grade AI systems:
+Act (AX Template) is a standardized project structure for LangGraph 1.0+ applications, designed to solve common challenges in building production-grade AI systems:
 
 - **Modular by Design**: Each graph component (state, nodes, agents, tools, middlewares, ...) lives in its own module with clear responsibilities
 - **Scalable Architecture**: Organize multiple graphs (casts) within a monorepo, each as an independent package
@@ -87,27 +89,79 @@ Reference the skills directory in your prompts: `.claude/skills`
 
 ### Working with Skills
 
-Skills can be used individually or as a complete workflow:
+**About CLAUDE.md**: Skills generate and reference `CLAUDE.md` files in a distributed structure:
+- **Root `/CLAUDE.md`**: Act overview, purpose, and table of all Casts
+- **Cast `/casts/{cast_slug}/CLAUDE.md`**: Detailed Cast specifications (architecture diagram, state schema, nodes, dependencies)
+
+Skills can be used individually or as a workflow:
 
 **Individual Use**:
-- Need to design your project architecture? → Use `architecting-act`
-- Need to add a new cast? → Use `engineering-act`
-- Need to implement a specific node? → Use `developing-cast`
-- Need to write tests? → Use `testing-cast`
+- **Initial Project Architecture** → Use `architecting-act` (Mode 1: Initial Design)
+  - After `act new`, design your first Act and Cast through interactive questions
+  - Generates root and cast-specific CLAUDE.md files with architecture diagrams
 
-**Complete Workflow**:
+- **Adding New Cast** → Use `architecting-act` (Mode 2: Add Cast) + `engineering-act`
+  - Reads existing CLAUDE.md files for context
+  - Designs new cast and updates CLAUDE.md files
+  - Creates cast package structure
+
+- **Complex Cast Extraction** → Use `architecting-act` (Mode 3: Extract Sub-Cast)
+  - Analyzes cast with >10 nodes for complexity
+  - Extracts reusable logic into sub-cast
+  - Updates CLAUDE.md with sub-cast relationships
+
+- **Implementation** → Use `developing-cast`
+  - Reads cast's CLAUDE.md for specifications
+  - Implements in order: state → deps → nodes → conditions → graph
+  - Access 50+ patterns (agents, tools, memory, middlewares)
+
+- **Dependency Management** → Use `engineering-act`
+  - Checks CLAUDE.md Technology Stack section
+  - Manages monorepo and cast-level dependencies
+  - Syncs environment and launches dev server
+
+- **Testing** → Use `testing-cast`
+  - Writes pytest tests with mocking strategies
+  - Covers node-level and graph-level tests
+
+**Workflow Examples**:
+
+*Example 1: Starting a New Project*
 ```plaintext
-1. Architecture → "Design a customer support chatbot"
-   (architecting-act: guides requirements, suggests patterns, generates CLAUDE.md)
+1. Create Project → Run: uvx --from act-operator act new
 
-2. Project Setup → "Create a new cast called chatbot"
-   (engineering-act: scaffolds cast structure, configures dependencies)
+2. Design Architecture → "Design a customer support chatbot"
+   (architecting-act Mode 1: asks questions, suggests Sequential pattern, generates /CLAUDE.md + /casts/chatbot/CLAUDE.md)
 
-3. Implementation → "Implement the chatbot based on our project"
-   (developing-cast: creates state, nodes, agents, tools, and graph)
+3. Implement → "Implement the chatbot based on CLAUDE.md"
+   (developing-cast: reads /casts/chatbot/CLAUDE.md, implements state/nodes/graph)
 
-4. Testing → "Write comprehensive tests for the chatbot"
-   (testing-cast: generates pytest tests with LLM/API mocking)
+4. Test → "Write comprehensive tests"
+   (testing-cast: generates pytest with LLM mocking)
+```
+
+*Example 2: Adding to Existing Project*
+```plaintext
+1. Design New Cast → "Add a knowledge-base cast for document indexing"
+   (architecting-act Mode 2: reads /CLAUDE.md, designs new cast, updates CLAUDE.md files)
+
+2. Scaffold Cast → "Create the knowledge-base cast package"
+   (engineering-act: runs `uv run act cast -c "knowledge-base"`)
+
+3. Implement → "Implement knowledge-base based on its CLAUDE.md"
+   (developing-cast: reads /casts/knowledge-base/CLAUDE.md, implements components)
+```
+
+*Example 3: Refactoring Complex Cast*
+```plaintext
+1. Analyze Complexity → "The chatbot cast has 12 nodes and feels complex"
+   (architecting-act Mode 3: analyzes /casts/chatbot/CLAUDE.md, identifies reusable validation logic)
+
+2. Extract Sub-Cast → "Extract input validation into a separate cast"
+   (architecting-act: creates /casts/input-validator/CLAUDE.md, updates parent references)
+
+3. Implement Sub-Cast → "Implement input-validator"
+   (developing-cast: implements sub-cast, engineering-act: manages dependencies)
 ```
 
 ## Project Structure
@@ -196,7 +250,7 @@ Built-in Claude Code skills optimize your workflow:
 - **Token-efficient**: Skills provide context-aware guidance without unnecessary code generation
 - **Interactive**: Architecture skill uses a "20 questions" approach to understand requirements
 - **Comprehensive**: 50+ implementation patterns for nodes, agents, tools, middleware, and testing
-- **Official Documentation**: All patterns reference official LangChain/LangGraph docs
+- **Official Documentation**: All patterns reference official LangChain 1.0+/LangGraph 1.0+ docs
 
 ### 3. Production-Ready Patterns
 
@@ -210,7 +264,7 @@ Includes battle-tested patterns for:
 
 ### 4. Beginner-Friendly
 
-Perfect for LangChain/LangGraph newcomers:
+Perfect for LangChain 1.0+/LangGraph 1.0+ newcomers:
 
 - Step-by-step implementation guides
 - Pattern decision matrices

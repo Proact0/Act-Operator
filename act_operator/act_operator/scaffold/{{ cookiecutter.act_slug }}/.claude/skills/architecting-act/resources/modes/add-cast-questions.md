@@ -1,15 +1,14 @@
 # Mode 2: Add New Cast Questions
 
-Use when CLAUDE.md exists and adding a new cast to the Act.
+Use when CLAUDE.md files exist (distributed structure) and adding a new cast to the Act.
 
 ---
 
 ## Step 1: Read Existing Context
 
-**First, read CLAUDE.md** to understand:
-- Act Overview and purpose
-- Existing Casts and their roles
-- Current architecture
+**First, read CLAUDE.md files** to understand:
+- **Root `/CLAUDE.md`**: Act Overview, purpose, and Casts table
+- **Existing cast CLAUDE.md files** (`/casts/{cast_snake_name}/CLAUDE.md`): Each cast's architecture and responsibilities
 
 ---
 

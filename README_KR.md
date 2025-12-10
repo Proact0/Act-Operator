@@ -26,7 +26,7 @@
 
 <br>
 
-Act Operator는 AI 협업 기능이 내장된 구조화된 LangGraph 1.0 프로젝트(Act)를 스캐폴딩하는 프로덕션 레디 CLI입니다.
+Act Operator는 AI 협업 기능이 내장된 구조화된 LangGraph 1.0+ 프로젝트(Act)를 스캐폴딩하는 프로덕션 레디 CLI입니다.
 
 ```bash
 uvx --from act-operator act new
@@ -36,7 +36,7 @@ uvx --from act-operator act new
 
 ## Act란 무엇인가요?
 
-Act (AX Template)는 프로덕션 수준의 AI 시스템 구축에서 발생하는 일반적인 문제를 해결하도록 설계된 LangGraph 애플리케이션을 위한 표준화된 프로젝트 구조입니다:
+Act (AX Template)는 프로덕션 수준의 AI 시스템 구축에서 발생하는 일반적인 문제를 해결하도록 설계된 LangGraph 1.0+ 애플리케이션을 위한 표준화된 프로젝트 구조입니다:
 
 - **모듈식 설계**: 각 그래프 컴포넌트(상태, 노드, 에이전트, 도구, 미들웨어 등)는 명확한 책임을 가진 자체 모듈에 존재합니다
 - **확장 가능한 아키텍처**: 모노레포 내에서 여러 그래프(캐스트)를 구성하며, 각각 독립적인 패키지로 관리됩니다
@@ -87,27 +87,79 @@ claude
 
 ### 스킬 활용하기
 
-스킬은 개별적으로 또는 완전한 워크플로우로 사용할 수 있습니다:
+**CLAUDE.md에 대해**: 스킬은 분산 구조로 `CLAUDE.md` 파일을 생성하고 참조합니다:
+- **루트 `/CLAUDE.md`**: Act 개요, 목적, 모든 Cast 테이블
+- **Cast `/casts/{cast_slug}/CLAUDE.md`**: 상세한 Cast 명세 (아키텍처 다이어그램, 상태 스키마, 노드, 의존성)
+
+스킬은 개별적으로 또는 워크플로우 형태로 사용할 수 있습니다:
 
 **개별 사용**:
-- 프로젝트 아키텍처 설계가 필요하신가요? → `architecting-act` 사용
-- 새 캐스트 추가가 필요하신가요? → `engineering-act` 사용
-- 특정 노드 구현이 필요하신가요? → `developing-cast` 사용
-- 테스트 작성이 필요하신가요? → `testing-cast` 사용
+- **초기 프로젝트 아키텍처** → `architecting-act` 사용 (모드 1: 초기 설계)
+  - `act new` 실행 후, 대화형 질문을 통해 첫 번째 Act와 Cast 설계
+  - 아키텍처 다이어그램과 함께 루트 및 캐스트별 CLAUDE.md 파일 생성
 
-**완전한 워크플로우**:
+- **새 Cast 추가** → `architecting-act` (모드 2: Cast 추가) + `engineering-act` 사용
+  - 기존 CLAUDE.md 파일을 읽어 컨텍스트 파악
+  - 새 캐스트 설계 및 CLAUDE.md 파일 업데이트
+  - 캐스트 패키지 구조 생성
+
+- **복잡한 Cast 추출** → `architecting-act` 사용 (모드 3: Sub-Cast 추출)
+  - 10개 이상의 노드를 가진 캐스트의 복잡도 분석
+  - 재사용 가능한 로직을 서브 캐스트로 추출
+  - 서브 캐스트 관계와 함께 CLAUDE.md 업데이트
+
+- **구현** → `developing-cast` 사용
+  - 캐스트의 CLAUDE.md에서 명세 읽기
+  - state → deps → nodes → conditions → graph 순서로 구현
+  - 50개 이상의 패턴 활용 (agents, tools, memory, middlewares)
+
+- **의존성 관리** → `engineering-act` 사용
+  - CLAUDE.md의 Technology Stack 섹션 확인
+  - 모노레포 및 캐스트 레벨 의존성 관리
+  - 환경 동기화 및 개발 서버 실행
+
+- **테스팅** → `testing-cast` 사용
+  - 모킹 전략을 활용한 pytest 테스트 작성
+  - 노드 레벨 및 그래프 레벨 테스트 커버
+
+**워크플로우 예시**:
+
+*예시 1: 새 프로젝트 시작*
 ```plaintext
-1. 아키텍처 → "고객 지원 챗봇 설계"
-   (architecting-act: 요구사항 가이드, 패턴 제안, CLAUDE.md 생성)
+1. 프로젝트 생성 → 실행: uvx --from act-operator act new
 
-2. 프로젝트 설정(옵션) → "필요한 경우 새 서브 캐스트 생성"
-   (engineering-act: 캐스트 구조 스캐폴딩, 의존성 설정)
+2. 아키텍처 설계 → "고객 지원 챗봇 설계"
+   (architecting-act 모드 1: 질문하고, Sequential 패턴 제안, /CLAUDE.md + /casts/chatbot/CLAUDE.md 생성)
 
-3. 구현 → "챗봇 구현"
-   (developing-cast: state, nodes, agents, tools, graph 생성)
+3. 구현 → "CLAUDE.md 기반으로 챗봇 구현"
+   (developing-cast: /casts/chatbot/CLAUDE.md 읽고, state/nodes/graph 구현)
 
-4. 테스팅 → "챗봇에 대한 포괄적인 테스트 작성"
-   (testing-cast: LLM/API 모킹을 포함한 pytest 테스트 생성)
+4. 테스트 → "포괄적인 테스트 작성"
+   (testing-cast: LLM 모킹을 포함한 pytest 생성)
+```
+
+*예시 2: 기존 프로젝트에 추가*
+```plaintext
+1. 새 Cast 설계 → "문서 인덱싱을 위한 knowledge-base 캐스트 추가"
+   (architecting-act 모드 2: /CLAUDE.md 읽고, 새 캐스트 설계, CLAUDE.md 파일 업데이트)
+
+2. Cast 스캐폴딩 → "knowledge-base 캐스트 패키지 생성"
+   (engineering-act: `uv run act cast -c "knowledge-base"` 실행)
+
+3. 구현 → "CLAUDE.md 기반으로 knowledge-base 구현"
+   (developing-cast: /casts/knowledge-base/CLAUDE.md 읽고, 컴포넌트 구현)
+```
+
+*예시 3: 복잡한 Cast 리팩토링*
+```plaintext
+1. 복잡도 분석 → "챗봇 캐스트가 12개의 노드를 가지고 있어 복잡하게 느껴집니다"
+   (architecting-act 모드 3: /casts/chatbot/CLAUDE.md 분석, 재사용 가능한 검증 로직 식별)
+
+2. Sub-Cast 추출 → "입력 검증을 별도 캐스트로 추출"
+   (architecting-act: /casts/input-validator/CLAUDE.md 생성, 부모 참조 업데이트)
+
+3. Sub-Cast 구현 → "input-validator 구현"
+   (developing-cast: 서브 캐스트 구현, engineering-act: 의존성 관리)
 ```
 
 ## 프로젝트 구조
@@ -196,7 +248,7 @@ LangGraph Studio가 `http://localhost:8000`에서 열리며 시각적 그래프 
 - **토큰 효율적**: 불필요한 코드 생성 없이 컨텍스트 인식 가이드 제공
 - **대화형**: 아키텍처 스킬은 "20개 질문" 방식으로 요구사항 파악
 - **포괄적**: 노드, 에이전트, 도구, 미들웨어, 테스팅을 위한 50개 이상의 구현 패턴
-- **공식 문서**: 모든 패턴이 공식 LangChain/LangGraph 문서 참조
+- **공식 문서**: 모든 패턴이 공식 LangChain 1.0+/LangGraph 1.0+ 문서 참조
 
 ### 3. 프로덕션 레디 패턴
 
@@ -210,7 +262,7 @@ LangGraph Studio가 `http://localhost:8000`에서 열리며 시각적 그래프 
 
 ### 4. 초보자 친화적
 
-LangChain/LangGraph 입문자에게 완벽합니다:
+LangChain 1.0+/LangGraph 1.0+ 입문자에게 완벽합니다:
 
 - 단계별 구현 가이드
 - 패턴 결정 매트릭스

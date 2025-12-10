@@ -6,11 +6,11 @@ Use when analyzing existing cast for complexity and suggesting extraction.
 
 ## Step 1: Analyze Current Cast
 
-**Read the Cast section in CLAUDE.md** and analyze:
+**Read the cast-specific CLAUDE.md** (`/casts/{cast_snake_name}/CLAUDE.md`) and analyze:
 - Count nodes (excluding START/END)
 - Identify repeated patterns
 - Check for isolated sections
-- Look for reusable logic across multiple casts
+- Look for reusable logic across multiple casts (check root `/CLAUDE.md` Casts table and other cast files)
 
 **Complexity indicators:**
 - Node count > 7
@@ -108,10 +108,11 @@ Is this correct?"
 
 1. **New Sub-Cast: {name}**
    - Extract {X} nodes from {parent_cast}
-   - Add to Casts table in CLAUDE.md
+   - Add to Casts table in root `/CLAUDE.md`
+   - Create `/casts/{subcast_snake_name}/CLAUDE.md` with extracted specification
 
 2. **Update {parent_cast}**
-   - Replace extracted nodes with sub-cast invocation node
+   - Replace extracted nodes with sub-cast invocation node in `/casts/{parent_cast_snake_name}/CLAUDE.md`
    - Update diagram
 
 This will reduce {parent_cast} complexity and make the logic reusable.

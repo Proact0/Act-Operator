@@ -21,7 +21,7 @@ Use when CLAUDE.md doesn't exist (initial project setup after `act new`).
 ---
 
 ### Q2: Initial Cast Identification
-"I see you created a cast called '{{ cookiecutter.cast_snake }}'. What should this cast accomplish?"
+"I see you created a cast called '{{ cookiecutter.cast_snake_name }}'. What should this cast accomplish?"
 
 **Purpose:** Understand the first cast's role within the Act.
 
