@@ -1,6 +1,6 @@
 # Models
 
-Models can be used standalone or within agents. Define model factory functions in `casts\{{ cast_name }}\modules\models.py`.
+Models can be used standalone or within agents.
 
 ## Contents
 
