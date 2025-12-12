@@ -16,7 +16,7 @@ Act Operator 오픈소스 프로젝트에 관심 가져주셔서 감사합니다
 ### 요구사항
 - **Python 3.11+**
 - **Windows, macOS, Linux** 모두 지원
-- **uv**(권장): 의존성/실행/빌드를 간결하게 관리합니다.
+- **uv**: 의존성/실행/빌드를 간결하게 관리합니다.
 
 설치 안내: `uv` 공식 문서를 참고하세요.
 - 설치 가이드: https://docs.astral.sh/uv/getting-started/installation/

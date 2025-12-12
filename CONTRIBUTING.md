@@ -14,9 +14,9 @@ Thank you for your interest in contributing to Act Operator! We welcome all form
 ## Quick Start
 
 ### Requirements
-- **Python 3.12+**
+- **Python 3.11+**
 - **Windows, macOS, Linux** supported
-- **uv** (recommended): manage dependencies, execution, and builds.
+- **uv**: manage dependencies, execution, and builds.
 
 Installation guide: [uv Installation](https://docs.astral.sh/uv/getting-started/installation/)
 
