@@ -1,221 +1,513 @@
-## Contributing Guide
+# Contributing Guide
 
-- Read this in Korean: [CONTRIBUTING.md](CONTRIBUTING.md)
+- 한국어로 읽기: [CONTRIBUTING_KR.md](CONTRIBUTING_KR.md)
 
-Thank you for your interest in contributing to Act Operator! We welcome all forms of contribution — bug reports, documentation improvements, tests, feature proposals/implementations, and developer experience enhancements. Small, clear changes with kind explanations and sufficient tests make for great collaboration.
+Thank you for your interest in contributing to the Act Operator open-source project! We welcome **all forms of contributions**—bug reports, documentation improvements, tests, feature proposals/implementations, and developer experience enhancements. Small, clear changes with friendly explanations and thorough testing make for great collaboration.
 
-## Types of Contributions
-- **Bug Reports**: Use the issue templates and include reproduction steps, environment, expected vs actual behavior.
-- **Documentation Improvements**: Update Claude Skills/README/guides/examples; fix typos and clarify phrasing.
-- **Tests**: Add unit/integration tests for new or changed functionality.
-- **Feature Proposals/Implementations**: Split into small, reviewable PRs with clear goals.
-- **Developer Experience/Performance**: Improve linting/build/run flows or runtime efficiency when appropriate.
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Before Contributing](#before-contributing)
+- [Contribution Scope](#contribution-scope)
+- [Contribution Guidelines by Type](#contribution-guidelines-by-type)
+  - [Bug Fixes](#bug-fixes)
+  - [Feature Proposals and Implementation](#feature-proposals-and-implementation)
+  - [Documentation Improvements](#documentation-improvements)
+  - [Claude Agent Skill Contributions](#claude-agent-skill-contributions)
+- [Code Quality Standards](#code-quality-standards)
+- [Writing Tests](#writing-tests)
+- [Using LLMs for Contributions](#using-llms-for-contributions)
+- [Backward Compatibility Policy](#backward-compatibility-policy)
+- [PRs and Code Review](#prs-and-code-review)
+- [Versioning and Releases](#versioning-and-releases)
+- [Community](#community)
+
+---
 
 ## Quick Start
 
 ### Requirements
+
 - **Python 3.11+**
-- **Windows, macOS, Linux** supported
-- **uv**: manage dependencies, execution, and builds.
+- **uv**: Dependency management tool
 
 Installation guide: [uv Installation](https://docs.astral.sh/uv/getting-started/installation/)
 
 ```bash
-# Install uv
 pip install uv
 ```
 
-### Clone the repository and set up development
+### Development Environment Setup
+
 ```bash
-# Clone repository
+# Clone the repository
 git clone https://github.com/Proact0/Act-Operator.git
-cd act-operator
+cd Act-Operator/act_operator
 
-# Install runtime + dev dependencies
-uv sync --dev
+# Install dependencies
+uv sync
 
-# Add the package as editable (optional but handy for local development)
-uv add --editable .
-```
+# Run CLI locally
+uv run act new --path ./test-act --act-name "Test" --cast-name "Main"
 
-### Run tests and CLI locally
-```bash
-# Run the full test suite
+# Run tests (when available)
 uv run pytest
-
-# CLI example: create a new Act project
-uv run act new --path ./my-act --act-name "My Act" --cast-name "Main Cast"
-
-# CLI example: add a Cast to an existing project
-uv run act cast --act-path ./my-act --cast-name "Support Cast"
-
-# Build artifacts (pre-release check)
-uv build
 ```
 
-## Workflow & Principles
-- **Small and clear**: keep changes focused and well-defined.
-- **Issue first**: when possible, open an issue to capture background, problem, and goal.
-- **Branch strategy**: use a dedicated branch per feature/fix.
-  - Examples: `feat/add-cast-validation`, `fix/cli-prompt-edge-case`
-- **Commit convention (Conventional Commits recommended)**
-  - Format: `type(scope): subject`
-  - Types: `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`
-  - Examples:
-    ```text
-    feat(cli): add --act-name default from custom path
-    fix(scaffold): normalize cast directory to snake_case
-    docs(readme): clarify Python version requirement to 3.12+
-    ```
+---
 
-## Code Style & Quality
-This project uses **ruff** and **pytest**.
+## Before Contributing
 
-### Lint (ruff)
-Configuration in `pyproject.toml` checks general errors (E/F), imports (I), and Bugbear (B). Line length (E501) is ignored, but keep readability in mind.
+### 💬 Discussion First
 
-```bash
-# Lint checks
-uv run ruff check .
+**For major changes, always discuss before implementing:**
 
-# Optional: apply formatting
-uv run ruff format .
-```
+- **Discord**: https://discord.gg/4GTNbEy5EB
+- **GitHub Issues**: [Create new issue](https://github.com/Proact0/act-operator/issues/new/choose)
 
-Note: the `act_operator/scaffold` path is excluded from linting.
+**When discussion is required:**
+- Adding new CLI commands
+- Changing scaffold template structure
+- Changes affecting backward compatibility
+- Adding new dependencies
+- Architecture changes
 
-### Tests (pytest)
-Tests live under `tests/` as unit/integration tests. Add appropriate tests for new or modified behavior.
+**Can proceed without discussion:**
+- Bug fixes (restoring existing behavior)
+- Documentation typos
+- Adding tests
+- Code formatting improvements
 
-```bash
-uv run pytest -q
-```
+### 📋 Use Issue Templates
 
-## Docs/Examples Updates
-- If a change affects users, update `README.md` or related guides accordingly.
-- Check whether scaffold templates (`act_operator/act_operator/scaffold/`) need updates in `README.md` or `TEMPLATE_README.md`.
+Before contributing, check for related issues or create a new one:
 
-## Contributing to Claude Agent Skills
+- **Bug Reports**: [Bug Report Template](https://github.com/Proact0/act-operator/issues/new?template=bug-report-kr.yml)
+- **Feature Requests**: [Backlog Template](https://github.com/Proact0/act-operator/issues/new?template=backlog-kr.yml)
 
-The Act Operator scaffold includes Skills that help Claude Agent support Cast development. This section guides you on how to improve existing Skills or add new ones.
+---
 
-### Skill Structure
+## Contribution Scope
 
-Each Skill follows this directory structure:
+The Act Operator project consists of several components.
+
+### 1️⃣ Act Operator CLI (This Repository)
+
+**Location**: `act_operator/`
+
+**Includes**:
+- CLI commands (`act new`, `act cast`)
+- cookiecutter scaffold generation logic
+- Build/deployment processes
+
+### 2️⃣ Scaffold Templates
+
+**Location**: `act_operator/scaffold/`
+
+**Includes**:
+- Project structure templates
+- Base classes (`base_node.py`, `base_graph.py`)
+
+### 3️⃣ Claude Agent Skills
+
+**Location**: `act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
+
+**Includes**:
+- `architecting-act`: Architecture design
+- `developing-cast`: Implementation patterns
+- `engineering-act`: Project management
+- `testing-cast`: Testing strategies
+
+### 4️⃣ Documentation (Separate Repository)
+
+**Location**: [Proact0 Docs](https://github.com/Proact0/docs)
+
+**Includes**:
+- User guides
+- Tutorials
+- Pattern library
+- Other useful tips
+
+---
+
+## Contribution Guidelines by Type
+
+### Bug Fixes
+
+**Workflow:**
+
+1. Reproduce the bug and create a minimal reproduction case
+2. Create an issue (reproduction steps, environment info, expected/actual behavior)
+3. Create a branch: `git checkout -b fix/issue-123-descriptive-name`
+4. Implement the fix (minimal changes, address root cause)
+5. Test locally: `uv run ruff check .`, verify with reproduction case
+6. Submit PR (include `Fixes #123`, describe changes and testing method)
+
+### Feature Proposals and Implementation
+
+**⚠️ Discussion required before implementation**
+
+1. Propose in Discord or issue (problem, solution, alternatives, use cases)
+2. Get maintainer approval and agree on implementation approach
+3. Create branch: `git checkout -b feat/descriptive-feature-name`
+4. Implement (type hints, docstrings, documentation updates)
+5. Write tests (verify new functionality, edge cases)
+6. Submit PR
+
+### Documentation Improvements
+
+**Documentation Types:**
+
+| Type | Audience | Content | Location | Notes |
+|------|----------|---------|----------|-------|
+| 📘 User Guide | Act Operator users | Installation, usage, examples | `README.md`, `README_KR.md` | |
+| 📙 Contributing Guide | Contributors | Dev environment, workflow | `CONTRIBUTING.md`, `CONTRIBUTING_KR.md` | Will migrate to Proact0 Docs |
+| 📗 Skill Documentation | Claude Agent | Architecture, implementation guides | `.claude/skills/*/SKILL.md` | |
+| 📕 Detailed Docs | Advanced usage, learners | Tutorials, patterns | [Proact0 Docs](https://docs.proact0.org/) | |
+
+**Writing Guidelines:**
+- ✅ Clear and concise
+- ✅ Include executable examples
+- ✅ Avoid duplication: write once, link elsewhere
+- ✅ Accessibility: consider screen readers, provide alt text
+
+### Claude Agent Skill Contributions
+
+**Skill Structure:**
 
 ```
 .claude/skills/<skill-name>/
-├── SKILL.md          # Skill main document (required)
-├── references/       # Reference documents (optional)
+├── SKILL.md              # Main documentation (required)
+├── resources/            # Reference docs (optional)
 │   └── *.md
-├── scripts/          # Utility scripts (optional)
-│   └── *.py
-└── assets/           # Example files (optional)
-    └── *.txt, *.py, etc.
+└── scripts/              # Utility scripts (optional)
+    └── *.py
 ```
 
-### Improving Existing Skills
+**Contribution Types:**
 
-**SKILL.md Writing Guide:**
-- **Required Frontmatter**: Include `name` and `description` in YAML frontmatter
+1. **Improve Existing Skills**: Fix typos, clarify descriptions, add examples
+2. **Write New Skills**: Design and implement completely new skills
+
+**New Skill Requirements:**
+
+- **Frontmatter (YAML)**:
   ```yaml
   ---
-  name: skill-name
-  description: Clear and concise description - include when to use this skill
+  name: skill-name-with-hyphens
+  description: Use when [when to use] - [what it does]
   ---
   ```
-- **Clear Usage Scenarios**: Specify usage scenarios with "Use this skill when:" section
-- **Structured Content**: Choose appropriate structure from Workflow/Task/Reference patterns
-- **Practical Examples**: Include code samples, checklists, step-by-step guides
-- **Reference Links**: Mention related `references/`, `scripts/`, `assets/` files
+- **Clear Usage Context**: "Use this skill when:" section
+- **Structured Content**: Workflow/Task/Reference patterns
+- **Practical Examples**: Code samples, checklists
+- **Consistent Style**: Follow existing skills
 
-**references/ Documents:**
-- API references, best practices, pattern guides, etc.
-- Write in Markdown format
-- Link appropriately from the Skill's main document
+**Recommended: TDD Approach**
 
-**scripts/ Utilities:**
-- Validation, automation, helper scripts, etc.
-- Python scripts recommended
-- Should be executable independently or usable within Skill context
+Follow `.claude/skills/writing-skills` guide:
+1. Write pressure scenarios
+2. Run without skill (baseline)
+3. Write skill
+4. Re-run with skill
+5. Find and fix vulnerabilities
 
-**assets/ Examples:**
-- Templates, configuration files, example code, etc.
-- Real, usable examples referenced in Skill documentation
+**Skill Contribution Checklist:**
+- [ ] Frontmatter (`name`, `description`) included
+- [ ] "Use this skill when:" section clear
+- [ ] Structured content
+- [ ] Examples and code samples
+- [ ] Consistent with existing skills
+- [ ] (Recommended) Sub-agent testing completed
 
-### Adding a New Skill
+---
 
-1. **Create Skill Directory**
-   ```bash
-   mkdir -p act_operator/act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/<skill-name>/{references,scripts,assets}
-   ```
+## Code Quality Standards
 
-2. **Write SKILL.md**
-   - Reference existing Skills (`cast-development`, `act-setup`, etc.) for structure
-   - Include clear name and description in frontmatter
-   - Include usage scenarios, workflows, examples
+### Type Hints
 
-3. **Add Required Resources**
-   - `references/`: Related documents
-   - `scripts/`: Utility scripts
-   - `assets/`: Example files
+**Required**: Complete type annotations for all functions.
 
-4. **Test and Validate**
-   - Verify the Skill works correctly in actual Claude Agent
-   - Validate that examples in documentation are accurate
+```python
+def build_name_variants(name: str) -> NameVariants:
+    """Build name variants from display name.
 
-### Skill Contribution Checklist
+    Args:
+        name: Display name to convert.
 
-- [ ] SKILL.md includes frontmatter (`name`, `description`)
-- [ ] "Use this skill when:" section clearly describes usage scenarios
-- [ ] Structured content (Workflow/Task/Reference, etc.)
-- [ ] Practical examples and code samples included
-- [ ] Links to related references/scripts/assets files
-- [ ] Consistent style with existing Skills
-- [ ] Verify all links and references in documentation are accurate
+    Returns:
+        NameVariants object with snake_case and slug forms.
+    """
+    # implementation
+```
 
-### Existing Skills List
+### Docstrings
 
-Currently included Skills:
-- **cast-development**: Cast module development (nodes, state, graph implementation)
-- **act-setup**: Act project setup and uv workspace management
-- **graph-composition**: Graph composition and edge connections
-- **modules-integration**: Module integration (agents, tools, prompts, etc.)
-- **node-implementation**: Node implementation patterns and best practices
-- **state-management**: State management and schema definition
-- **testing-debugging**: Test writing and debugging
+**Required**: [Google-style docstrings](https://google.github.io/styleguide/pyguide.html) for all public functions.
+**Basic Principle**: Docstrings explain "what", [Docs](https://docs.proact0.org/) explain "how" and "why".
 
-Please update this list when adding new Skills.
+**Docstrings should include:**
 
-## Issue Templates
-- Use templates under `.github/ISSUE_TEMPLATE`.
-  - **Backlog / Feature Request**: propose new features, define tasks/steps.
-  - **Bug Report**: programmer-origin bugs (e.g., null pointer, bounds errors, resource leaks).
+1. One-line summary of class/function functionality
+2. Link to Docs for tutorials, guides, and use cases (if applicable)
+3. Parameter types and descriptions
+4. Return value description
+5. Possible exceptions
+6. Minimal example showing basic usage
 
-## PR Checklist
-- Description: clearly state problem/motivation/solution/alternatives/risks.
-- Tests: add new tests or ensure existing tests pass.
-- Quality: `uv run ruff check .`, `uv run pytest` must both pass.
-- Docs: update documentation if user-facing behavior changes.
-- Scope: keep PRs small and easy to review.
+```python
+def render_cookiecutter_template(
+    template_path: Path,
+    output_dir: Path,
+    context: dict[str, str],
+) -> Path:
+    """Render a cookiecutter template to output directory.
 
-## CLI Development Tips
-- Entry point: `[project.scripts]` in `pyproject.toml`
-  - `act` → `act_operator.cli:main`
-- Local run: `uv run act ...`
-- Module entry: `uv run -m act_operator` when needed.
+    Args:
+        template_path: Path to cookiecutter template directory.
+        output_dir: Where to render the template.
+        context: Template variables for cookiecutter.
 
-## Versioning & Release Policy
-- Version is managed via `hatch` and defined in `act_operator/__init__.py`.
-- **Contributors do not bump versions directly.** Maintainers handle version increments and publishing (`uv build`).
+    Returns:
+        Path to the rendered project directory.
 
-## Security Vulnerability Reporting
-- Prefer private channels (e.g., GitHub Security Advisories) over public issues.
-- Include reproducibility, impact scope, and any mitigations/workarounds if available.
+    Raises:
+        CookiecutterError: If template rendering fails.
+    """
+    # implementation
+```
 
-## License
-- Project is licensed under **Apache-2.0**. Contributions are provided under the same license.
+### Code Style
 
-## Community & Questions
-- For questions, please use our Discord: https://discord.gg/4GTNbEy5EB
-- We welcome constructive feedback and collaboration.
+Automation: Use [ruff](https://docs.astral.sh/ruff/) for automatic formatting and linting.
+
+Standards:
+- Descriptive variable names
+- Break down complex functions (aim for under 20 lines)
+- Follow existing patterns in the codebase
+
+### Commit Conventions
+
+**Conventional Commits recommended:**
+
+```
+type(scope): subject
+
+feat(cli): add --output option to cast command
+fix(scaffold): correct base_node import path
+docs(readme): update installation instructions
+refactor(utils): simplify name variant conversion
+test(cli): add test for path resolution
+ci(workflow): update ruff configuration
+chore(deps): upgrade dependencies
+```
+
+**Allowed types**: `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`
+
+**Allowed scopes** (see [pr_lint.yml](.github/workflows/pr_lint.yml)):
+- `cli`, `scaffold`, `utils`, `docs`, `tests`
+- `workflow`, `cookiecutter`, `ci`, `deps`
+
+---
+
+## Writing Tests
+
+### Unit Tests
+
+**Location**: `tests/unit/`
+
+**Target**: Individual functions/methods
+
+**Requirements**:
+- Test all code paths including exceptional cases
+- Use mocks for external dependencies
+
+### Integration Tests
+
+Not all code changes require integration tests, but they may be requested separately during code review if needed.
+
+**Location**: `tests/integration/`
+
+**Target**: Complete workflows
+
+**Requirements**:
+- Skip gracefully when credentials unavailable
+
+### Running pytest
+
+```bash
+# All tests
+uv run pytest
+
+# Specific file
+uv run pytest tests/unit/test_cli.py
+
+# Verbose output
+uv run pytest -v
+
+# Coverage (optional)
+uv run pytest --cov=act_operator
+```
+
+---
+
+## Using LLMs for Contributions
+
+Proact0 embraces AI-native development. We welcome using LLM tools like Claude Code, Codex, Cursor, Windsurf, and GitHub Copilot as **collaboration partners**.
+
+### ✅ Recommended Uses
+
+- **Code Review**: Quality checks, refactoring suggestions
+- **Documentation Drafts**: Structure and expression improvements (review before submission)
+- **Test Generation**: Scenario ideas, edge case discovery
+- **Debugging**: Error analysis, solution exploration
+
+### ⚠️ Required Verification
+
+**Don't submit LLM output directly.** Always verify:
+
+1. **Contextual Relevance**
+   - Does it fit Act Operator's structure and patterns?
+   - Does it understand the project's design principles?
+
+2. **Accuracy**
+   - Is it technically correct?
+   - Is it compatible with current dependencies?
+
+3. **Quality**
+   - Does it follow code style and conventions?
+   - Can you fully understand and explain it?
+
+### ❌ Avoid
+
+- **Fully LLM-generated** code, documentation, and PR descriptions
+- Submitting generated content without understanding it
+- Applying generic patterns without project context
+
+**Low-quality PRs/issues may be closed to protect maintainer resources.**
+
+---
+
+## Backward Compatibility Policy
+
+### 🔴 Breaking Changes Prohibited
+
+The following changes are **prohibited without maintainer approval**:
+
+- **CLI API Changes**: Removing options, renaming options, changing behavior
+- **Scaffold Structure Changes**: Directory structure, base class signatures, template file removal
+- **Public API Changes**: Function signatures, return types
+
+### 🟡 Changes Requiring Discussion
+
+The following require **sufficient discussion**:
+
+- Adding new dependencies
+- Changing Python version requirements
+- Adding/modifying scaffold template files
+
+### 🟢 Safe Changes
+
+The following can be freely changed:
+
+- Bug fixes (restoring existing behavior)
+- Documentation improvements
+- Internal refactoring (maintaining public API)
+- Adding new options (maintaining existing behavior)
+- Adding tests
+
+### Considerations for Changes
+
+**When changing scaffold templates:**
+- Will it affect existing users' projects?
+- Is a migration guide needed?
+- Is version-specific template management needed?
+
+**When changing CLI:**
+- Will it affect automation scripts?
+- Is it used in CI/CD pipelines?
+
+---
+
+## PRs and Code Review
+
+### PR Checklist
+
+Before submitting a PR, verify:
+
+**Required:**
+- [ ] **Link issue**: Related issue link (Fixes #123)
+- [ ] **Description**: Describe problem/motivation/solution/alternatives
+- [ ] **Linting**: `uv run ruff check .` passes
+- [ ] **Tests**: `uv run pytest` passes (if tests exist)
+- [ ] **Documentation**: Updated if affecting users
+- [ ] **Backward Compatibility**: No breaking changes
+- [ ] **Commit Messages**: Conventional Commits format
+
+**Code Quality:**
+- [ ] Type hints added
+- [ ] Docstrings written (public API)
+- [ ] Small, clear changes
+
+**Skill PRs:**
+- [ ] Frontmatter included
+- [ ] "Use this skill when:" section
+- [ ] Structured content and examples
+
+### Code Review Process
+
+**Review Timeline:**
+- **Initial Response**: Within 48 hours (business days)
+- **Final Review**: Within 7 days (varies by complexity)
+- **No Response**: Remind via Discord
+
+**Reviewer Expectations:**
+- Provide constructive feedback
+- Review code quality, tests, documentation
+- Check backward compatibility impact
+
+**Contributor Expectations:**
+- Respond promptly to feedback
+- Address requested changes
+- Keep CI/CD passing
+
+---
+
+## Versioning and Releases
+
+### Version Management
+
+- **Version Location**: `act_operator/__init__.py`
+- **Management Tool**: hatch
+- **Policy**: Contributors don't change versions directly. Maintainers manage at release time.
+
+### Automatic Dependency Upgrades
+
+- **Automation**: `uv lock --upgrade` runs weekly on Sundays at midnight ([uv_lock_upgrade.yml](.github/workflows/uv_lock_upgrade.yml))
+- **PR Creation**: Automatically creates PRs when changes detected
+- **Contributor Action**: Review and approve auto-generated dependency PRs
+
+### Security Vulnerability Reports
+
+**Reporting Method:**
+- **Channel**: [GitHub Security Advisories](https://github.com/Proact0/Act-Operator/security/advisories)
+- **Required Information**:
+  - Reproduction steps (detailed step-by-step)
+  - Impact scope (affected versions, features)
+  - Workarounds (if available)
+
+---
+
+## Getting Help
+
+Our goal is to create the most accessible developer environment possible. If you encounter difficulties during setup, reach out directly on [Discord](https://discord.gg/4GTNbEy5EB) or ask for help from community members.
+
+> [!NOTE]
+> You're now ready to contribute your excellent code to Proact0!
+
+---
+
+<div align="center">
+  <p>We welcome constructive feedback and collaboration.</p>
+  <p>Thank you! 🙏</p>
+</div>

@@ -38,7 +38,7 @@ Generate clean, modular graph architectures with cookiecutter templates that inc
 
 ## What is Act?
 
-Act (AX Template) is a standardized project structure for LangGraph 1.0+ applications, designed to solve common challenges in building production-grade AI systems:
+Act is a standardized project structure for LangGraph 1.0+ applications, designed to solve common challenges in building production-grade AI systems:
 
 - **Modular by Design**: Each graph component (state, nodes, agents, tools, middlewares, ...) lives in its own module with clear responsibilities
 - **Scalable Architecture**: Organize multiple graphs (casts) within a monorepo, each as an independent package

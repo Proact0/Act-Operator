@@ -12,7 +12,7 @@ permissions:
   pull-requests: write
 
 env:
-  PYTHON_VERSION: "3.12" # Updated to match project requirements
+  PYTHON_VERSION: "3.11"
   WORKING_DIRECTORY: "act_operator"
 
 jobs:
