@@ -681,6 +681,7 @@ def _generate_cast_project(
     try:
         update_langgraph_registry(
             act_path / LANGGRAPH_FILE,
+            cast_variants.slug,
             cast_variants.snake,
         )
     except RuntimeError as error:
