@@ -55,8 +55,8 @@ force-include = { "act_operator" = "act_operator" }
 include = ["act_operator", "tests", "README.md", "LICENSE", ".gitignore"]
 
 [tool.pytest.ini_options]
-addopts = "-ra"
-testpaths = ["tests"]
+addopts = "-ra --ignore=act_operator/scaffold"
+testpaths = ["act_operator/tests"]
 
 [tool.ruff]
 extend-exclude = [

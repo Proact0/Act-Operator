@@ -668,6 +668,7 @@ def _generate_cast_project(
             "act_slug": act_variants.slug,
             "act_snake": act_variants.snake,
             "cast_name": cast_variants.title,
+            "cast_slug": cast_variants.slug,
             "cast_snake": cast_variants.snake,
             "cast_pascal": cast_variants.pascal,
             "language": _normalize_lang(language),
