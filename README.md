@@ -56,7 +56,8 @@ Requires Python 3.11+. The CLI will prompt you for project details or you can pa
 uvx --from act-operator act new
 
 # Follow interactive prompts:
-# - Path & Act name: my_workflow
+# - Path: default[.] or new path(Name in this case.)
+# - Act name: my_workflow
 # - Cast name: chatbot
 ```
 
