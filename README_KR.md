@@ -34,6 +34,12 @@ uvx --from act-operator act new
 
 아키텍처 설계, 개발, 엔지니어링, 테스팅을 위한 전문화된 Agent 스킬이 포함된 쿠키커터 템플릿으로 깔끔하고 모듈화된 그래프 아키텍처를 생성하여, 최적의 유지보수성과 AI 지원 개발로 복잡한 에이전트 워크플로우, 비즈니스 자동화 또는 데이터 파이프라인을 구축할 수 있습니다.
 
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset=".github/images/flowchart-light-theme-kr.png">
+  <source media="(prefers-color-scheme: dark)" srcset=".github/images/flowchart-dark-theme-kr.png">
+  <img alt="Act Operator Flowchart" src=".github/images/flowchart-light-theme-kr.png" width="100%">
+</picture>
+
 ## Act란 무엇인가요?
 
 Act는 프로덕션 수준의 AI 시스템 구축에서 발생하는 일반적인 문제를 해결하도록 설계된 LangGraph 1.0+ 애플리케이션을 위한 표준화된 프로젝트 구조입니다:
