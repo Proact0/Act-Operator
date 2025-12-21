@@ -55,8 +55,8 @@ uvx --from act-operator act new
 
 # 대화형 프롬프트 따라하기:
 # - 경로 : 기본값 [.], 또는 새로운 프로젝트 경로(이 경우 경로가 이름입니다.) 입력
-# - Act 이름: my_workflow
-# - Cast 이름: chatbot
+# - Act 이름: project_name
+# - Cast 이름: workflow_name
 ```
 
 ### 동기화
