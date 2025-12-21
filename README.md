@@ -57,8 +57,8 @@ uvx --from act-operator act new
 
 # Follow interactive prompts:
 # - Path: default[.] or new path(Name in this case.)
-# - Act name: my_workflow
-# - Cast name: chatbot
+# - Act name: project_name
+# - Cast name: workflow_name
 ```
 
 ### Sync
