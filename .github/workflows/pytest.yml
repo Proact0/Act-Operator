@@ -1,0 +1,25 @@
+name: Pytest
+
+on: [push, pull_request]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: act_operator
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-suffix: "pytest"
+
+      - name: Install dependencies (test)
+        run: uv sync --group test
+
+      - name: Run pytest
+        run: uv run pytest -v act_operator/tests
