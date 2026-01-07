@@ -373,6 +373,7 @@ def _build_graph_reference(cast_snake: str) -> str:
 
 def update_langgraph_registry(
     langgraph_path: Path,
+    cast_slug: str,
     cast_snake: str,
 ) -> None:
     """Update the LangGraph registry in langgraph.json.
@@ -382,7 +383,8 @@ def update_langgraph_registry(
 
     Args:
         langgraph_path: Path to the langgraph.json file.
-        cast_snake: Snake-case name of the cast to register.
+        cast_slug: Hyphenated cast name used as the graph key.
+        cast_snake: Snake-case cast name used in the graph path.
 
     Raises:
         RuntimeError: If langgraph.json is not found.
@@ -398,7 +400,7 @@ def update_langgraph_registry(
     # Update graphs only (dependencies use wildcard patterns)
     graphs = payload.setdefault("graphs", {})
     graph_reference = _build_graph_reference(cast_snake)
-    graphs.setdefault(cast_snake, graph_reference)
+    graphs.setdefault(cast_slug, graph_reference)
 
     # Write updated content
     updated_content = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"

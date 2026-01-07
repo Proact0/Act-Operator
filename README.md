@@ -26,6 +26,8 @@
 
 <br>
 
+※ Read this in Korean: [README_KR.md](README_KR.md)
+
 Act Operator is a production-ready CLI that scaffolds structured LangGraph 1.0+ projects with built-in AI collaboration capabilities. 
 
 ```bash
@@ -34,11 +36,15 @@ uvx --from act-operator act new
 
 Generate clean, modular graph architectures with cookiecutter templates that include specialized Agent skills for architecture design, development, engineering, and testing—enabling you to build complex agentic workflows, business automations, or data pipelines with optimal maintainability and AI-assisted development.
 
-- Read this in Korean: [README_KR.md](README_KR.md)
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset=".github/images/flowchart-light-theme.png">
+  <source media="(prefers-color-scheme: dark)" srcset=".github/images/flowchart-dark-theme.png">
+  <img alt="Act Operator Flowchart" src=".github/images/flowchart-light-theme.png" width="100%">
+</picture>
 
 ## What is Act?
 
-Act (AX Template) is a standardized project structure for LangGraph 1.0+ applications, designed to solve common challenges in building production-grade AI systems:
+Act is a standardized project structure for LangGraph 1.0+ applications, designed to solve common challenges in building production-grade AI systems:
 
 - **Modular by Design**: Each graph component (state, nodes, agents, tools, middlewares, ...) lives in its own module with clear responsibilities
 - **Scalable Architecture**: Organize multiple graphs (casts) within a monorepo, each as an independent package
@@ -56,8 +62,9 @@ Requires Python 3.11+. The CLI will prompt you for project details or you can pa
 uvx --from act-operator act new
 
 # Follow interactive prompts:
-# - Path & Act name: my_workflow
-# - Cast name: chatbot
+# - Path: default[.] or new path(Name in this case.)
+# - Act name: project_name
+# - Cast name: workflow_name
 ```
 
 ### Sync

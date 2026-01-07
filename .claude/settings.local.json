@@ -7,7 +7,8 @@
       "Bash(uv run python:*)",
       "Skill(writing-skills)",
       "Bash(wc:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebFetch(domain:docs.langchain.com)"
     ],
     "deny": [],
     "ask": []

@@ -34,9 +34,15 @@ uvx --from act-operator act new
 
 아키텍처 설계, 개발, 엔지니어링, 테스팅을 위한 전문화된 Agent 스킬이 포함된 쿠키커터 템플릿으로 깔끔하고 모듈화된 그래프 아키텍처를 생성하여, 최적의 유지보수성과 AI 지원 개발로 복잡한 에이전트 워크플로우, 비즈니스 자동화 또는 데이터 파이프라인을 구축할 수 있습니다.
 
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset=".github/images/flowchart-light-theme-kr.png">
+  <source media="(prefers-color-scheme: dark)" srcset=".github/images/flowchart-dark-theme-kr.png">
+  <img alt="Act Operator Flowchart" src=".github/images/flowchart-light-theme-kr.png" width="100%">
+</picture>
+
 ## Act란 무엇인가요?
 
-Act (AX Template)는 프로덕션 수준의 AI 시스템 구축에서 발생하는 일반적인 문제를 해결하도록 설계된 LangGraph 1.0+ 애플리케이션을 위한 표준화된 프로젝트 구조입니다:
+Act는 프로덕션 수준의 AI 시스템 구축에서 발생하는 일반적인 문제를 해결하도록 설계된 LangGraph 1.0+ 애플리케이션을 위한 표준화된 프로젝트 구조입니다:
 
 - **모듈식 설계**: 각 그래프 컴포넌트(상태, 노드, 에이전트, 도구, 미들웨어 등)는 명확한 책임을 가진 자체 모듈에 존재합니다
 - **확장 가능한 아키텍처**: 모노레포 내에서 여러 그래프(캐스트)를 구성하며, 각각 독립적인 패키지로 관리됩니다
@@ -54,8 +60,9 @@ Python 3.11+ 필요. CLI가 프로젝트 세부 정보를 입력받거나 옵션
 uvx --from act-operator act new
 
 # 대화형 프롬프트 따라하기:
-# - 경로 & Act 이름: my_workflow
-# - Cast 이름: chatbot
+# - 경로 : 기본값 [.], 또는 새로운 프로젝트 경로(이 경우 경로가 이름입니다.) 입력
+# - Act 이름: project_name
+# - Cast 이름: workflow_name
 ```
 
 ### 동기화
