@@ -1,6 +1,8 @@
 # Pattern Decision Matrix
 
-Guide for Step 2: Pattern Selection based on requirements.
+Guide for Step 1b: Basic Pattern Selection for non-agentic workflows.
+
+> **Note:** If the workflow requires AI agent capabilities (tool access, autonomous decision-making, iterative reasoning, human oversight), use [agentic-design-patterns.md](agentic-design-patterns.md) instead.
 
 ## Decision Matrix
 
@@ -9,7 +11,6 @@ Guide for Step 2: Pattern Selection based on requirements.
 | Linear transformation, no branching, fixed steps | **Sequential** | Simple, predictable flow |
 | Multiple handlers based on input type/classification | **Branching** | Route to specialized processors |
 | Refinement until quality threshold met | **Cyclic** | Iterate and improve |
-| Multiple specialized roles working together | **Multi-agent** | Divide responsibilities |
 
 ## Detailed Pattern Characteristics
 
@@ -64,28 +65,10 @@ Guide for Step 2: Pattern Selection based on requirements.
 
 ---
 
-### Multi-agent
-**Structure:** START → Coordinator → [Agent1, Agent2, Agent3] → Synthesize → END
-
-**Use when:**
-- Multiple specialized roles needed
-- Parallel expert processing required
-- Complex orchestration necessary
-
-**Example:** Research task → [Researcher, Analyzer, Writer] → Final report
-
-**Design notes:**
-- Start with 2-3 agents
-- Define clear handoff criteria
-- Coordinator should ONLY route
-
----
-
 ## Hybrid Patterns
 
 **Can combine patterns:**
 - Branching + Sequential: Route, then process linearly
-- Multi-agent + Cyclic: Agents iterate until consensus
 - Sequential + Branching: Linear flow with conditional exits
 
 **Recommend starting simple** - add complexity only if needed.
