@@ -13,6 +13,7 @@ This module defines the {{ cookiecutter.cast_name }} LangGraph graph responsible
 │   ├── models.py      # Models (optional)
 │   ├── nodes.py       # Graph nodes (required)
 │   ├── prompts.py     # Prompts (optional)
+│   ├── middlewares.py # Middleware configurations (optional)
 │   ├── state.py       # State definition (required)
 │   ├── tools.py       # Tools (optional)
 │   └── utils.py       # Utilities (optional)
@@ -33,9 +34,10 @@ result = {{ cookiecutter.cast_snake }}_graph().invoke(initial_state)
 ```
 
 ## Extending
-1. Add new node classes in `modules/nodes.py`
-2. Define agents/conditions/tools/prompts/models if needed
-3. Wire nodes into the graph in `graph.py`
+1. Add new state in `modules/state.py`
+2. Add new node classes in `modules/nodes.py`
+3. Define agents/conditions/middlewares/tools/prompts/models/utils if needed
+4. Wire nodes into the graph in `graph.py`
 
 {% else %}
 # {{ cookiecutter.cast_name }} 모듈 ({{ cookiecutter.cast_name }} Module)
@@ -52,6 +54,7 @@ result = {{ cookiecutter.cast_snake }}_graph().invoke(initial_state)
 │   ├── models.py      # LLM/모델 설정 (선택)
 │   ├── nodes.py       # Graph 노드 클래스들 정의 (필수)
 │   ├── prompts.py     # 프롬프트 템플릿 (선택)
+│   ├── middlewares.py # Middleware 구성 (선택)
 │   ├── state.py       # 상태 정의 (필수)
 │   ├── tools.py       # 도구 함수 (선택)
 │   └── utils.py       # 유틸리티 함수 (선택)
@@ -72,7 +75,8 @@ result = {{ cookiecutter.cast_snake }}_graph().invoke(initial_state)
 ```
 
 ## 확장 방법
-1. `modules/nodes.py`에 새 노드 클래스를 추가
-2. 필요시 agents/conditions/tools/prompts/models 정의
-3. `graph.py`에서 Graph에 연결
+1. `modules/state.py`에 상태값을 추가
+2. `modules/nodes.py`에 새 노드 클래스를 추가
+3. 필요시 agents/conditions/middlewares/tools/prompts/models/utils 등 정의
+4. `graph.py`에서 Graph에 연결
 {% endif %}

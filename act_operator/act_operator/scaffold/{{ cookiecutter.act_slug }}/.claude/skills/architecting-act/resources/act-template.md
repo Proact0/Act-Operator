@@ -16,18 +16,28 @@ Template for creating the root CLAUDE.md with Act overview and Casts summary.
 |-----------|---------|----------|
 | {{ cookiecutter.cast_name }} | {Brief purpose} | [casts/{{ cookiecutter.cast_slug }}/CLAUDE.md](casts/{{ cookiecutter.cast_slug }}/CLAUDE.md) |
 
-## Next Steps
+## Project Structure
 
-### Initial Setup
-1. Review this architecture
-2. Create cast package: `uv run act cast -c "{{ cookiecutter.cast_name }}"`
-3. Implement cast following [casts/{{ cookiecutter.cast_slug }}/CLAUDE.md](casts/{{ cookiecutter.cast_slug }}/CLAUDE.md)
+```
+{{ cookiecutter.act_slug }}/
+├── CLAUDE.md                    # Act-level architecture doc (THIS FILE)
+├── pyproject.toml               # Project dependencies
+├── langgraph.json               # LangGraph configuration
+├── .env.example                 # Environment variables template
+├── casts/                       # All Cast implementations
+│   ├── __init__.py
+│   ├── base_graph.py            # Base graph utilities
+│   ├── base_node.py             # Base node utilities
+│   └── {cast_slug}/             # Individual Cast package
+│       ├── CLAUDE.md            # Cast-level architecture doc
+│       ├── graph.py             # Graph definition
+│       ├── pyproject.toml       # Cast-specific dependencies
+│       └── modules/             # Implementation modules
+└── tests/                       # Test suites
+    ├── cast_tests/              # Integration tests
+    └── node_tests/              # Unit tests
+```
 
-### Development Workflow
-1. **Design**: Use `architecting-act` skill - Create/update architecture
-2. **Scaffold**: Use `engineering-act` skill - Create cast package and manage dependencies
-3. **Implement**: Use `developing-cast` skill - Implement nodes, state, and graph
-4. **Test**: Use `testing-cast` skill - Write and run tests
 ```
 
 ## Usage Notes
@@ -51,18 +61,9 @@ Each row should have:
 - **Purpose**: One sentence describing what this cast does
 - **Location**: Link to cast's CLAUDE.md file in `casts/` directory
 
-### Next Steps Section
-
-Keep this section updated with:
-- Current implementation status
-- Next cast to implement
-- Outstanding architecture decisions
-- Dependencies between casts
-
 ## Checklist
 
 - [ ] Act Overview is clear and concise (1-2 sentences)
 - [ ] Domain is specified
 - [ ] All Casts are listed in Casts table
 - [ ] Each Cast has a working link to its CLAUDE.md
-- [ ] Next Steps are actionable

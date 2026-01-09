@@ -10,7 +10,7 @@ python .claude/skills/architecting-act/scripts/validate_architecture.py
 ```
 
 **Script checks:**
-- Root CLAUDE.md exists and has Act Overview, Casts table, Next Steps
+- Root CLAUDE.md exists and has Act Overview, Casts table
 - All casts in table have corresponding `/casts/{cast_slug}/CLAUDE.md` files
 - Each Cast CLAUDE.md has all required sections
 - Mermaid diagrams have START/END nodes
@@ -27,7 +27,6 @@ python .claude/skills/architecting-act/scripts/validate_architecture.py
 | Act Overview complete? | Missing purpose/domain | Add Act context |
 | Casts table lists all casts? | Missing entries | Update table |
 | Cast table has Location links? | Missing links | Add links to cast CLAUDE.md |
-| Next Steps present? | Missing | Add next steps |
 
 ### Per Cast (`/casts/{cast_slug}/CLAUDE.md`)
 | Check | Issue Found? | Go Back To |

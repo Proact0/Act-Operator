@@ -106,6 +106,27 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 
 ### 1. Pattern Selection
 
+#### 1a. Determine if AI Agent is Needed
+
+**First, assess if the workflow requires AI agent capabilities:**
+
+| Indicator | → Consider Agentic Pattern |
+|-----------|---------------------------|
+| Autonomous decision-making | Yes |
+| Tool/API access required | Yes |
+| Iterative reasoning needed | Yes |
+| Self-correction capability | Yes |
+| Human oversight checkpoints | Yes |
+| Multiple specialized AI roles | Yes |
+
+**If ANY indicator applies** → Use [agentic-design-patterns.md](resources/agentic-design-patterns.md) to select Agentic Pattern.
+
+**If ALL are NO** (simple data transformation, deterministic rules) → Proceed to Step 1b.
+
+Ask: "Does your workflow need AI agent capabilities?" Wait for confirmation.
+
+#### 1b. Basic Pattern Selection (for non-agentic workflows)
+
 **YOU suggest pattern** using [pattern-decision-matrix.md](resources/pattern-decision-matrix.md):
 
 | Requirements | Pattern |
@@ -113,7 +134,6 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 | Linear transformation | Sequential |
 | Multiple handlers | Branching |
 | Refinement loop | Cyclic |
-| Specialized roles | Multi-agent |
 
 Ask: "Does this pattern fit?" Wait for confirmation.
 
@@ -128,9 +148,6 @@ Ask: "Any fields to modify?" Wait for response.
 ### 3. Node Specification
 
 **Ask pattern-specific question** using [node-specification.md](resources/design/node-specification.md):
-- Sequential/Branching: "Main processing steps?" (3-7 nodes)
-- Cyclic: "What gets refined? Exit condition?"
-- Multi-agent: "What specialized roles?"
 
 **YOU design nodes** (single responsibility, CamelCase naming).
 
@@ -144,11 +161,12 @@ Ensure: All nodes connected, all paths reach END, conditionals labeled.
 
 > `langgraph`, `langchain` included. Identify **additional** dependencies only.
 
-**Ask ONE at a time:**
-1. LLM provider? → Wait
-2. Vector store? → Wait
-3. Search tool? → Wait
-4. Document types? → Wait
+**Based on Architecture Diagram, ask ONLY if relevant:**
+- If diagram shows LLM nodes → "Which LLM provider?" → Wait
+- If diagram shows retrieval/search → "Vector store or search tool needed?" → Wait
+- If diagram shows document processing → "Document types to handle?" → Wait
+
+**Skip questions** for dependencies not implied by the architecture.
 
 **YOU determine** packages + environment variables.
 
