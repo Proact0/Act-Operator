@@ -13,7 +13,7 @@
 uv run act cast -c "My Cast Name"
 ```
 
-Interactive mode:
+Interactive mode(just guide user this command):
 ```bash
 uv run act cast
 ```
