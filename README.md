@@ -80,13 +80,17 @@ This command installs all dependencies defined in `pyproject.toml` and prepares 
 
 ### Start Building with AI
 
-If you're using Claude Code, you can leverage built-in agent skills to accelerate development:
+Act includes built-in **Agent Skills**—folders of instructions that allow AI agents to **discover, activate, and execute** specialized capabilities for this project.
+
+If you're using **Claude Code**, these skills are pre-configured in `.claude/skills`.
 
 ```bash
 claude
 ```
 
-Reference the skills directory in your prompts: `.claude/skills`
+Simply mention the skill name in your prompt (e.g., "Use @architecting-act to design...").
+
+> **Note for other tools**: The `.claude` directory naming is specific to Claude Code. If you use other AI tools that support Agent Skills (like Cursor, Gemini CLI, etc.), please rename this directory or configure it according to that tool's requirements.
 
 **Available Skills**:
 - `architecting-act`: Design graph architectures through interactive questioning

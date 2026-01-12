@@ -78,13 +78,17 @@ uv sync
 
 ### AI와 함께 빌드 시작하기
 
-Claude Code를 사용하는 경우, 내장된 에이전트 스킬을 활용하여 개발을 가속화할 수 있습니다:
+Act에는 **Agent Skills**가 내장되어 있습니다. 이는 AI 에이전트가 프로젝트를 위한 전문 기능을 **발견(Discover), 활성화(Activate), 실행(Execute)** 할 수 있도록 하는 지침 폴더입니다.
+
+**Claude Code**를 사용하는 경우, `.claude/skills`에 사전 구성되어 있습니다.
 
 ```bash
 claude
 ```
 
-프롬프트에서 스킬 디렉토리를 참조하세요: `.claude/skills`
+프롬프트에서 스킬 이름을 언급하기만 하면 됩니다 (예: "@architecting-act를 사용하여 설계해줘...").
+
+> **다른 도구 사용 시 참고**: `.claude` 디렉터리 명명은 Claude Code 전용입니다. Agent Skills를 지원하는 다른 AI 도구(Cursor, Gemini CLI 등)를 사용하는 경우, 해당 도구의 요구사항에 맞춰 디렉터리 이름을 변경하거나 설정하세요.
 
 **사용 가능한 스킬**:
 - `architecting-act`: 대화형 질문을 통한 그래프 아키텍처 설계
