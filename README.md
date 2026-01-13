@@ -26,7 +26,7 @@
 
 <br>
 
-※ Read this in Korean: [README_KR.md](README_KR.md)
+※ 한국어로 읽으시는 경우: [README_KR.md](README_KR.md)
 
 Act Operator is a production-ready CLI that scaffolds structured LangGraph 1.0+ projects with built-in AI collaboration capabilities. 
 
@@ -34,7 +34,7 @@ Act Operator is a production-ready CLI that scaffolds structured LangGraph 1.0+ 
 uvx --from act-operator act new
 ```
 
-Generate clean, modular graph architectures with cookiecutter templates that include specialized Agent skills for architecture design, development, engineering, and testing—enabling you to build complex agentic workflows, business automations, or data pipelines with optimal maintainability and AI-assisted development.
+Generate clean, modular graph architectures with templates that include specialized Agent skills for architecture design, development, engineering, and testing—enabling you to build complex agentic workflows, business automations, or data pipelines with optimal maintainability and AI-assisted development.
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset=".github/images/flowchart-light-theme.png">
@@ -297,24 +297,6 @@ act cast [OPTIONS]
   --cast-name TEXT      Cast name
   --path PATH           Act project directory
 ```
-
-## Example Use Cases
-
-### Agentic AI System
-
-Build multi-agent systems with specialized roles (researcher, writer, reviewer) using the multi-agent pattern.
-
-### Business Workflow Automation
-
-Orchestrate complex business processes with conditional branching, human approval steps, and external API integrations.
-
-### Data Processing Pipeline
-
-Create sequential or parallel data transformation graphs with error handling and retry logic.
-
-### Conversational AI
-
-Develop context-aware chatbots with memory management, tool calling, and guardrails.
 
 ## Contributing
 
