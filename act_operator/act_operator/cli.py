@@ -18,6 +18,7 @@ from .utils import (
     build_name_variants,
     render_cookiecutter_cast_subproject,
     render_cookiecutter_template,
+    select_drawkit_by_language,
     update_langgraph_registry,
 )
 
@@ -506,6 +507,15 @@ def _generate_project(
 
     # Normalize cast directory naming
     _normalize_cast_directory(target_dir, cast)
+
+    # Select appropriate drawkit file based on language
+    try:
+        select_drawkit_by_language(target_dir, lang)
+    except FileNotFoundError as error:
+        console.print(f"[yellow]Warning: {error}[/yellow]")
+    except OSError as error:
+        console.print(f"[red]Failed to process drawkit file: {error}[/red]")
+        raise typer.Exit(code=EXIT_CODE_ERROR) from error
 
     # Display summary
     _display_project_summary(act.title, cast.title, lang, target_dir)
