@@ -217,8 +217,8 @@ The `drawkit.xml` file included in the root directory contains pre-defined shape
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/images/drawkit-dark-theme.png">
-    <img alt="Drawkit Preview" src=".github/images/drawkit-light-theme.png" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset=".github/images/drawkit-dark-en-theme.png">
+    <img alt="Drawkit Preview" src=".github/images/drawkit-light-en-theme.png" width="800">
   </picture>
 </p>
 
@@ -234,8 +234,8 @@ The `drawkit.xml` file included in the root directory contains pre-defined shape
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/images/sample-flowchart-dark-theme.png">
-    <img alt="Sample Flowchart" src=".github/images/sample-flowchart-light-theme.png" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset=".github/images/sample-flowchart-en-dark-theme.png">
+    <img alt="Sample Flowchart" src=".github/images/sample-flowchart-en-light-theme.png" width="1000">
   </picture>
 </p>
 
@@ -541,8 +541,8 @@ Agent Skills는 AI 에이전트가 기능을 **발견(Discover)** 하고, 관련
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/images/drawkit-dark-theme.png">
-    <img alt="Drawkit 미리보기" src=".github/images/drawkit-light-theme.png" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset=".github/images/drawkit-kr-dark-theme.png">
+    <img alt="Drawkit 미리보기" src=".github/images/drawkit-kr-light-theme.png" width="800">
   </picture>
 </p>
 
@@ -558,8 +558,8 @@ Agent Skills는 AI 에이전트가 기능을 **발견(Discover)** 하고, 관련
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/images/sample-flowchart-dark-theme.png">
-    <img alt="예시 플로우차트" src=".github/images/sample-flowchart-light-theme.png" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset=".github/images/sample-flowchart-kr-dark-theme.png">
+    <img alt="예시 플로우차트" src=".github/images/sample-flowchart-kr-light-theme.png" width="1000">
   </picture>
 </p>
 
