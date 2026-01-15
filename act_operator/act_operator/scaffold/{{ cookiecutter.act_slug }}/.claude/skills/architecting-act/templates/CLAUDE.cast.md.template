@@ -1,0 +1,102 @@
+# Cast: {{CAST_NAME}}
+
+**Parent Act:** [../../CLAUDE.md](../../CLAUDE.md)
+
+<!-- AUTO-MANAGED: cast-overview -->
+## Overview
+
+**Purpose:** {{PURPOSE}}
+**Pattern:** {{PATTERN}}
+**Latency:** {{LATENCY}}
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: architecture-diagram -->
+## Architecture Diagram
+
+```mermaid
+graph TD
+{{MERMAID_DIAGRAM}}
+```
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: state-schema -->
+## State Schema
+
+### InputState
+
+| Field | Type | Description |
+|-------|------|-------------|
+{{INPUT_STATE_FIELDS}}
+
+### OutputState
+
+| Field | Type | Description |
+|-------|------|-------------|
+{{OUTPUT_STATE_FIELDS}}
+
+### OverallState
+
+| Field | Type | Category | Description |
+|-------|------|----------|-------------|
+{{OVERALL_STATE_FIELDS}}
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: node-specifications -->
+## Node Specifications
+
+{{NODE_SPECIFICATIONS}}
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: technology-stack -->
+## Technology Stack
+
+> Note: `langgraph`, `langchain` are already in template. List only **additional** dependencies for this Cast.
+
+### Additional Dependencies
+
+| Package | Purpose |
+|---------|---------|
+{{DEPENDENCIES}}
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+{{ENV_VARIABLES}}
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: cast-structure -->
+## Cast Structure
+
+```
+casts/{{CAST_SLUG}}/
+├── CLAUDE.md                # Cast-level architecture doc (THIS FILE)
+├── graph.py                 # Graph definition (StateGraph, nodes, edges)
+├── pyproject.toml           # Cast-specific dependencies
+├── README.md                # Cast documentation
+└── modules/                 # Implementation modules
+    ├── __init__.py          # Module exports
+    ├── state.py             # State definitions (InputState, OutputState, OverallState)
+    ├── nodes.py             # Node implementations
+    ├── conditions.py        # Conditional edge functions
+    ├── agents.py            # Agent configurations (if using Agentic patterns)
+    ├── tools.py             # Tool definitions for agents
+    ├── prompts.py           # Prompt templates
+    ├── models.py            # Pydantic models / Structured outputs
+    ├── middlewares.py       # Middleware configurations
+    └── utils.py             # Utility functions
+```
+
+<!-- END AUTO-MANAGED -->
+
+<!-- MANUAL -->
+## Notes
+
+Add cast-specific notes here. This section is never auto-modified.
+
+<!-- END MANUAL -->

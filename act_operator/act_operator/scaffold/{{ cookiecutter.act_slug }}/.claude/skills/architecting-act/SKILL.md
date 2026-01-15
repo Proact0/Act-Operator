@@ -1,6 +1,32 @@
 ---
 name: architecting-act
 description: Use when starting new Act project (CLAUDE.md doesn't exist), adding cast to existing Act (CLAUDE.md exists), or facing complex cast needing sub-cast extraction (>10 nodes) - guides through interactive questioning (one question at a time) from requirements to validated architecture with mermaid diagrams, emphasizing design before implementation, no code generation
+version: 1.0.0
+context: fork
+activation:
+  keywords:
+    - design new act
+    - create act architecture
+    - add cast to act
+    - extract sub-cast
+    - cast too complex
+    - architecture diagram
+    - state schema design
+    - node specification
+    - mermaid diagram for cast
+    - langgraph architecture
+    - design cast workflow
+    - act project structure
+    - CLAUDE.md not exist
+    - planning cast design
+  patterns:
+    - (?i)(design|create|plan)\s+(new\s+)?act\s+(architecture|project)
+    - (?i)(add|create|design)\s+(new\s+)?cast\s+(to|for)
+    - (?i)(extract|split|decompose)\s+sub-?cast
+    - (?i)cast\s+(is\s+)?(too\s+)?(complex|large|>?10\s*nodes)
+    - (?i)(architecture|design)\s+(diagram|specification)
+    - (?i)(state|node)\s+schema\s+(design|definition)
+    - (?i)CLAUDE\.md\s+(doesn'?t|does\s+not)\s+exist
 ---
 
 # Architecting {{ cookiecutter.act_name }} Act
@@ -50,7 +76,7 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 1. **{{ cookiecutter.act_name }} Act Questions** → [modes/initial-design-questions.md](resources/modes/initial-design-questions.md)
    - Act Purpose, Cast Identification, Cast Goal, Input/Output, Constraints
 2. **{{ cookiecutter.cast_name }} Cast Design** → Follow "Cast Design Workflow" below
-3. **Generate CLAUDE.md files** → Use [act-template.md](resources/act-template.md) and [cast-template.md](resources/cast-template.md)
+3. **Generate CLAUDE.md files** → See "Generating CLAUDE.md Files" section below
    - Create `/CLAUDE.md` (Act info + Casts table)
    - Create `/casts/{{ cookiecutter.cast_slug }}/CLAUDE.md` (Cast details)
    - Note: Initial cast directory already exists from `act new` command
@@ -72,7 +98,7 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 4. **Create Cast Package** (if not exists) → Run command
    - Run: `uv run act cast -c "{New Cast Name}"`
    - This creates `/casts/{new_cast_slug}/` directory structure
-5. **Update CLAUDE.md files** → Use [act-template.md](resources/act-template.md) and [cast-template.md](resources/cast-template.md)
+5. **Update CLAUDE.md files** → See "Generating CLAUDE.md Files" section below
    - Update `/CLAUDE.md` Casts table (add new row)
    - Create `/casts/{new_cast_slug}/CLAUDE.md` (new Cast details)
 6. **Validate** → Run validation script
@@ -92,7 +118,7 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 4. **Create Sub-Cast Package** → Run command
    - Run: `uv run act cast -c "{Sub-Cast Name}"`
    - This creates `/casts/{subcast_slug}/` directory structure
-5. **Update CLAUDE.md files** → Use [act-template.md](resources/act-template.md) and [cast-template.md](resources/cast-template.md)
+5. **Update CLAUDE.md files** → See "Generating CLAUDE.md Files" section below
    - Update `/CLAUDE.md` Casts table (add sub-cast row)
    - Create `/casts/{subcast_slug}/CLAUDE.md` (sub-cast details)
    - Update `/casts/{parent_cast}/CLAUDE.md` (reference sub-cast)
@@ -176,6 +202,116 @@ Ensure: All nodes connected, all paths reach END, conditionals labeled.
 python .claude/skills/architecting-act/scripts/validate_architecture.py
 ```
 
-See [validation-checklist.md](resources/validation-checklist.md).
+The validation script checks ALL requirements automatically:
+- Root CLAUDE.md exists with Act Overview, Purpose, Domain, Casts table
+- All casts in table have corresponding CLAUDE.md files
+- Each Cast CLAUDE.md has all required sections
+- Mermaid diagrams have START/END nodes, no orphan nodes
+- Node specifications match diagram nodes
+- State schemas are complete (OverallState includes Input/Output fields)
+- Cross-references between files work
+- No placeholder text
 
-Fix issues if found, then present summary.
+Fix any errors shown in output, then proceed.
+
+---
+
+## Generating CLAUDE.md Files
+
+Generate files using the EXACT template structure. Follow these steps precisely:
+
+1. **Copy template skeleton** - Use template files as the base structure
+2. **Use exact marker format** - See Marker Syntax section below
+3. **Replace placeholders** - Substitute `{{PLACEHOLDER}}` with actual content
+4. **Include all required sections** - Even if content is minimal
+5. **Add MANUAL section** at the end for user notes
+
+### Marker Syntax
+
+**CRITICAL**: Use the EXACT marker format below. Do NOT use variations.
+
+```markdown
+<!-- AUTO-MANAGED: section-name -->
+## Section Heading
+
+Content goes here
+
+<!-- END AUTO-MANAGED -->
+```
+
+For user-editable content:
+
+```markdown
+<!-- MANUAL -->
+## Notes
+
+Add project-specific notes here. This section is never auto-modified.
+
+<!-- END MANUAL -->
+```
+
+**Common mistakes to avoid**:
+- `<!-- BEGIN AUTO-MANAGED: name -->` - WRONG (no BEGIN prefix)
+- `<!-- END AUTO-MANAGED: name -->` - WRONG (no name in closing tag)
+- `<!-- AUTO-MANAGED section-name -->` - WRONG (missing colon)
+
+### Section Definitions
+
+#### Act-Level CLAUDE.md Sections
+
+Generate these sections in order:
+
+| Section Name | Heading | Required | Placeholder | Content |
+|--------------|---------|----------|-------------|---------|
+| `act-overview` | ## Act Overview | Yes | `{{PURPOSE}}`, `{{DOMAIN}}` | Purpose and domain |
+| `casts-table` | ## Casts | Yes | `{{CASTS_TABLE}}` | Table of all casts with links |
+| `project-structure` | ## Project Structure | Yes | `{{ACT_SLUG}}` | Directory tree |
+
+#### Cast-Level CLAUDE.md Sections
+
+Generate these sections in order:
+
+| Section Name | Heading | Required | Placeholder | Content |
+|--------------|---------|----------|-------------|---------|
+| `cast-overview` | ## Overview | Yes | `{{PURPOSE}}`, `{{PATTERN}}`, `{{LATENCY}}` | Purpose, pattern, latency |
+| `architecture-diagram` | ## Architecture Diagram | Yes | `{{MERMAID_DIAGRAM}}` | Mermaid graph definition |
+| `state-schema` | ## State Schema | Yes | `{{*_STATE_FIELDS}}` | InputState, OutputState, OverallState tables |
+| `node-specifications` | ## Node Specifications | Yes | `{{NODE_SPECIFICATIONS}}` | Node details with Responsibility, Reads, Writes |
+| `technology-stack` | ## Technology Stack | Yes | `{{DEPENDENCIES}}`, `{{ENV_VARIABLES}}` | Dependencies and env vars |
+| `cast-structure` | ## Cast Structure | No | `{{CAST_SLUG}}` | Directory tree |
+
+### Templates
+
+Reference the template files for exact structure:
+
+#### Act Template
+@templates/CLAUDE.act.md.template
+
+#### Cast Template
+@templates/CLAUDE.cast.md.template
+
+---
+
+## Design Resources
+
+Reference guides for detailed design information:
+
+| Resource | Purpose |
+|----------|---------|
+| [agentic-design-patterns.md](resources/agentic-design-patterns.md) | AI agent pattern selection |
+| [pattern-decision-matrix.md](resources/pattern-decision-matrix.md) | Basic pattern selection |
+| [cast-analysis-guide.md](resources/cast-analysis-guide.md) | Complexity analysis |
+| [design/state-schema.md](resources/design/state-schema.md) | State schema design |
+| [design/node-specification.md](resources/design/node-specification.md) | Node specification |
+| [design/edge-routing.md](resources/design/edge-routing.md) | Mermaid diagram creation |
+
+---
+
+## Output
+
+After generating files, verify:
+- Files created/modified at correct locations
+- All AUTO-MANAGED sections populated
+- Validation script passes
+
+**Next:** `engineering-act` (scaffold casts) → `developing-cast` (implement) → `testing-cast` (test)

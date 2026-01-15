@@ -1,0 +1,50 @@
+# {{ACT_NAME}}
+
+<!-- AUTO-MANAGED: act-overview -->
+## Act Overview
+
+**Purpose:** {{PURPOSE}}
+**Domain:** {{DOMAIN}}
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: casts-table -->
+## Casts
+
+| Cast Name | Purpose | Location |
+|-----------|---------|----------|
+{{CASTS_TABLE}}
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: project-structure -->
+## Project Structure
+
+```
+{{ACT_SLUG}}/
+├── CLAUDE.md                    # Act-level architecture doc (THIS FILE)
+├── pyproject.toml               # Project dependencies
+├── langgraph.json               # LangGraph configuration
+├── .env.example                 # Environment variables template
+├── casts/                       # All Cast implementations
+│   ├── __init__.py
+│   ├── base_graph.py            # Base graph utilities
+│   ├── base_node.py             # Base node utilities
+│   └── {cast_slug}/             # Individual Cast package
+│       ├── CLAUDE.md            # Cast-level architecture doc
+│       ├── graph.py             # Graph definition
+│       ├── pyproject.toml       # Cast-specific dependencies
+│       └── modules/             # Implementation modules
+└── tests/                       # Test suites
+    ├── cast_tests/              # Integration tests
+    └── node_tests/              # Unit tests
+```
+
+<!-- END AUTO-MANAGED -->
+
+<!-- MANUAL -->
+## Notes
+
+Add project-specific notes here. This section is never auto-modified.
+
+<!-- END MANUAL -->
