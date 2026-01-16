@@ -8,7 +8,8 @@
       "Skill(writing-skills)",
       "Bash(wc:*)",
       "Bash(ls:*)",
-      "WebFetch(domain:docs.langchain.com)"
+      "WebFetch(domain:docs.langchain.com)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

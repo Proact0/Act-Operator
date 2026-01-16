@@ -7,13 +7,10 @@ Template for creating Cast-specific CLAUDE.md with detailed specifications.
 ```markdown
 # Cast: {{ cookiecutter.cast_name }}
 
-> **Parent Act:** [{{ cookiecutter.act_name }}](../../CLAUDE.md)
-
 ## Overview
 **Purpose:** {One sentence describing what this cast does}
-**Pattern:** {Sequential | Branching | Cyclic | Multi-agent}
+**Pattern:** {Sequential | Branching | Cyclic | Agentic: [pattern-name]}
 **Latency:** {Low | Medium | High}
-**Dependencies:** {List of other casts this depends on, or "None"}
 
 ## Architecture Diagram
 
@@ -66,29 +63,27 @@ graph TD
 |----------|----------|-------------|
 | VAR_NAME | Yes/No | description |
 
-## Implementation Notes
+## Cast Structure
 
-### Module Structure
 ```
 casts/{{ cookiecutter.cast_slug }}/
-  ├── graph.py           # Main graph assembly
-  ├── modules/
-  │   ├── state.py       # State definitions
-  │   ├── nodes.py       # Node implementations
-  │   ├── conditions.py  # Conditional routing (if needed)
-  │   ├── agents.py      # Agent configurations (if needed)
-  │   ├── tools.py       # Custom tools (if needed)
-  │   └── middlewares.py # Middleware setup (if needed)
-  └── tests/
-      └── test_*.py      # Test files
+├── CLAUDE.md                # Cast-level architecture doc (THIS FILE)
+├── graph.py                 # Graph definition (StateGraph, nodes, edges)
+├── pyproject.toml           # Cast-specific dependencies
+├── README.md                # Cast documentation
+└── modules/                 # Implementation modules
+    ├── __init__.py          # Module exports
+    ├── state.py             # State definitions (InputState, OutputState, OverallState)
+    ├── nodes.py             # Node implementations
+    ├── conditions.py        # Conditional edge functions
+    ├── agents.py            # Agent configurations (if using Agentic patterns)
+    ├── tools.py             # Tool definitions for agents
+    ├── prompts.py           # Prompt templates
+    ├── models.py            # Pydantic models / Structured outputs
+    ├── middlewares.py       # Middleware configurations
+    └── utils.py             # Utility functions
 ```
 
-### Next Steps
-1. Create cast package: `uv run act cast -c "{{ cookiecutter.cast_name }}"`
-2. Implement components in order: state → dependency modules → nodes → conditions → graph
-3. Add dependencies: `uv add --package {{ cookiecutter.cast_slug }} package-name`
-4. Write tests: Use `testing-cast` skill
-5. Run LangGraph dev server: `uv run langgraph dev`
 ```
 
 ## Usage Notes
@@ -128,10 +123,9 @@ casts/{{ cookiecutter.cast_slug }}/
 - State tracks iteration count and quality metrics
 - Condition node checks if refinement needed
 
-#### Multi-agent Pattern
-- Specialized agents for different roles
-- Supervisor coordinates agent interactions
-- State includes agent outputs and coordination info
+#### Agentic Patterns
+- When AI agent capabilities are needed (tool access, autonomous decision-making, etc.)
+- Specify which agentic pattern in Overview (e.g., "Agentic: Coordinator + Human-in-the-Loop")
 
 ## Cross-References
 

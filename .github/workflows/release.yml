@@ -1,4 +1,4 @@
-name: release
+name: Release
 run-name: Release act_operator by @${{ github.actor }}
 on:
   workflow_dispatch:
