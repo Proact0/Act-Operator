@@ -26,13 +26,15 @@
 
 <br>
 
+※ Read this in English: [README.md](README.md)
+
 Act Operator는 AI 협업 기능이 내장된 구조화된 LangGraph 1.0+ 프로젝트(Act)를 스캐폴딩하는 프로덕션 레디 CLI입니다.
 
 ```bash
 uvx --from act-operator act new
 ```
 
-아키텍처 설계, 개발, 엔지니어링, 테스팅을 위한 전문화된 Agent 스킬이 포함된 쿠키커터 템플릿으로 깔끔하고 모듈화된 그래프 아키텍처를 생성하여, 최적의 유지보수성과 AI 지원 개발로 복잡한 에이전트 워크플로우, 비즈니스 자동화 또는 데이터 파이프라인을 구축할 수 있습니다.
+아키텍처 설계, 개발, 엔지니어링, 테스팅을 위한 전문화된 Agent 스킬이 포함된 템플릿으로 깔끔하고 모듈화된 그래프 아키텍처를 생성하여, 최적의 유지보수성과 AI 지원 개발로 복잡한 에이전트 워크플로우, 비즈니스 자동화 또는 데이터 파이프라인을 구축할 수 있습니다.
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset=".github/images/flowchart-light-theme-kr.png">
@@ -78,13 +80,17 @@ uv sync
 
 ### AI와 함께 빌드 시작하기
 
-Claude Code를 사용하는 경우, 내장된 에이전트 스킬을 활용하여 개발을 가속화할 수 있습니다:
+Act에는 **Agent Skills**가 내장되어 있습니다. 이는 AI 에이전트가 프로젝트를 위한 전문 기능을 **발견(Discover), 활성화(Activate), 실행(Execute)** 할 수 있도록 하는 지침 폴더입니다.
+
+**Claude Code**를 사용하는 경우, `.claude/skills`에 사전 구성되어 있습니다.
 
 ```bash
 claude
 ```
 
-프롬프트에서 스킬 디렉토리를 참조하세요: `.claude/skills`
+프롬프트에서 스킬 이름을 언급하기만 하면 됩니다 (예: "@architecting-act를 사용하여 설계해줘...").
+
+> **다른 도구 사용 시 참고**: `.claude` 디렉터리 명명은 Claude Code 전용입니다. Agent Skills를 지원하는 다른 AI 도구(Cursor, Gemini CLI 등)를 사용하는 경우, 해당 도구의 요구사항에 맞춰 디렉터리 이름을 변경하거나 설정하세요.
 
 **사용 가능한 스킬**:
 - `architecting-act`: 대화형 질문을 통한 그래프 아키텍처 설계
@@ -292,29 +298,11 @@ act cast [OPTIONS]
   --path PATH           Act 프로젝트 디렉토리
 ```
 
-## 사용 사례 예시
-
-### 에이전트 AI 시스템
-
-멀티 에이전트 패턴을 사용하여 전문화된 역할(연구원, 작가, 검토자)을 가진 다중 에이전트 시스템 구축.
-
-### 비즈니스 워크플로우 자동화
-
-조건부 분기, 인간 승인 단계, 외부 API 통합을 포함한 복잡한 비즈니스 프로세스 오케스트레이션.
-
-### 데이터 처리 파이프라인
-
-오류 처리 및 재시도 로직을 포함한 순차 또는 병렬 데이터 변환 그래프 생성.
-
-### 대화형 AI
-
-메모리 관리, 도구 호출, 가드레일을 갖춘 컨텍스트 인식 챗봇 개발.
-
 ## 기여하기
 
 커뮤니티의 기여를 환영합니다! 기여 가이드를 읽어주세요:
 
-- [CONTRIBUTING.md](CONTRIBUTING.md) (영어)
+- [CONTRIBUTING_KR.md](CONTRIBUTING_KR.md) (한국어)
 
 ### 기여자
 

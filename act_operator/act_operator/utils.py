@@ -371,6 +371,40 @@ def _build_graph_reference(cast_snake: str) -> str:
     return f"{CAST_PATH_PREFIX}{cast_snake}/graph.py:{cast_snake}_graph"
 
 
+def select_drawkit_by_language(target_dir: Path, language: str) -> None:
+    """Select the appropriate drawkit file based on language and rename to drawkit.xml.
+
+    This function selects drawkit_{language}.xml and renames it to drawkit.xml,
+    then removes the other language variant.
+
+    Args:
+        target_dir: Root directory of the rendered Act project.
+        language: Language code ("en" or "kr").
+
+    Raises:
+        FileNotFoundError: If the source drawkit file doesn't exist.
+        OSError: If file operations fail.
+    """
+    source_file = target_dir / f"drawkit_{language}.xml"
+    target_file = target_dir / "drawkit.xml"
+
+    # Determine the other language file to remove
+    other_lang = "kr" if language == "en" else "en"
+    other_file = target_dir / f"drawkit_{other_lang}.xml"
+
+    if not source_file.exists():
+        raise FileNotFoundError(f"Drawkit file not found: {source_file}")
+
+    # Rename the selected language file to drawkit.xml
+    if target_file.exists():
+        target_file.unlink()
+    source_file.rename(target_file)
+
+    # Remove the other language file if it exists
+    if other_file.exists():
+        other_file.unlink()
+
+
 def update_langgraph_registry(
     langgraph_path: Path,
     cast_slug: str,
