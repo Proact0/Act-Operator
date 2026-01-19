@@ -33,29 +33,6 @@ activation:
 
 Design and manage Act (project) and Cast (graph) architectures through interactive questioning. Outputs `CLAUDE.md` at project root containing Act overview and all Cast specifications.
 
-## When to Use
-
-- Planning initial Act architecture (after `act new`)
-- Adding new Cast to existing Act
-- Analyzing Cast complexity for Sub-Cast extraction
-- Unclear about architecture design
-
-## When NOT to Use
-
-- Implementing code → use `developing-cast`
-- Creating cast files → use `engineering-act`
-- Writing tests → use `testing-cast`
-
----
-
-## Core Principles
-
-**INTERACTIVE**: Ask ONE question at a time. Wait for response before proceeding.
-
-**NO CODE**: Describe structures only. No TypedDict, functions, or implementation code.
-
-**DIAGRAMS SHOW EDGES**: Mermaid diagram contains all nodes and edges. No separate tables.
-
 ---
 
 ## Mode Detection
@@ -292,26 +269,9 @@ Reference the template files for exact structure:
 
 ---
 
-## Design Resources
-
-Reference guides for detailed design information:
-
-| Resource | Purpose |
-|----------|---------|
-| [agentic-design-patterns.md](resources/agentic-design-patterns.md) | AI agent pattern selection |
-| [pattern-decision-matrix.md](resources/pattern-decision-matrix.md) | Basic pattern selection |
-| [cast-analysis-guide.md](resources/cast-analysis-guide.md) | Complexity analysis |
-| [design/state-schema.md](resources/design/state-schema.md) | State schema design |
-| [design/node-specification.md](resources/design/node-specification.md) | Node specification |
-| [design/edge-routing.md](resources/design/edge-routing.md) | Mermaid diagram creation |
-
----
-
 ## Output
 
 After generating files, verify:
 - Files created/modified at correct locations
 - All AUTO-MANAGED sections populated
 - Validation script passes
-
-**Next:** `engineering-act` (scaffold casts) → `developing-cast` (implement) → `testing-cast` (test)
