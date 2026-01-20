@@ -1,5 +1,5 @@
 ---
-name: developing-cast
+name: cast-developer
 description: Use when implementing LangGraph components (state, nodes, edges, graph) with or without CLAUDE.md specs, stuck on workflow order (what order to implement), or need patterns for agents/models/tools/memory/middlewares/prompts (conversation memory, retry/fallback, guardrails, vector stores, tool management, etc.) - provides systematic workflow (state → deps → nodes → conditions → graph)
 ---
 # Developing {{ cookiecutter.act_name }}'s Cast
@@ -14,9 +14,9 @@ Implement LangGraph casts following {{ cookiecutter.act_name }} Act patterns.
 
 ## When NOT to Use
 
-- Architecture design → `architecting-act`
-- Project setup → `engineering-act`
-- Testing → `testing-cast`
+- Architecture design → `act-architect`
+- Project setup → `act-engineer`
+- Testing → `cast-tester`
 
 ---
 
@@ -70,7 +70,7 @@ ANTHROPIC_API_KEY=your_key
 
 ### Option Step 4: Install dpendency packages (if needed)
 
-Use `engineering-act`
+Use `act-engineer`
 
 ---
 
@@ -189,5 +189,5 @@ Use `engineering-act`
 
 ## Next Steps
 
-1. **Test:** `testing-cast` skill
+1. **Test:** `cast-tester` skill
 2. **Debug:** `uv run langgraph dev`

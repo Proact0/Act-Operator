@@ -113,9 +113,9 @@ class ValidationReport:
         if self.passed:
             print("\n[SUCCESS] Validation PASSED - Ready for implementation")
             print("\nNext steps:")
-            print("  1. engineering-act (scaffold casts)")
-            print("  2. developing-cast (implement)")
-            print("  3. testing-cast (test)")
+            print("  1. act-engineer (scaffold casts)")
+            print("  2. cast-developer (implement)")
+            print("  3. cast-tester (test)")
         else:
             print("\n[FAILED] Validation FAILED - Please fix errors before proceeding")
 

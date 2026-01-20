@@ -1,5 +1,5 @@
 ---
-name: engineering-act
+name: act-engineer
 description: Use when creating new cast package, installing/managing dependencies (monorepo or cast-level), resolving dependency conflicts or packages out of sync, or launching langgraph dev server - checks CLAUDE.md first for context, then handles all uv-based project setup and package management (dev/test/lint groups)
 ---
 
@@ -9,9 +9,9 @@ Manage {{ cookiecutter.act_name }} Act project setup, dependencies, and cast sca
 
 ## When NOT to Use
 
-- Implementing casts/nodes → `developing-cast`
-- Designing architectures → `architecting-act`
-- Writing tests → `testing-cast`
+- Implementing casts/nodes → `cast-developer`
+- Designing architectures → `act-architect`
+- Writing tests → `cast-tester`
 
 ## Workflow
 

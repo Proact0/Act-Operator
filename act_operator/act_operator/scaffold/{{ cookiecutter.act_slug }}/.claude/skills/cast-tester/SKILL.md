@@ -1,5 +1,5 @@
 ---
-name: testing-cast
+name: cast-tester
 description: Use when writing pytest for cast nodes or casts(graphs), need mocking strategies for LLM/API/Store calls, setting up test fixtures, or organizing sync/async test suites - provides comprehensive patterns for effective cast verification
 ---
 
@@ -9,9 +9,9 @@ Write effective pytest tests for {{ cookiecutter.act_name }} Act's casts.
 
 ## When NOT to Use
 
-- Writing implementation → `developing-cast`
-- Designing architectures → `architecting-act`
-- Project setup → `engineering-act`
+- Writing implementation → `cast-developer`
+- Designing architectures → `act-architect`
+- Project setup → `act-engineer`
 
 ## Quick Reference
 

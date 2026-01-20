@@ -1,7 +1,6 @@
 ---
-name: architecting-act
+name: act-architect
 description: Use when starting new Act project (CLAUDE.md doesn't exist), adding cast to existing Act (CLAUDE.md exists), or facing complex cast needing sub-cast extraction (>10 nodes) - guides through interactive questioning (one question at a time) from requirements to validated architecture with mermaid diagrams, emphasizing design before implementation, no code generation
-version: 1.0.0
 context: fork
 activation:
   keywords:
@@ -176,7 +175,7 @@ Ensure: All nodes connected, all paths reach END, conditionals labeled.
 ### 6. Validate
 
 ```bash
-python .claude/skills/architecting-act/scripts/validate_architecture.py
+python .claude/skills/act-architect/scripts/validate_architecture.py
 ```
 
 The validation script checks ALL requirements automatically:

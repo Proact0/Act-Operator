@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for architecting-act skill structure and completeness.
+"""Tests for act-architect skill structure and completeness.
 
 Usage:
     python tests/test_skill_structure.py
@@ -287,7 +287,7 @@ def test_description_sync():
 def main():
     """Run all skill structure tests."""
     print("=" * 70)
-    print("SKILL STRUCTURE TESTS - architecting-act")
+    print("SKILL STRUCTURE TESTS - act-architect")
     print("=" * 70)
 
     tests = [

@@ -113,10 +113,10 @@ The Act Operator project consists of several components.
 **Location**: `act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
 
 **Includes**:
-- `architecting-act`: Architecture design
-- `developing-cast`: Implementation patterns
-- `engineering-act`: Project management
-- `testing-cast`: Testing strategies
+- `act-architect`: Architecture design
+- `cast-developer`: Implementation patterns
+- `act-engineer`: Project management
+- `cast-tester`: Testing strategies
 
 ### 4️⃣ Documentation (Separate Repository)
 

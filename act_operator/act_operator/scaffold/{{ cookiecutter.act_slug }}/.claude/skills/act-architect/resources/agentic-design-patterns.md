@@ -29,8 +29,10 @@ Guide for Step 1a: Determine if AI Agent is needed, and select appropriate Agent
 
 **Structure:** One AI model + tools + system prompt
 
-```
-START → Agent(tools=[tool1, tool2, ...]) → END
+```mermaid
+graph LR
+    START([START]) --> Agent["Agent(tools=[tool1, tool2, ...])"]
+    Agent --> END([END])
 ```
 
 **Use when:**
@@ -53,8 +55,9 @@ START → Agent(tools=[tool1, tool2, ...]) → END
 
 **Structure:** Agent1 → Agent2 → Agent3 → END
 
-```
-START → DataCollector → Analyzer → ReportWriter → END
+```mermaid
+graph LR
+    START([START]) --> DataCollector --> Analyzer --> ReportWriter --> END([END])
 ```
 
 **Use when:**
@@ -73,8 +76,11 @@ START → DataCollector → Analyzer → ReportWriter → END
 
 **Structure:** [Agent1, Agent2, Agent3] execute simultaneously → Synthesize
 
-```
-START → [SentimentAgent, KeywordAgent, CategoryAgent] → Synthesizer → END
+```mermaid
+graph LR
+    START([START]) --> SentimentAgent & KeywordAgent & CategoryAgent
+    SentimentAgent & KeywordAgent & CategoryAgent --> Synthesizer
+    Synthesizer --> END([END])
 ```
 
 **Use when:**
@@ -93,9 +99,11 @@ START → [SentimentAgent, KeywordAgent, CategoryAgent] → Synthesizer → END
 
 **Structure:** Process → Evaluate → (Refine ↺ | Complete)
 
-```
-START → Generator → Evaluator →[needs_refinement]→ Generator
-                            └─[complete]→ END
+```mermaid
+graph LR
+    START([START]) --> Generator --> Evaluator
+    Evaluator -->|needs_refinement| Generator
+    Evaluator -->|complete| END([END])
 ```
 
 **Use when:**
@@ -119,9 +127,11 @@ START → Generator → Evaluator →[needs_refinement]→ Generator
 
 **Structure:** Generator → Critic → (Revise ↺ | Approve)
 
-```
-START → Generator → Critic →[rejected]→ Generator
-                        └─[approved]→ END
+```mermaid
+graph LR
+    START([START]) --> Generator --> Critic
+    Critic -->|rejected| Generator
+    Critic -->|approved| END([END])
 ```
 
 **Use when:**
@@ -169,11 +179,13 @@ while (quality < threshold AND iterations < MAX):
 
 **Structure:** Central AI analyzes → dispatches to specialists
 
-```
-START → Coordinator →[order_query]→ OrderAgent → Coordinator
-                  └─[returns]→ ReturnsAgent → Coordinator
-                  └─[faq]→ FAQAgent → Coordinator
-                                                → END
+```mermaid
+graph LR
+    START([START]) --> Coordinator
+    Coordinator -->|order_query| OrderAgent --> Coordinator
+    Coordinator -->|returns| ReturnsAgent --> Coordinator
+    Coordinator -->|faq| FAQAgent --> Coordinator
+    Coordinator --> END([END])
 ```
 
 **Use when:**
@@ -193,11 +205,15 @@ START → Coordinator →[order_query]→ OrderAgent → Coordinator
 
 **Structure:** Root agent decomposes → delegates to sub-agents
 
-```
-START → RootAgent → [SubAgent1 → SubSubAgent1a, SubSubAgent1b]
-                 → [SubAgent2]
-                 → [SubAgent3]
-                 → Synthesizer → END
+```mermaid
+graph TB
+    START([START]) --> RootAgent
+    RootAgent --> SubAgent1 & SubAgent2 & SubAgent3
+    SubAgent1 --> SubSubAgent1a & SubSubAgent1b
+    SubSubAgent1a & SubSubAgent1b --> Synthesizer
+    SubAgent2 --> Synthesizer
+    SubAgent3 --> Synthesizer
+    Synthesizer --> END([END])
 ```
 
 **Use when:**
@@ -219,13 +235,13 @@ START → RootAgent → [SubAgent1 → SubSubAgent1a, SubSubAgent1b]
 
 **Structure:** All-to-all collaboration, iterative debate
 
-```
-┌─────────────────────────────────────┐
-│  Agent1 ←──→ Agent2 ←──→ Agent3    │
-│     ↑          ↑          ↑        │
-│     └──────────┴──────────┘        │
-│         (collaborative debate)      │
-└─────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Swarm["Collaborative Debate"]
+        Agent1 <--> Agent2
+        Agent2 <--> Agent3
+        Agent3 <--> Agent1
+    end
 ```
 
 **Use when:**
@@ -275,10 +291,12 @@ while not done:
 
 **Structure:** Agent workflow with predefined human checkpoints
 
-```
-START → AutoProcess → [HUMAN_CHECKPOINT] → ContinueProcess → END
-                              ↓
-                    Human reviews/approves/rejects
+```mermaid
+graph LR
+    START([START]) --> AutoProcess --> CHECKPOINT{HUMAN_CHECKPOINT}
+    CHECKPOINT -->|approved| ContinueProcess --> END([END])
+    CHECKPOINT -->|rejected| AutoProcess
+    CHECKPOINT -.- Human["Human reviews/approves/rejects"]
 ```
 
 **Use when:**
@@ -417,34 +435,24 @@ Does this pattern fit your needs, or would you prefer a different approach?"
 
 ## Quick Reference: Pattern Selection Flowchart
 
-```
-                    Is AI Agent needed?
-                          │
-          ┌───────────────┴───────────────┐
-          ▼                               ▼
-         YES                              NO
-          │                               │
-          ▼                               ▼
-    How many agents?               Use basic patterns
-          │                       (Sequential/Branching/
-    ┌─────┼─────┐                  Cyclic/Multi-agent)
-    ▼     ▼     ▼
-   ONE  2-3   4+
-    │     │     │
-    ▼     ▼     ▼
- Single  Which collaboration?    Complex orchestration?
- Agent        │                        │
-         ┌────┴────┐              ┌────┴────┐
-         ▼         ▼              ▼         ▼
-     Sequential  Parallel    Hierarchical  Swarm
+```mermaid
+flowchart TD
+    Q1{Is AI Agent needed?}
+    Q1 -->|YES| Q2{How many agents?}
+    Q1 -->|NO| Basic["Use basic patterns<br/>(Sequential/Branching/<br/>Cyclic/Multi-agent)"]
 
-         Need human oversight?
-              │
-         ┌────┴────┐
-         ▼         ▼
-        YES        NO
-         │         │
-         ▼         ▼
-    Human-in-    Continue
-    the-Loop     with pattern
+    Q2 -->|ONE| SingleAgent[Single Agent]
+    Q2 -->|2-3| Q3{Which collaboration?}
+    Q2 -->|4+| Q4{Complex orchestration?}
+
+    Q3 --> Sequential
+    Q3 --> Parallel
+
+    Q4 --> Hierarchical
+    Q4 --> Swarm
+
+    Q5{Need human oversight?}
+    Q5 -->|YES| HITL[Human-in-the-Loop]
+    Q5 -->|NO| Continue[Continue with pattern]
 ```
+

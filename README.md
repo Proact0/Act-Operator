@@ -88,15 +88,15 @@ If you're using **Claude Code**, these skills are pre-configured in `.claude/ski
 claude
 ```
 
-Simply mention the skill name in your prompt (e.g., "Use @architecting-act to design...").
+Simply mention the skill name in your prompt (e.g., "Use @act-architect to design...").
 
 > **Note for other tools**: The `.claude` directory naming is specific to Claude Code. If you use other AI tools that support Agent Skills (like Cursor, Gemini CLI, etc.), please rename this directory or configure it according to that tool's requirements.
 
 **Available Skills**:
-- `architecting-act`: Design graph architectures through interactive questioning
-- `developing-cast`: Implement nodes, agents, tools with best practice patterns
-- `engineering-act`: Manage casts & their dependencies, create new casts
-- `testing-cast`: Write effective pytest tests with mocking strategies
+- `act-architect`: Design graph architectures through interactive questioning
+- `cast-developer`: Implement nodes, agents, tools with best practice patterns
+- `act-engineer`: Manage casts & their dependencies, create new casts
+- `cast-tester`: Write effective pytest tests with mocking strategies
 
 ### Working with Skills
 
@@ -107,31 +107,31 @@ Simply mention the skill name in your prompt (e.g., "Use @architecting-act to de
 Skills can be used individually or as a workflow:
 
 **Individual Use**:
-- **Initial Project Architecture** → Use `architecting-act` (Mode 1: Initial Design)
+- **Initial Project Architecture** → Use `act-architect` (Mode 1: Initial Design)
   - After `act new`, design your first Act and Cast through interactive questions
   - Generates root and cast-specific CLAUDE.md files with architecture diagrams
 
-- **Adding New Cast** → Use `architecting-act` (Mode 2: Add Cast) + `engineering-act`
+- **Adding New Cast** → Use `act-architect` (Mode 2: Add Cast) + `act-engineer`
   - Reads existing CLAUDE.md files for context
   - Designs new cast and updates CLAUDE.md files
   - Creates cast package structure
 
-- **Complex Cast Extraction** → Use `architecting-act` (Mode 3: Extract Sub-Cast)
+- **Complex Cast Extraction** → Use `act-architect` (Mode 3: Extract Sub-Cast)
   - Analyzes cast with >10 nodes for complexity
   - Extracts reusable logic into sub-cast
   - Updates CLAUDE.md with sub-cast relationships
 
-- **Implementation** → Use `developing-cast`
+- **Implementation** → Use `cast-developer`
   - Reads cast's CLAUDE.md for specifications
   - Implements in order: state → deps → nodes → conditions → graph
   - Access 50+ patterns (agents, tools, memory, middlewares)
 
-- **Dependency Management** → Use `engineering-act`
+- **Dependency Management** → Use `act-engineer`
   - Checks CLAUDE.md Technology Stack section
   - Manages monorepo and cast-level dependencies
   - Syncs environment and launches dev server
 
-- **Testing** → Use `testing-cast`
+- **Testing** → Use `cast-tester`
   - Writes pytest tests with mocking strategies
   - Covers node-level and graph-level tests
 
@@ -142,37 +142,37 @@ Skills can be used individually or as a workflow:
 1. Create Project → Run: uvx --from act-operator act new
 
 2. Design Architecture → "Design a customer support chatbot"
-   (architecting-act Mode 1: asks questions, suggests Sequential pattern, generates /CLAUDE.md + /casts/chatbot/CLAUDE.md)
+   (act-architect Mode 1: asks questions, suggests Sequential pattern, generates /CLAUDE.md + /casts/chatbot/CLAUDE.md)
 
 3. Implement → "Implement the chatbot based on CLAUDE.md"
-   (developing-cast: reads /casts/chatbot/CLAUDE.md, implements state/nodes/graph)
+   (cast-developer: reads /casts/chatbot/CLAUDE.md, implements state/nodes/graph)
 
 4. Test → "Write comprehensive tests"
-   (testing-cast: generates pytest with LLM mocking)
+   (cast-tester: generates pytest with LLM mocking)
 ```
 
 *Example 2: Adding to Existing Project*
 ```plaintext
 1. Design New Cast → "Add a knowledge-base cast for document indexing"
-   (architecting-act Mode 2: reads /CLAUDE.md, designs new cast, updates CLAUDE.md files)
+   (act-architect Mode 2: reads /CLAUDE.md, designs new cast, updates CLAUDE.md files)
 
 2. Scaffold Cast → "Create the knowledge-base cast package"
-   (engineering-act: runs `uv run act cast -c "knowledge-base"`)
+   (act-engineer: runs `uv run act cast -c "knowledge-base"`)
 
 3. Implement → "Implement knowledge-base based on its CLAUDE.md"
-   (developing-cast: reads /casts/knowledge-base/CLAUDE.md, implements components)
+   (cast-developer: reads /casts/knowledge-base/CLAUDE.md, implements components)
 ```
 
 *Example 3: Refactoring Complex Cast*
 ```plaintext
 1. Analyze Complexity → "The chatbot cast has 12 nodes and feels complex"
-   (architecting-act Mode 3: analyzes /casts/chatbot/CLAUDE.md, identifies reusable validation logic)
+   (act-architect Mode 3: analyzes /casts/chatbot/CLAUDE.md, identifies reusable validation logic)
 
 2. Extract Sub-Cast → "Extract input validation into a separate cast"
-   (architecting-act: creates /casts/input-validator/CLAUDE.md, updates parent references)
+   (act-architect: creates /casts/input-validator/CLAUDE.md, updates parent references)
 
 3. Implement Sub-Cast → "Implement input-validator"
-   (developing-cast: implements sub-cast, engineering-act: manages dependencies)
+   (cast-developer: implements sub-cast, act-engineer: manages dependencies)
 ```
 
 ## Project Structure
@@ -181,10 +181,10 @@ Skills can be used individually or as a workflow:
 my_workflow/
 ├── .claude/
 │   └── skills/                    # AI collaboration guides
-│       ├── architecting-act/      # Architecture design
-│       ├── developing-cast/       # Implementation patterns
-│       ├── engineering-act/       # Project management
-│       └── testing-cast/          # Testing strategies
+│       ├── act-architect/      # Architecture design
+│       ├── cast-developer/       # Implementation patterns
+│       ├── act-engineer/       # Project management
+│       └── cast-tester/          # Testing strategies
 ├── casts/
 │   ├── base_node.py              # Base node class
 │   ├── base_graph.py             # Base graph utilities

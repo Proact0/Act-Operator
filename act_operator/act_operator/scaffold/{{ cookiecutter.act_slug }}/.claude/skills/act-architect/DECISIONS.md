@@ -1,6 +1,6 @@
 # Architecture Decisions
 
-This document records the key architectural and design decisions made for the `architecting-act` skill.
+This document records the key architectural and design decisions made for the `act-architect` skill.
 
 ## Decision 1: Interactive Questioning Approach
 
@@ -31,7 +31,7 @@ This document records the key architectural and design decisions made for the `a
 **Justification:**
 - Separation of concerns: design vs implementation
 - Architecture documents should be technology-agnostic where possible
-- Allows other skills (developing-cast, engineering-act) to handle implementation
+- Allows other skills (cast-developer, act-engineer) to handle implementation
 - Prevents premature implementation decisions
 
 **Alternatives Considered:**
@@ -226,7 +226,7 @@ This document records the key architectural and design decisions made for the `a
 
 ## Future Considerations
 
-1. **Integration with developing-cast**: Seamless handoff from architecture to implementation
+1. **Integration with cast-developer**: Seamless handoff from architecture to implementation
 2. **Complexity metrics**: Quantitative analysis for sub-cast extraction decisions
 3. **Pattern recommendations**: ML-based pattern suggestions from requirements
 4. **Visual comparison**: Side-by-side architecture comparisons

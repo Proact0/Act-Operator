@@ -1,0 +1,127 @@
+{
+  "name": "act-architect",
+  "owner": {
+    "name": "proact0",
+    "email": "proactzero@gmail.com"
+  },
+  "metadata": {
+    "description": "Architecture design skill for Act/Cast LangGraph projects. Guides through interactive questioning from requirements to validated architecture with mermaid diagrams.",
+    "version": "1.0.2",
+    "created": "2025-01-14",
+    "updated": "2025-01-19",
+    "category": "architecture",
+    "tags": [
+      "langgraph",
+      "architecture",
+      "design",
+      "mermaid",
+      "state-schema",
+      "workflow",
+      "agentic",
+      "pattern",
+      "act",
+      "cast"
+    ]
+  },
+  "activation": {
+    "_comment": "3-Layer Activation System v3.1 - 98%+ reliability target",
+    "keywords": [
+      "design new act",
+      "create act architecture",
+      "plan act project",
+      "architect act project",
+      "setup act architecture",
+      "initialize act design",
+      "add cast to act",
+      "create new cast",
+      "design cast workflow",
+      "architect cast",
+      "plan cast design",
+      "add cast architecture",
+      "extract sub-cast",
+      "split cast",
+      "decompose cast",
+      "cast too complex",
+      "cast has too many nodes",
+      "refactor complex cast",
+      "state schema design",
+      "node specification",
+      "architecture diagram",
+      "mermaid diagram for cast",
+      "langgraph architecture",
+      "CLAUDE.md not exist",
+      "CLAUDE.md missing",
+      "no architecture doc",
+      "need architecture design",
+      "planning cast design",
+      "select workflow pattern",
+      "choose cast pattern",
+      "agentic pattern design",
+      "sequential pattern",
+      "branching pattern",
+      "cyclic pattern"
+    ],
+    "patterns": [
+      "(?i)(design|create|plan|architect|setup|build|develop|start)\\s+(a\\s+)?(new\\s+)?(act|project)\\s+(architecture|structure|design|layout|schema)",
+      "(?i)(add|create|design|architect|build|develop|implement)\\s+(a\\s+)?(new\\s+)?cast\\s+(to|for|in|into)\\s+(act|project|this)",
+      "(?i)(extract|split|decompose|break\\s+down|refactor|divide)\\s+(a\\s+)?(sub-?cast|sub-?graph|sub-?workflow|component)\\s*(from|out\\s+of)?",
+      "(?i)(cast|graph|workflow)\\s+(is\\s+)?(too\\s+)?(complex|large|big|complicated|unwieldy|>?\\s*10\\s*nodes?)",
+      "(?i)(create|design|draw|generate|make|build)\\s+(an?\\s+)?(architecture|workflow|flow|mermaid)\\s+(diagram|chart|visualization|graph)",
+      "(?i)(design|create|define|plan|build)\\s+(the\\s+)?(state|input|output|overall)\\s*(state\\s+)?(schema|definition|structure|model)",
+      "(?i)(define|specify|design|plan|create)\\s+(the\\s+)?(node|nodes)\\s+(specification|spec|definition|design|structure)",
+      "(?i)CLAUDE\\.md\\s+(doesn'?t|does\\s+not|is\\s+not|isn'?t)\\s+(exist|present|there|found|created)",
+      "(?i)(how\\s+(do|can|should)\\s+I|what\\s+is\\s+the\\s+best\\s+way\\s+to|help\\s+me)\\s+(design|create|architect|plan)\\s+(an?\\s+)?(act|cast|workflow|architecture)",
+      "(?i)(langgraph|lang-?graph)\\s+(architecture|design|project|structure|workflow|pattern)",
+      "(?i)(which|what|select|choose|recommend)\\s+(pattern|workflow\\s+pattern|design\\s+pattern)\\s+(should|for|to\\s+use)",
+      "(?i)(just\\s+ran|ran|created|initialized)\\s+(act\\s+new|new\\s+act|act\\s+project)",
+      "(?i)(plan|planning|need\\s+to\\s+plan)\\s+(the\\s+)?(architecture|design|structure|workflow)\\s+(for|of)",
+      "(?i)(design|create|build)\\s+(a\\s+)?(workflow|pipeline|process)\\s+(for|that|to)"
+    ]
+  },
+  "usage": {
+    "when_to_use": [
+      "User just ran 'act new' and CLAUDE.md doesn't exist yet",
+      "User wants to add a new Cast to an existing Act project",
+      "User mentions a Cast is too complex (>10 nodes) and needs sub-cast extraction",
+      "User asks for help designing LangGraph architecture",
+      "User needs state schema, node specifications, or mermaid diagrams",
+      "User asks about workflow patterns (Sequential, Branching, Cyclic, Agentic)",
+      "User wants to plan architecture before implementing code"
+    ],
+    "when_not_to_use": [
+      "User wants to implement code - use cast-developer skill instead",
+      "User wants to create cast files/scaffold - use act-engineer skill instead",
+      "User wants to write tests - use cast-tester skill instead",
+      "User is debugging existing code",
+      "User is asking about runtime behavior or deployment"
+    ]
+  },
+  "test_queries": [
+    "I just ran act new, help me design the architecture",
+    "I need to add a new cast to my act project",
+    "My cast has 15 nodes, should I split it?",
+    "Help me create a state schema for my workflow",
+    "I need a mermaid diagram for my cast",
+    "Design the node specifications for my agent",
+    "CLAUDE.md doesn't exist, what should I do?",
+    "Plan the architecture for a document processing cast",
+    "What pattern should I use for my workflow?",
+    "Help me with langgraph architecture design",
+    "How do I design an agentic workflow?",
+    "Create an architecture diagram for my project",
+    "I need to architect a new cast for user authentication",
+    "Which pattern is best for a RAG workflow?",
+    "Help me plan the state schema for InputState and OutputState"
+  ],
+  "plugins": [
+    {
+      "name": "act-architect-plugin",
+      "description": "Use when starting new Act project (CLAUDE.md doesn't exist), adding cast to existing Act (CLAUDE.md exists), or facing complex cast needing sub-cast extraction (>10 nodes) - guides through interactive questioning (one question at a time) from requirements to validated architecture with mermaid diagrams, emphasizing design before implementation, no code generation",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./"
+      ]
+    }
+  ]
+}

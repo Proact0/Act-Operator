@@ -1,11 +1,40 @@
 # Changelog
 
-All notable changes to the `architecting-act` skill will be documented in this file.
+All notable changes to the `act-architect` skill will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning follows [Semantic Versioning](https://semver.org/).
 
-## [1.0.0] - 2025-01-15
+## [Unreleased]
+
+### Planned
+
+- Auto-detection of existing casts from file system
+- Integration with cast-developer skill for seamless handoff
+- Enhanced sub-cast extraction analysis with complexity metrics
+- Template-based quick start for common patterns
+- Support for more complex hybrid patterns
+- Visual architecture comparison tool
+
+## [1.0.2] - 2025-01-19
+
+### Changed
+
+- Migrated templates from `resources/` to `templates/` directory with AUTO-MANAGED markers
+- Integrated all validation checks from `validation-checklist.md` into `validate_architecture.py`
+- Enhanced validation script with fix hints, placeholder detection, and JSON output
+- Removed redundant resource files (content merged into templates/scripts)
+- Updated 3-Layer Activation System to 34 keywords and 14 patterns for improved reliability
+
+## [1.0.1] - 2025-01-18
+
+### Fixed
+
+- Fixed placeholder detection regex patterns in validation script
+- Improved mermaid diagram node extraction accuracy
+- Fixed cross-reference validation for cast files
+
+## [1.0.0] - 2025-01-14
 
 ### Added
 
@@ -43,7 +72,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
   - `edge-routing.md`
 
 **Scripts:**
-- `validate_architecture.py`: Distributed architecture validation tool (730+ lines)
+- `validate_architecture.py`: Distributed architecture validation tool
   - Validates root CLAUDE.md (Act-level)
   - Validates cast CLAUDE.md files
   - Cross-reference validation between Act and Casts
@@ -52,11 +81,10 @@ Versioning follows [Semantic Versioning](https://semver.org/).
   - Placeholder detection
   - Fix hints for all errors
   - JSON output option for CI integration
-  - All checks from former `validation-checklist.md` integrated
 
 **3-Layer Activation System:**
-- 14 keyword phrases for exact matching
-- 7 regex patterns for flexible matching
+- Keyword phrases for exact matching
+- Regex patterns for flexible matching
 - Enhanced description for NLU fallback
 
 ### Architecture Decisions
@@ -72,24 +100,3 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Does not generate implementation code (by design)
 - Requires manual execution of `act cast` command for new cast directories
 - Validation script requires Python 3.10+
-
-### Planned for v2.0
-
-- Auto-detection of existing casts from file system
-- Integration with developing-cast skill for seamless handoff
-- Enhanced sub-cast extraction analysis with complexity metrics
-- Template-based quick start for common patterns
-
-## [Unreleased]
-
-### Changed
-
-- Migrated templates from `resources/` to `templates/` directory with AUTO-MANAGED markers
-- Integrated all validation checks from `validation-checklist.md` into `validate_architecture.py`
-- Enhanced validation script with fix hints, placeholder detection, and JSON output
-- Removed redundant resource files (content merged into templates/scripts)
-
-### Planned
-
-- Add support for more complex hybrid patterns
-- Add visual architecture comparison tool

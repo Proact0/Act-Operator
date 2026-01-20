@@ -8,7 +8,7 @@
   "cast_pascal": "CastName",
   "language": "en",
   "_copy_without_render": [
-    ".claude/skills/architecting-act/scripts",
+    ".claude/skills/act-architect/scripts",
     ".github/workflows"
   ]
 }

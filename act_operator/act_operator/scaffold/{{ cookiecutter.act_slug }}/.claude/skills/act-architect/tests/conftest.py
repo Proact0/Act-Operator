@@ -1,4 +1,4 @@
-"""Pytest configuration for architecting-act skill tests."""
+"""Pytest configuration for act-architect skill tests."""
 
 import sys
 from pathlib import Path

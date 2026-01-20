@@ -88,15 +88,15 @@ Act에는 **Agent Skills**가 내장되어 있습니다. 이는 AI 에이전트�
 claude
 ```
 
-프롬프트에서 스킬 이름을 언급하기만 하면 됩니다 (예: "@architecting-act를 사용하여 설계해줘...").
+프롬프트에서 스킬 이름을 언급하기만 하면 됩니다 (예: "@act-architect를 사용하여 설계해줘...").
 
 > **다른 도구 사용 시 참고**: `.claude` 디렉터리 명명은 Claude Code 전용입니다. Agent Skills를 지원하는 다른 AI 도구(Cursor, Gemini CLI 등)를 사용하는 경우, 해당 도구의 요구사항에 맞춰 디렉터리 이름을 변경하거나 설정하세요.
 
 **사용 가능한 스킬**:
-- `architecting-act`: 대화형 질문을 통한 그래프 아키텍처 설계
-- `developing-cast`: 모범 사례 패턴으로 노드, 에이전트, 도구 구현
-- `engineering-act`: 캐스트 및 의존성 관리, 새로운 캐스트 생성
-- `testing-cast`: 모킹 전략을 활용한 효과적인 pytest 테스트 작성
+- `act-architect`: 대화형 질문을 통한 그래프 아키텍처 설계
+- `cast-developer`: 모범 사례 패턴으로 노드, 에이전트, 도구 구현
+- `act-engineer`: 캐스트 및 의존성 관리, 새로운 캐스트 생성
+- `cast-tester`: 모킹 전략을 활용한 효과적인 pytest 테스트 작성
 
 ### 스킬 활용하기
 
@@ -107,31 +107,31 @@ claude
 스킬은 개별적으로 또는 워크플로우 형태로 사용할 수 있습니다:
 
 **개별 사용**:
-- **초기 프로젝트 아키텍처** → `architecting-act` 사용 (모드 1: 초기 설계)
+- **초기 프로젝트 아키텍처** → `act-architect` 사용 (모드 1: 초기 설계)
   - `act new` 실행 후, 대화형 질문을 통해 첫 번째 Act와 Cast 설계
   - 아키텍처 다이어그램과 함께 루트 및 캐스트별 CLAUDE.md 파일 생성
 
-- **새 Cast 추가** → `architecting-act` (모드 2: Cast 추가) + `engineering-act` 사용
+- **새 Cast 추가** → `act-architect` (모드 2: Cast 추가) + `act-engineer` 사용
   - 기존 CLAUDE.md 파일을 읽어 컨텍스트 파악
   - 새 캐스트 설계 및 CLAUDE.md 파일 업데이트
   - 캐스트 패키지 구조 생성
 
-- **복잡한 Cast 추출** → `architecting-act` 사용 (모드 3: Sub-Cast 추출)
+- **복잡한 Cast 추출** → `act-architect` 사용 (모드 3: Sub-Cast 추출)
   - 10개 이상의 노드를 가진 캐스트의 복잡도 분석
   - 재사용 가능한 로직을 서브 캐스트로 추출
   - 서브 캐스트 관계와 함께 CLAUDE.md 업데이트
 
-- **구현** → `developing-cast` 사용
+- **구현** → `cast-developer` 사용
   - 캐스트의 CLAUDE.md에서 명세 읽기
   - state → deps → nodes → conditions → graph 순서로 구현
   - 50개 이상의 패턴 활용 (agents, tools, memory, middlewares)
 
-- **의존성 관리** → `engineering-act` 사용
+- **의존성 관리** → `act-engineer` 사용
   - CLAUDE.md의 Technology Stack 섹션 확인
   - 모노레포 및 캐스트 레벨 의존성 관리
   - 환경 동기화 및 개발 서버 실행
 
-- **테스팅** → `testing-cast` 사용
+- **테스팅** → `cast-tester` 사용
   - 모킹 전략을 활용한 pytest 테스트 작성
   - 노드 레벨 및 그래프 레벨 테스트 커버
 
@@ -142,37 +142,37 @@ claude
 1. 프로젝트 생성 → 실행: uvx --from act-operator act new
 
 2. 아키텍처 설계 → "고객 지원 챗봇 설계"
-   (architecting-act 모드 1: 질문하고, Sequential 패턴 제안, /CLAUDE.md + /casts/chatbot/CLAUDE.md 생성)
+   (act-architect 모드 1: 질문하고, Sequential 패턴 제안, /CLAUDE.md + /casts/chatbot/CLAUDE.md 생성)
 
 3. 구현 → "CLAUDE.md 기반으로 챗봇 구현"
-   (developing-cast: /casts/chatbot/CLAUDE.md 읽고, state/nodes/graph 구현)
+   (cast-developer: /casts/chatbot/CLAUDE.md 읽고, state/nodes/graph 구현)
 
 4. 테스트 → "포괄적인 테스트 작성"
-   (testing-cast: LLM 모킹을 포함한 pytest 생성)
+   (cast-tester: LLM 모킹을 포함한 pytest 생성)
 ```
 
 *예시 2: 기존 프로젝트에 추가*
 ```plaintext
 1. 새 Cast 설계 → "문서 인덱싱을 위한 knowledge-base 캐스트 추가"
-   (architecting-act 모드 2: /CLAUDE.md 읽고, 새 캐스트 설계, CLAUDE.md 파일 업데이트)
+   (act-architect 모드 2: /CLAUDE.md 읽고, 새 캐스트 설계, CLAUDE.md 파일 업데이트)
 
 2. Cast 스캐폴딩 → "knowledge-base 캐스트 패키지 생성"
-   (engineering-act: `uv run act cast -c "knowledge-base"` 실행)
+   (act-engineer: `uv run act cast -c "knowledge-base"` 실행)
 
 3. 구현 → "CLAUDE.md 기반으로 knowledge-base 구현"
-   (developing-cast: /casts/knowledge-base/CLAUDE.md 읽고, 컴포넌트 구현)
+   (cast-developer: /casts/knowledge-base/CLAUDE.md 읽고, 컴포넌트 구현)
 ```
 
 *예시 3: 복잡한 Cast 리팩토링*
 ```plaintext
 1. 복잡도 분석 → "챗봇 캐스트가 12개의 노드를 가지고 있어 복잡하게 느껴집니다"
-   (architecting-act 모드 3: /casts/chatbot/CLAUDE.md 분석, 재사용 가능한 검증 로직 식별)
+   (act-architect 모드 3: /casts/chatbot/CLAUDE.md 분석, 재사용 가능한 검증 로직 식별)
 
 2. Sub-Cast 추출 → "입력 검증을 별도 캐스트로 추출"
-   (architecting-act: /casts/input-validator/CLAUDE.md 생성, 부모 참조 업데이트)
+   (act-architect: /casts/input-validator/CLAUDE.md 생성, 부모 참조 업데이트)
 
 3. Sub-Cast 구현 → "input-validator 구현"
-   (developing-cast: 서브 캐스트 구현, engineering-act: 의존성 관리)
+   (cast-developer: 서브 캐스트 구현, act-engineer: 의존성 관리)
 ```
 
 ## 프로젝트 구조
@@ -181,10 +181,10 @@ claude
 my_workflow/
 ├── .claude/
 │   └── skills/                    # AI 협업 가이드
-│       ├── architecting-act/      # 아키텍처 설계
-│       ├── developing-cast/       # 구현 패턴
-│       ├── engineering-act/       # 프로젝트 관리
-│       └── testing-cast/          # 테스팅 전략
+│       ├── act-architect/      # 아키텍처 설계
+│       ├── cast-developer/       # 구현 패턴
+│       ├── act-engineer/       # 프로젝트 관리
+│       └── cast-tester/          # 테스팅 전략
 ├── casts/
 │   ├── base_node.py              # 베이스 노드 클래스
 │   ├── base_graph.py             # 베이스 그래프 유틸리티

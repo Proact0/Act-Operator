@@ -250,7 +250,7 @@ def test_report_passed_status():
 def main():
     """Run all validation script tests."""
     print("=" * 70)
-    print("VALIDATION SCRIPT TESTS - architecting-act")
+    print("VALIDATION SCRIPT TESTS - act-architect")
     print("=" * 70)
 
     tests = [

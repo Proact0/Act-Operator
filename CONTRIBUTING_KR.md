@@ -113,10 +113,10 @@ Act Operator 프로젝트는 여러 컴포넌트로 구성되어 있습니다.
 **위치**: `act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
 
 **포함 스킬**:
-- `architecting-act`: 아키텍처 설계
-- `developing-cast`: 구현 패턴
-- `engineering-act`: 프로젝트 관리
-- `testing-cast`: 테스팅 전략
+- `act-architect`: 아키텍처 설계
+- `cast-developer`: 구현 패턴
+- `act-engineer`: 프로젝트 관리
+- `cast-tester`: 테스팅 전략
 
 ### 4️⃣ 문서 (별도 레포)
 
