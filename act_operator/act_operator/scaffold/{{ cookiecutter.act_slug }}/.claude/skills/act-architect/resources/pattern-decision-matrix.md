@@ -17,6 +17,15 @@ Guide for Step 1b: Basic Pattern Selection for non-agentic workflows.
 ### Sequential
 **Structure:** START → Step1 → Step2 → ... → END
 
+```mermaid
+graph LR
+    START([START]) --> A[Step1]
+    A --> B[Step2]
+    B --> C[Step3]
+    C --> D[Step4]
+    D --> END([END])
+```
+
 **Use when:**
 - Each step depends on previous output
 - Order cannot change
@@ -34,6 +43,17 @@ Guide for Step 1b: Basic Pattern Selection for non-agentic workflows.
 ### Branching
 **Structure:** START → Router → [Handler1 | Handler2 | Handler3] → END
 
+```mermaid
+graph LR
+    START([START]) --> A{Router}
+    A -->|path_1| B[Handler1]
+    A -->|path_2| C[Handler2]
+    A -->|default| D[Handler3]
+    B --> END([END])
+    C --> END([END])
+    D --> END([END])
+```
+
 **Use when:**
 - Different input types need different processing
 - Classification determines next step
@@ -50,6 +70,16 @@ Guide for Step 1b: Basic Pattern Selection for non-agentic workflows.
 
 ### Cyclic
 **Structure:** START → Process → Evaluate → [Refine → Process | Complete → END]
+
+```mermaid
+graph LR
+    START([START]) --> A[Process]
+    A --> B[Evaluate]
+    B -->|refine| C[Refine]
+    C --> A
+    B -->|complete| D[Complete]
+    D --> END([END])
+```
 
 **Use when:**
 - Output quality needs improvement

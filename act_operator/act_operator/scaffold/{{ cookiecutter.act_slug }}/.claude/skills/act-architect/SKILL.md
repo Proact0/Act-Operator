@@ -30,7 +30,90 @@ activation:
 
 # Architecting {{ cookiecutter.act_name }} Act
 
-Design and manage Act (project) and Cast (graph) architectures through interactive questioning. Outputs `CLAUDE.md` at project root containing Act overview and all Cast specifications.
+Design and manage Act (project) and Cast (graph) architectures through **interactive questioning**. Outputs `CLAUDE.md` at project root containing Act overview and all Cast specifications.
+
+---
+
+## 🎮 Interactive Conversation Protocol
+
+**CRITICAL: This skill operates as an interactive wizard. Follow these rules:**
+
+### Fundamental Principles
+
+1. **One Question at a Time** - Never ask multiple questions in a single message
+2. **Wait for Response** - Always pause after asking, do not proceed until user responds
+3. **Show Progress** - Display visual progress indicators at each phase
+4. **Summarize Before Proceeding** - Confirm understanding before moving to next phase
+5. **Provide Clear Options** - Use labeled choices (A, B, C, D) with descriptions
+6. **Minimize Questions** - Infer/decide whenever possible, only ask if critical
+
+### Progress Indicator Format
+
+Use this format to show progress:
+
+```
+╭─────────────────────────────────────────────╮
+│  🏗️ Act Architect - Mode 1: Initial Design  │
+├─────────────────────────────────────────────┤
+│  Phase: [1/5] Act Overview                  │
+│  Progress: ████░░░░░░░░░░░░░░░░ 20%         │
+╰─────────────────────────────────────────────╯
+```
+
+### Question Format
+
+Always format questions like this:
+
+```
+📋 **Question 1 of 5: Act Purpose**
+
+What does this project do? (one sentence describing the overall goal)
+
+💡 **Examples:**
+- "Customer support automation system"
+- "Document processing pipeline"
+- "Multi-agent research assistant"
+
+Your answer: _
+```
+
+### Multiple Choice Format
+
+For choices, use this format:
+
+```
+📋 **Question 5 of 5: Constraints**
+
+Any constraints?
+
+   A) ⚡ Low latency (<10s)
+   B) 🕐 Normal (<60s)
+   C) 🐢 Long-running (>60s)
+   D) 📝 Other (please specify)
+
+Select [A/B/C/D]: _
+```
+
+### Confirmation Format
+
+Before proceeding to next phase, always confirm:
+
+```
+╭─────────────────────────────────────────────╮
+│  ✅ Phase 1 Complete - Please Confirm       │
+╰─────────────────────────────────────────────╯
+
+**Act: {{ cookiecutter.act_name }}**
+- **Purpose:** [captured purpose]
+
+**Cast: {{ cookiecutter.cast_snake }}**
+- **Goal:** [cast goal]
+- **Input:** [input]
+- **Output:** [output]
+- **Constraints:** [constraints]
+
+Is this correct? [Y/n] or specify what to change: _
+```
 
 ---
 
@@ -42,11 +125,33 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 - **CLAUDE.md exists + adding cast?** → **Mode 2: Add Cast**
 - **CLAUDE.md exists + cast complex?** → **Mode 3: Extract Sub-Cast**
 
+**Show mode detection:**
+
+```
+🔍 Detecting mode...
+   ✓ Checking for /CLAUDE.md... [exists/not found]
+   ✓ Checking user intent... [new cast/extract/initial]
+
+→ Mode Selected: [Mode X: Name]
+```
+
 ---
 
 ## Mode 1: Initial Design
 
 **When:** First time designing (no CLAUDE.md)
+
+**Interactive Flow:**
+
+```
+Phase 1: Act Overview Questions    → [5 questions, sequential]
+Phase 2: Pattern Selection         → [YOU suggest, user confirms]
+Phase 3: State Schema Design       → [YOU design, user reviews]
+Phase 4: Node Specification        → [Interactive refinement]
+Phase 5: Architecture Diagram      → [Preview + confirmation]
+Phase 6: Technology Stack          → [Only ask if relevant]
+Phase 7: Generate & Validate       → [Auto-generate + validate]
+```
 
 **Steps:**
 1. **{{ cookiecutter.act_name }} Act Questions** → [modes/initial-design-questions.md](resources/modes/initial-design-questions.md)
@@ -63,6 +168,18 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 ## Mode 2: Add Cast
 
 **When:** CLAUDE.md exists, adding new cast
+
+**Interactive Flow:**
+
+```
+Phase 1: Context Analysis          → [Read existing, summarize]
+Phase 2: New Cast Questions        → [5 questions, sequential]
+Phase 3: Pattern Selection         → [YOU suggest, user confirms]
+Phase 4: State Schema Design       → [YOU design, user reviews]
+Phase 5: Node Specification        → [Interactive refinement]
+Phase 6: Architecture Diagram      → [Preview + confirmation]
+Phase 7: Create & Update           → [Auto-create + validate]
+```
 
 **Steps:**
 1. **Read CLAUDE.md** → Understand existing {{ cookiecutter.act_name }} Act and Casts
@@ -85,6 +202,16 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 
 **When:** Cast has >10 nodes or complexity mentioned
 
+**Interactive Flow:**
+
+```
+Phase 1: Complexity Analysis       → [Analyze, present findings]
+Phase 2: Extraction Proposal       → [YOU propose, user decides]
+Phase 3: Sub-Cast Questions        → [If user agrees, ask details]
+Phase 4: Sub-Cast Design           → [Follow Cast Design Workflow]
+Phase 5: Create & Update           → [Auto-create + validate]
+```
+
 **Steps:**
 1. **Analyze** → Use [cast-analysis-guide.md](resources/cast-analysis-guide.md)
    - Read `/casts/{parent_cast}/CLAUDE.md` to analyze complexity
@@ -104,7 +231,24 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 
 ## Cast Design Workflow
 
-**Use for all modes when designing a cast:**
+**Use for all modes when designing a cast.**
+
+**This is an interactive workflow - follow the conversation protocol above.**
+
+### Interactive Design Flow
+
+```
+╭─────────────────────────────────────────────╮
+│  🎨 Cast Design Workflow                    │
+├─────────────────────────────────────────────┤
+│  Step 1: Pattern Selection      ░░░░░░░░░░  │
+│  Step 2: State Schema           ░░░░░░░░░░  │
+│  Step 3: Node Specification     ░░░░░░░░░░  │
+│  Step 4: Architecture Diagram   ░░░░░░░░░░  │
+│  Step 5: Technology Stack       ░░░░░░░░░░  │
+│  Step 6: Validation             ░░░░░░░░░░  │
+╰─────────────────────────────────────────────╯
+```
 
 ### 1. Pattern Selection
 
@@ -112,32 +256,70 @@ Design and manage Act (project) and Cast (graph) architectures through interacti
 
 **First, assess if the workflow requires AI agent capabilities:**
 
-| Indicator | → Consider Agentic Pattern |
-|-----------|---------------------------|
-| Autonomous decision-making | Yes |
-| Tool/API access required | Yes |
-| Iterative reasoning needed | Yes |
-| Self-correction capability | Yes |
-| Human oversight checkpoints | Yes |
-| Multiple specialized AI roles | Yes |
+```
+📋 **Agentic Capabilities Assessment**
+
+I'll analyze if your workflow needs AI agent capabilities:
+
+| Indicator                       | Your Workflow |
+|---------------------------------|---------------|
+| Autonomous decision-making      | [Yes/No]      |
+| Tool/API access required        | [Yes/No]      |
+| Iterative reasoning needed      | [Yes/No]      |
+| Self-correction capability      | [Yes/No]      |
+| Human oversight checkpoints     | [Yes/No]      |
+| Multiple specialized AI roles   | [Yes/No]      |
+```
 
 **If ANY indicator applies** → Use [agentic-design-patterns.md](resources/agentic-design-patterns.md) to select Agentic Pattern.
 
 **If ALL are NO** (simple data transformation, deterministic rules) → Proceed to Step 1b.
 
-Ask: "Does your workflow need AI agent capabilities?" Wait for confirmation.
+**Interactive Question:**
+
+```
+📋 **Pattern Selection - Agentic Check**
+
+Based on your requirements, I've assessed the following:
+[Show assessment table above]
+
+Does your workflow need AI agent capabilities?
+
+   A) ✅ Yes - needs autonomous decisions, tools, or iterative reasoning
+   B) ❌ No - simple data transformation or deterministic rules
+   C) 🤔 Not sure - help me decide
+
+Select [A/B/C]: _
+```
+
+**Wait for response before proceeding.**
 
 #### 1b. Basic Pattern Selection (for non-agentic workflows)
 
 **YOU suggest pattern** using [pattern-decision-matrix.md](resources/pattern-decision-matrix.md):
 
-| Requirements | Pattern |
-|-------------|---------|
-| Linear transformation | Sequential |
-| Multiple handlers | Branching |
-| Refinement loop | Cyclic |
+```
+📋 **Pattern Recommendation**
 
-Ask: "Does this pattern fit?" Wait for confirmation.
+Based on your requirements, I recommend:
+
+┌─────────────────────────────────────────────┐
+│  🎯 Recommended: [Pattern Name]             │
+├─────────────────────────────────────────────┤
+│  Why: [Brief justification]                 │
+│                                             │
+│  Pattern fits because:                      │
+│  • [Reason 1]                               │
+│  • [Reason 2]                               │
+│                                             │
+│  Alternatives considered:                   │
+│  • [Other Pattern] - [Why not]              │
+└─────────────────────────────────────────────┘
+
+Does this pattern fit your needs? [Y/n]: _
+```
+
+**Wait for confirmation.**
 
 ### 2. State Schema
 
@@ -145,34 +327,139 @@ Ask: "Does this pattern fit?" Wait for confirmation.
 
 Present as **TABLES ONLY** (InputState, OutputState, OverallState).
 
-Ask: "Any fields to modify?" Wait for response.
+```
+╭─────────────────────────────────────────────╮
+│  📊 State Schema Design                     │
+╰─────────────────────────────────────────────╯
+
+Based on your inputs, I've designed the following schema:
+
+**InputState:**
+| Field | Type | Description |
+|-------|------|-------------|
+| ... | ... | ... |
+
+**OutputState:**
+| Field | Type | Description |
+|-------|------|-------------|
+| ... | ... | ... |
+
+**OverallState:**
+| Field | Type | Reducer | Description |
+|-------|------|---------|-------------|
+| ... | ... | ... | ... |
+
+Any fields to add, modify, or remove? [Y/n or specify changes]: _
+```
+
+**Wait for response.**
 
 ### 3. Node Specification
 
-**Ask pattern-specific question** using [node-specification.md](resources/design/node-specification.md):
-
 **YOU design nodes** (single responsibility, CamelCase naming).
+
+```
+╭─────────────────────────────────────────────╮
+│  🔧 Node Specification                      │
+╰─────────────────────────────────────────────╯
+
+Based on your pattern and state, I've designed these nodes:
+
+┌──────────────────┬────────────────────────────┐
+│ Node Name        │ Responsibility             │
+├──────────────────┼────────────────────────────┤
+│ [NodeA]          │ [What it does]             │
+│ [NodeB]          │ [What it does]             │
+│ [NodeC]          │ [What it does]             │
+└──────────────────┴────────────────────────────┘
+
+**Detailed Specifications:**
+
+**[NodeA]**
+- Reads: [fields from state]
+- Writes: [fields to state]
+- Logic: [brief description]
+
+[Repeat for each node...]
+
+Any nodes to add, modify, or remove? [Y/n or specify changes]: _
+```
+
+**Wait for response.**
 
 ### 4. Architecture Diagram
 
 **YOU create Mermaid diagram** using [edge-routing.md](resources/design/edge-routing.md).
 
+```
+╭─────────────────────────────────────────────╮
+│  📐 Architecture Diagram Preview            │
+╰─────────────────────────────────────────────╯
+
+Here's the Mermaid diagram for your cast:
+
+\`\`\`mermaid
+graph TD
+    START([START]) --> NodeA[Node A]
+    NodeA --> NodeB[Node B]
+    ...
+    NodeN --> END([END])
+\`\`\`
+
+**Verification Checklist:**
+✅ All nodes connected
+✅ All paths reach END
+✅ Conditionals labeled
+✅ No orphan nodes
+
+Does this architecture look correct? [Y/n or specify changes]: _
+```
+
 Ensure: All nodes connected, all paths reach END, conditionals labeled.
+
+**Wait for confirmation.**
 
 ### 5. Technology Stack
 
 > `langgraph`, `langchain` included. Identify **additional** dependencies only.
 
 **Based on Architecture Diagram, ask ONLY if relevant:**
-- If diagram shows LLM nodes → "Which LLM provider?" → Wait
-- If diagram shows retrieval/search → "Vector store or search tool needed?" → Wait
-- If diagram shows document processing → "Document types to handle?" → Wait
+
+```
+╭─────────────────────────────────────────────╮
+│  🛠️ Technology Stack                        │
+╰─────────────────────────────────────────────╯
+
+Base packages included:
+• langgraph
+• langchain
+
+[Only show if LLM nodes detected:]
+📋 Your diagram includes LLM-powered nodes.
+
+Which LLM provider would you like to use?
+
+   A) 🟢 OpenAI (GPT-4, GPT-3.5)
+   B) 🔵 Anthropic (Claude)
+   C) 🟡 Google (Gemini)
+   D) 📝 Other (specify)
+
+Select [A/B/C/D]: _
+```
 
 **Skip questions** for dependencies not implied by the architecture.
 
-**YOU determine** packages + environment variables.
+**YOU determine** packages + environment variables based on responses.
 
 ### 6. Validate
+
+```
+╭─────────────────────────────────────────────╮
+│  ✅ Final Validation                        │
+╰─────────────────────────────────────────────╯
+
+Running validation script...
+```
 
 ```bash
 python .claude/skills/act-architect/scripts/validate_architecture.py
@@ -188,9 +475,20 @@ The validation script checks ALL requirements automatically:
 - Cross-references between files work
 - No placeholder text
 
+```
+Validation Results:
+✅ Root CLAUDE.md exists
+✅ All casts have CLAUDE.md files
+✅ Mermaid diagrams valid
+✅ Node specifications complete
+✅ State schemas complete
+
+All checks passed! Ready to proceed.
+```
+
 Fix any errors shown in output, then proceed.
 
----
+{% raw %}---
 
 ## Generating CLAUDE.md Files
 
@@ -251,7 +549,7 @@ Generate these sections in order:
 |--------------|---------|----------|-------------|---------|
 | `cast-overview` | ## Overview | Yes | `{{PURPOSE}}`, `{{PATTERN}}`, `{{LATENCY}}` | Purpose, pattern, latency |
 | `architecture-diagram` | ## Architecture Diagram | Yes | `{{MERMAID_DIAGRAM}}` | Mermaid graph definition |
-| `state-schema` | ## State Schema | Yes | `{{*_STATE_FIELDS}}` | InputState, OutputState, OverallState tables |
+| `state-schema` | ## State Schema | Yes | `{{STATE_FIELDS}}` | InputState, OutputState, OverallState tables |
 | `node-specifications` | ## Node Specifications | Yes | `{{NODE_SPECIFICATIONS}}` | Node details with Responsibility, Reads, Writes |
 | `technology-stack` | ## Technology Stack | Yes | `{{DEPENDENCIES}}`, `{{ENV_VARIABLES}}` | Dependencies and env vars |
 | `cast-structure` | ## Cast Structure | No | `{{CAST_SLUG}}` | Directory tree |
@@ -273,4 +571,4 @@ Reference the template files for exact structure:
 After generating files, verify:
 - Files created/modified at correct locations
 - All AUTO-MANAGED sections populated
-- Validation script passes
+- Validation script passes{% endraw %}

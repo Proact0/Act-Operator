@@ -14,38 +14,40 @@ Guide for creating clear Mermaid diagrams that represent your Cast architecture.
 
 ### Basic Structure
 ```mermaid
-graph TD
-    START((START)) --> NodeName[NodeName]
-    NodeName --> END((END))
+graph LR
+    START([START]) --> A[ProcessNode]
+    A --> END([END])
 ```
 
 ### Conditional Routing
 ```mermaid
-graph TD
-    START((START)) --> DecisionNode{DecisionNode}
-    DecisionNode -->|condition_a| NodeA[NodeA]
-    DecisionNode -->|condition_b| NodeB[NodeB]
-    DecisionNode -->|default| FallbackNode[FallbackNode]
-    NodeA --> END((END))
-    NodeB --> END((END))
-    FallbackNode --> END((END))
+graph LR
+    START([START]) --> A{RouteDecision}
+    A -->|condition_a| B[PrimaryNode]
+    A -->|condition_b| C[SecondaryNode]
+    A -->|default| D[FallbackNode]
+    B --> END([END])
+    C --> END([END])
+    D --> END([END])
 ```
 
 ### Loops
 ```mermaid
-graph TD
-    START((START)) --> ProcessNode[ProcessNode]
-    ProcessNode --> EvaluateNode{EvaluateNode}
-    EvaluateNode -->|pass| END((END))
-    EvaluateNode -->|fail| RefineNode[RefineNode]
-    RefineNode --> ProcessNode
+graph LR
+    START([START]) --> A[ProcessNode]
+    A --> B{EvaluateResultNode}
+    B -->|pass| END([END])
+    B -->|fail| C[RefineNode]
+    C --> A
 ```
 
 ## Node Shapes
 
-- **START/END**: `((START))`, `((END))`
-- **Normal Node**: `[NodeName]`
-- **Decision Node**: `{DecisionNode}` (diamond shape for conditional routing)
+| Node Type | Description | Mermaid Syntax |
+|-----------|-------------|----------------|
+| **START/END** | Main-Graph initial start/final end. Use an Internal Connector if it serves as an entry point for a subgraph. | `([START])`, `([END])` |
+| **Process Node** | Core function/feature nodes in the graph | `[Node Name]` |
+| **Condition / Route Function** | Decision point when internal events or triggers occur - Router, Branch out, IF Function, etc | `{Condition / Route Function Name}` |
 
 ## Design Principles
 

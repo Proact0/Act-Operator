@@ -8,13 +8,12 @@ Tests the architecture validation functions.
 """
 
 import sys
-import tempfile
 from pathlib import Path
 
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from validate_architecture import (
+from scripts.validate_architecture import (
     ValidationReport,
     ValidationResult,
     parse_act_claude_md,
