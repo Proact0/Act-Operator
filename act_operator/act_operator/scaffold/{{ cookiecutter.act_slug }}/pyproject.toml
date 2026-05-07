@@ -42,7 +42,7 @@ exclude = [
 ]
 
 [tool.ruff]
-exclude = [
+extend-exclude = [
     ".git",
     ".github",
     ".langgraph_api",
