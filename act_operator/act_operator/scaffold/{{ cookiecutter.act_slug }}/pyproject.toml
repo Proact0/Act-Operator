@@ -19,7 +19,7 @@ lint = [
     "ruff",
 ]
 dev = [
-    "act-operator>=0.6.0",
+    "act-operator>=0.6.4",
     {include-group = "test"},
     {include-group = "lint"},
 ]
@@ -42,17 +42,27 @@ exclude = [
 ]
 
 [tool.ruff]
-exclude = [
-    "(^|/)(.venv|venv|node_modules|__pycache__|.pytest_cache|.ruff_cache|migrations|static|templates|.git|.github|.langgraph_api|media)(/|$)",
-    "^tests(/|$)",
-    "^unit_tests(/|$)",
+extend-exclude = [
+    ".git",
+    ".github",
+    ".langgraph_api",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
     ".env",
     ".env.example",
     ".gitignore",
     "LICENSE",
     "README.md",
     "langgraph.json",
-    "uv.lock"
+    "media",
+    "migrations",
+    "node_modules",
+    "static",
+    "templates",
+    "uv.lock",
+    "venv",
 ]
 lint.select = [
     "E",
