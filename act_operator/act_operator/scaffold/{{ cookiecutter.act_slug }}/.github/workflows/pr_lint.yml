@@ -39,6 +39,7 @@ jobs:
             agents
             state
             utils
+            deps
             docs
             tests
           requireScope: false

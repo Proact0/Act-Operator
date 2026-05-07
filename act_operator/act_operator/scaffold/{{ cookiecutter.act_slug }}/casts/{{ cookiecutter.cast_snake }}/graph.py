@@ -10,7 +10,7 @@ Guidelines:
     2. Connect nodes via ``builder.add_edge()`` or ``builder.add_conditional_edges()`` when branching.
     3. Return the compiled graph to orchestrate LangGraph execution.
 
-Official document URL: 
+Official document URL:
     - Graph API: https://docs.langchain.com/oss/python/langgraph/graph-api
     - StateGraph: https://docs.langchain.com/oss/python/langgraph/graph-api#stategraph
     - Nodes: https://docs.langchain.com/oss/python/langgraph/graph-api#nodes
