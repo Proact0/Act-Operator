@@ -9,10 +9,10 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.0
     hooks:
+      - id: ruff-check
+        # 코드 품질 점검 및 임포트 정리
+        types_or: [python, pyi]
+        args: [--fix]
       - id: ruff-format
         # 코드 포맷팅
         types_or: [python, pyi]
-      - id: ruff
-        # 코드 품질 점검 및 임포트 정리
-        types_or: [python, pyi]
-        args: [check, --fix]

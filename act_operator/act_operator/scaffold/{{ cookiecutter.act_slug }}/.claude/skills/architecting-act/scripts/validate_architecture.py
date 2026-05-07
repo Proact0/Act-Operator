@@ -176,7 +176,9 @@ def parse_act_claude_md(content: str) -> dict:
         r"\| ([A-Z][a-zA-Z0-9 ]+) \| .* \| \[.*?\]\((casts/[^/]+/CLAUDE\.md)\)"
     )
     matches = re.findall(cast_table_pattern, content)
-    data["casts_in_table"] = [{"name": name.strip(), "path": path} for name, path in matches]
+    data["casts_in_table"] = [
+        {"name": name.strip(), "path": path} for name, path in matches
+    ]
 
     return data
 
@@ -579,12 +581,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="Validate distributed architecture specification completeness"
     )
-    parser.add_argument(
-        "--quiet", "-q", action="store_true", help="Only output errors"
-    )
-    parser.add_argument(
-        "--json", action="store_true", help="Output as JSON"
-    )
+    parser.add_argument("--quiet", "-q", action="store_true", help="Only output errors")
+    parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     args = parser.parse_args()
 
@@ -597,6 +595,7 @@ def main():
     # Output
     if args.json:
         import json
+
         output = {
             "passed": report.passed,
             "error_count": len(report.errors),
