@@ -532,6 +532,67 @@ graph LR
 
 ---
 
+## Resilience & Long-Run Patterns (langgraph v1.2+)
+
+Architecture decisions sometimes require resilience capabilities that shape graph topology. These are not standalone patterns — they overlay any pattern above.
+
+### Saga / Compensation
+
+When a step has side effects (payment, external write) that must be unwound on failure, design the cast with an explicit compensation branch. The failing node has an `error_handler` that updates state and routes to the compensation node after retries are exhausted.
+
+```mermaid
+graph LR
+    START([START]) --> A[ValidateNode]
+    A --> B[ChargePaymentNode]
+    B --> C[FulfillOrderNode]
+    C --> END([END])
+    B -.->|error_handler after retries| D[CompensationNode]
+    D --> E[FinalizeNode]
+    E --> END
+```
+
+**Design signal:** Node has irreversible external effects + must always reach a consistent terminal state.
+
+### Long-Running Thread (DeltaChannel)
+
+When a channel grows unbounded across many turns (chat history, audit log, accumulated documents), design the state so the channel can use `DeltaChannel` storage. Architecturally this means:
+
+- The channel must have an **associative, pure-function** bulk reducer.
+- Identity / stable IDs must be assigned **upstream** of the channel, not inside the reducer.
+- Pair with `snapshot_frequency=K` for bounded read latency.
+
+**Design signal:** Conversation length or accumulation grows linearly across turns and checkpoint size is becoming a problem.
+
+### Graceful Drain Checkpoints
+
+When a node performs expensive work (LLM call, long DB query) and the cast may need to terminate cooperatively (SIGTERM, infra reclaim), design nodes to **read drain state** and skip work at safe boundaries.
+
+```mermaid
+graph LR
+    START([START]) --> A[InspectDrainNode]
+    A -->|drain_requested| B[CheckpointAndExitNode]
+    A -->|continue| C[ExpensiveWorkNode]
+    C --> END([END])
+    B --> END
+```
+
+Pair with a checkpointer so the drained run is resumable from the saved checkpoint.
+
+**Design signal:** Cast is long-running, deploys in containers, or holds external locks/resources that must release on shutdown.
+
+### Node Timeout Boundaries
+
+For nodes that call external services with unpredictable latency (web scrape, LLM, network DB), set node timeouts at the architecture level — they shape the retry/fallback topology around the node. Async nodes only.
+
+| Topology cue | Implementation |
+|--------------|----------------|
+| Wall-clock guarantee per call | `timeout=` (seconds or `TimeoutPolicy(run_timeout=...)`) |
+| Progress-aware streaming work | `TimeoutPolicy(idle_timeout=...)` + `runtime.heartbeat()` calls in the node |
+| Retry on timeout | `retry_policy=RetryPolicy(retry_on=TimeoutError)` paired with `timeout=` |
+| Compensation on persistent timeout | `error_handler=` returning `Command(goto=...)` to a fallback branch |
+
+---
+
 ## Combining Patterns
 
 **Common pattern combinations:**
