@@ -1,145 +1,138 @@
-# Namespace Parsing
+# Nested Streaming & Source Identification
 
-Parse multi-level namespace tuples to identify event sources in nested graphs.
+Identify event sources in nested graphs. With v3 typed projections, prefer `stream.subgraphs` / `stream.subagents` over manual namespace parsing.
 
 ## Contents
 
-- Namespace Structure
-- _parse_source Pattern
-- Utility Dataclass
+- Built-in vs Raw Identification
+- Stream Subgraphs (Built-in)
+- Filter by graph_name
+- Raw Namespace Path (Advanced)
 - Visualization
 
-## Namespace Structure
+## Built-in vs Raw Identification
 
-When a graph contains subgraphs, agents, or subagents internally, `subgraphs=True` produces multi-level namespaces:
+| Goal | Use |
+|------|-----|
+| Filter events by inner graph name | `stream.subgraphs` + `subgraph.graph_name` |
+| Filter events by delegated subagent name (Deep Agents) | `stream.subagents` + `subagent.name` |
+| Inspect the namespace path | `subgraph.path` (already-parsed list) |
+| Raw envelope access | iterate `stream`, inspect `event["params"]["namespace"]` |
 
-```
-Root graph  ()
-└─ Agent    ("AgentNode:<id>",)
-   ├─ tool  ("AgentNode:<id>", "tools:<id>")
-   └─ sub   ("AgentNode:<id>", "tools:<id>", "researcher:<id>")
-      └─ tool ("AgentNode:<id>", "tools:<id>", "researcher:<id>", "tools:<id2>")
-```
-
-**Rule:** `"tools:"` segments mark tool execution boundaries. The segment after a `"tools:"` boundary is the subagent name.
+Namespace parsing (custom `_parse_source` functions) is no longer required for typical use — use the typed projection's `.graph_name` or `.name` field directly.
 
 ---
 
-## _parse_source Pattern
-
-Extract the agent/subagent name from a namespace tuple:
-
-```python
-def _parse_source(ns: tuple[str, ...]) -> str:
-    """Extract agent source name from v2 namespace tuple.
-
-    Scans past the first segment (outer node), looks for a "tools:"
-    boundary, then returns the first non-tools segment after it
-    as the subagent name.
-    """
-    if len(ns) <= 1:
-        return "{{ cookiecutter.cast_snake }}"
-
-    found_tools = False
-    for seg in ns[1:]:
-        name = seg.split(":")[0] if ":" in seg else seg
-        if name == "tools":
-            found_tools = True
-            continue
-        if found_tools:
-            return name
-
-    return "{{ cookiecutter.cast_snake }}"
-```
-
-Usage:
+## Stream Subgraphs (Built-in)
 
 ```python
 graph = {{ cookiecutter.cast_snake }}_graph()
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", subgraphs=True, version="v2",
-):
-    if chunk["type"] != "messages":
-        continue
+stream = await graph.astream_events(inputs, config=config, version="v3")
 
-    msg, metadata = chunk["data"]
-    source = _parse_source(chunk["ns"])
+async for subgraph in stream.subgraphs:
+    name = subgraph.graph_name
+    path = subgraph.path  # list[str], e.g. ["researcher:6f4d", "tools:91ac"]
 
-    if msg.content and metadata.get("langgraph_node") == "model":
-        await send({"type": "token", "content": msg.content, "source": source})
+    async for message in subgraph.messages:
+        async for token in message.text:
+            print(f"[{name}] {token}", end="")
 ```
+
+Each `subgraph` handle exposes `.messages`, `.tool_calls`, `.values`, `.output`, and `.subgraphs` for further recursion.
 
 ---
 
-## Utility Dataclass
+## Filter by graph_name
 
-For complex namespace handling:
+Set `name=` on graph compilation to get a stable label:
 
 ```python
-from dataclasses import dataclass
+# Custom subgraph
+researcher_graph = builder.compile(name="researcher")
 
+# Agent subgraph
+researcher_agent = create_agent(model="...", tools=[...], name="researcher")
 
-@dataclass(slots=True, frozen=True)
-class StreamSource:
-    """Parsed namespace identifying a streaming event source."""
-    depth: int
-    path: tuple[str, ...]
-    is_root: bool
-    is_subagent: bool
-    call_ids: tuple[str, ...]
-
-
-def parse_namespace(ns: tuple[str, ...]) -> StreamSource:
-    """Parse a v2 StreamPart namespace tuple."""
-    names = tuple(part.split(":")[0] for part in ns)
-    call_ids = tuple(part.split(":")[1] if ":" in part else "" for part in ns)
-
-    return StreamSource(
-        depth=len(ns),
-        path=names,
-        is_root=len(ns) == 0,
-        is_subagent=any(n == "tools" for n in names),
-        call_ids=call_ids,
-    )
+# Deep agent subagent — name on the subagent dict
+deep_agent = create_deep_agent(
+    model="...",
+    tools=[...],
+    subagents=[
+        {"name": "researcher", "description": "...", "system_prompt": "...", "tools": [...]},
+    ],
+)
 ```
+
+Then filter:
+
+```python
+stream = await graph.astream_events(inputs, config=config, version="v3")
+
+async for subgraph in stream.subgraphs:
+    if subgraph.graph_name == "researcher":
+        async for message in subgraph.messages:
+            async for token in message.text:
+                print(f"[researcher] {token}", end="")
+```
+
+For Deep Agents, prefer `stream.subagents` (filters out internal graph nodes — see [agent-streaming.md](./agent-streaming.md)).
+
+---
+
+## Raw Namespace Path (Advanced)
+
+When you need access to the raw `ProtocolEvent` namespace (e.g., to interleave with channels not exposed as a typed projection), iterate the run object directly:
+
+```python
+stream = graph.stream_events(inputs, config=config, version="v3")
+
+for event in stream:
+    namespace = event["params"]["namespace"]  # list[str]
+    method = event["method"]
+
+    # namespace path looks like ["researcher:6f4d", "tools:91ac"]
+    names = [seg.split(":")[0] for seg in namespace]
+    print(f"[{'/'.join(names) or 'root'}] method={method}")
+```
+
+| `namespace` value | Meaning |
+|-------------------|---------|
+| `[]` | Root graph |
+| `["NodeName:<id>"]` | One level deep (subgraph or agent) |
+| `["...", "tools:<id>"]` | Tool execution boundary |
+| `["...", "tools:<id>", "subagent:<id>"]` | Subagent invoked from a tool |
+
+The name before `:` is the stable graph/node name; the suffix is a per-invocation runtime ID.
 
 ---
 
 ## Visualization
 
-Print a tree-structured view of streaming events:
+Print a tree-structured view of streaming events using `subgraph.path`:
 
 ```python
-seen_namespaces: set[tuple[str, ...]] = set()
+seen_paths: set[tuple[str, ...]] = set()
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="updates", subgraphs=True, version="v2",
-):
-    ns_key = chunk["ns"]
+stream = await graph.astream_events(inputs, config=config, version="v3")
 
-    if ns_key not in seen_namespaces:
-        seen_namespaces.add(ns_key)
-        depth = len(ns_key)
-        if depth > 0:
-            name = ns_key[-1].split(":")[0]
-            prefix = "│ " * (depth - 1) + "├─ "
-            print(f"{prefix}{name}")
+async for subgraph in stream.subgraphs:
+    path_key = tuple(subgraph.path)
+    if path_key in seen_paths:
+        continue
+    seen_paths.add(path_key)
 
-    depth = len(ns_key)
-    indent = "│ " * depth + "  "
-    for node, state in chunk["data"].items():
-        print(f"{indent}[{node}] {list(state.keys())}")
+    depth = len(path_key)
+    names = [p.split(":")[0] for p in path_key]
+    prefix = "│ " * (depth - 1) + "├─ " if depth else ""
+    print(f"{prefix}{names[-1] if names else 'root'}")
 ```
 
 Output:
 ```
-[preprocess] ['prepared_input']
+├─ preprocess
 ├─ AgentNode
-│   [model] ['messages']
-│   ├─ tools
-│   │   [researcher] ['result']
-[postprocess] ['final_result']
+│ ├─ tools
+│ │ ├─ researcher
+├─ postprocess
 ```

@@ -1,12 +1,13 @@
-# Sync Streaming
+# Sync Event Streaming
 
-Consume graph output synchronously using `graph.stream()`. Useful for scripts, CLI tools, and tests.
+Consume graph output synchronously using `graph.stream_events(..., version="v3")`. Useful for scripts, CLI tools, and tests.
 
 ## Contents
 
 - Basic Pattern
-- Single Mode
-- Multiple Modes
+- Parameters
+- Single Projection
+- Multiple Projections (interleave)
 
 ## Basic Pattern
 
@@ -17,79 +18,87 @@ graph = {{ cookiecutter.cast_snake }}_graph()
 
 config = {"configurable": {"thread_id": "session-1"}}
 
-for chunk in graph.stream(
+stream = graph.stream_events(
     {"messages": [HumanMessage(content="hello")]},
     config=config,
-    stream_mode="messages",
-    subgraphs=True,
-    version="v2",
-):
-    if chunk["type"] == "messages":
-        msg, metadata = chunk["data"]
-        if msg.content:
-            print(msg.content, end="", flush=True)
+    version="v3",
+)
+
+for message in stream.messages:
+    for token in message.text:
+        print(token, end="", flush=True)
+
+final_state = stream.output
 ```
 
-### Parameters
+In sync code, `message.text` is iterable for token-by-token output, and `str(message.text)` drains the iterator and returns the full text. `stream.output` blocks until the run finishes.
+
+---
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `input` | dict \| Command \| None | — | Input state |
-| `config` | dict \| None | `None` | Execution config (thread_id, actor_id, etc.) |
-| `stream_mode` | str \| list | graph default | Which mode(s) to stream |
-| `print_mode` | str \| list | `()` | Same as stream_mode, but only prints to console for debugging. Does not affect stream output |
-| `subgraphs` | bool | `False` | Include subgraph/subagent outputs |
-| `version` | `"v1"` \| `"v2"` | `"v1"` | Always use `"v2"` for typed StreamPart output |
-| `output_keys` | str \| list \| None | `None` | Limit which state keys are streamed |
+| `input` | dict \| Command \| None | — | Input state (or `Command` for resume) |
+| `config` | dict \| None | `None` | Execution config (thread_id, actor_id, recursion_limit) |
+| `version` | `"v3"` | required | Always pass `"v3"` for the typed-projection event stream |
+| `transformers` | list | `[]` | Custom `StreamTransformer` classes for `stream.extensions` projections |
+| `context` | ContextT \| None | `None` | Static context for the run |
+| `durability` | `"sync"` \| `"async"` \| `"exit"` \| None | `None` | Checkpoint persistence timing. Requires checkpointer |
 | `interrupt_before` | list \| `"*"` \| None | `None` | Nodes to interrupt before execution |
 | `interrupt_after` | list \| `"*"` \| None | `None` | Nodes to interrupt after execution |
-| `context` | ContextT \| None | `None` | Static context for the run (v0.6.0+) |
-| `durability` | `"sync"` \| `"async"` \| `"exit"` \| None | `None` | Checkpoint persistence timing. Requires checkpointer |
 
 ---
 
-## Single Mode
+## Single Projection
 
 ```python
 graph = {{ cookiecutter.cast_snake }}_graph()
 
-# Messages — token-by-token
-for chunk in graph.stream(inputs, config=config, stream_mode="messages", version="v2"):
-    msg, metadata = chunk["data"]
-    if msg.content:
-        print(msg.content, end="", flush=True)
+stream = graph.stream_events(inputs, config=config, version="v3")
 
-# Updates — node execution tracking
-for chunk in graph.stream(inputs, config=config, stream_mode="updates", version="v2"):
-    for node, updates in chunk["data"].items():
-        print(f"{node}: {updates}")
+# Token-by-token
+for message in stream.messages:
+    for token in message.text:
+        print(token, end="", flush=True)
+```
 
-# Custom — progress events
-for chunk in graph.stream(inputs, config=config, stream_mode="custom", version="v2"):
-    print(f"Event: {chunk['data']}")
+```python
+# State snapshots
+stream = graph.stream_events(inputs, config=config, version="v3")
+
+for snapshot in stream.values:
+    print(snapshot)
+```
+
+```python
+# Tool execution
+stream = graph.stream_events(inputs, config=config, version="v3")
+
+for call in stream.tool_calls:
+    print(f"{call.tool_name}({call.input})")
+    for delta in call.output_deltas:
+        print(delta, end="", flush=True)
+    print(call.output, call.error)
 ```
 
 ---
 
-## Multiple Modes
+## Multiple Projections (interleave)
+
+For sync code, `stream.interleave(...)` returns `(projection_name, item)` tuples in strict arrival order:
 
 ```python
-graph = {{ cookiecutter.cast_snake }}_graph()
+stream = graph.stream_events(inputs, config=config, version="v3")
 
-for chunk in graph.stream(
-    inputs, config=config,
-    stream_mode=["messages", "updates", "custom"],
-    version="v2",
-):
-    if chunk["type"] == "messages":
-        msg, metadata = chunk["data"]
-        if msg.content:
-            print(msg.content, end="", flush=True)
-
-    elif chunk["type"] == "updates":
-        for node, state in chunk["data"].items():
-            print(f"\n[{node}] updated")
-
-    elif chunk["type"] == "custom":
-        print(f"\nStatus: {chunk['data']}")
+for name, item in stream.interleave("messages", "tool_calls", "values"):
+    if name == "messages":
+        for token in item.text:
+            print(token, end="", flush=True)
+    elif name == "tool_calls":
+        print(f"\n[tool] {item.tool_name}({item.input})")
+    elif name == "values":
+        print(f"\n[state] keys={list(item)}")
 ```
+
+For concurrent (non-arrival-order) consumption in sync code, drain projections sequentially — each projection iterator independently reads from the underlying event stream.

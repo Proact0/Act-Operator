@@ -1,7 +1,7 @@
 ---
 name: streaming-cast
-description: Implements LangGraph v2 streaming for graphs with subgraphs and agents. Use when adding streaming to runtime/API endpoint, need token streaming, custom stream events, namespace parsing, or ask "add streaming", "stream tokens", "stream graph".
-version: "2026.04.01"
+description: Implements LangGraph v3 event streaming for graphs with subgraphs and agents. Use when adding streaming to runtime/API endpoint, need token streaming, custom stream projections, subagent streaming, or ask "add streaming", "stream tokens", "stream graph".
+version: "2026.05.26"
 author: Proact0
 allowed-tools:
   - Read
@@ -9,16 +9,16 @@ allowed-tools:
   - Edit
   - AskUserQuestion
 ---
-# Streaming {{ cookiecutter.act_name }}'s Casts (v2)
+# Streaming {{ cookiecutter.act_name }}'s Casts (v3)
 
-Implement v2 streaming to consume `{{ cookiecutter.cast_snake }}_graph()` output in runtime, API endpoints, or other consumers.
+Implement v3 event streaming to consume `{{ cookiecutter.cast_snake }}_graph()` output in runtime, API endpoints, or other consumers. Event streaming returns a run stream object with typed projections (`stream.messages`, `stream.values`, `stream.subgraphs`, `stream.output`, `stream.tool_calls`, ...) for independent consumption.
 
 ## When to Use
 
 - Adding streaming output to a runtime or API endpoint
-- Need token-by-token LLM output, tool call, tool result streaming
-- Custom progress events from nodes via stream writer
-- Namespace parsing for subgraph/subagent source identification
+- Need token-by-token LLM output, tool call lifecycle, or final output streaming
+- Custom progress events from nodes via stream writer (with custom transformers)
+- Subagent/subgraph projection for source identification
 - Transport integration (SSE recommended, WebSocket optional)
 
 ## When NOT to Use
@@ -47,59 +47,62 @@ config = {
     "recursion_limit": 2000,
 }
 
-async for chunk in graph.astream(
+stream = await graph.astream_events(
     {"messages": [HumanMessage(content="hello")]},
     config=config,
-    stream_mode="messages",
-    subgraphs=True,
-    version="v2",
-):
-    if chunk["type"] == "messages":
-        msg, metadata = chunk["data"]
-        # node == "model" for agent graphs, adjust for custom graphs
-        if msg.content and metadata.get("langgraph_node") == "model":
-            print(msg.content, end="", flush=True)
+    version="v3",
+)
+
+async for message in stream.messages:
+    async for token in message.text:
+        print(token, end="", flush=True)
+
+final_state = await stream.output
 ```
 
 ---
 
 ## Implementation Workflow
 
-### Step 1: Choose Stream Mode(s)
+### Step 1: Choose Projection(s)
 
-See [core/stream-modes.md](./resources/core/stream-modes.md).
+See [core/projections.md](./resources/core/projections.md).
 
-| Goal | Stream Mode |
+| Goal | Projection |
 |------|------------|
-| LLM token-by-token output | `"messages"` |
-| Track node execution steps | `"updates"` |
-| Custom progress events | `"custom"` |
-| Full state after each step | `"values"` |
+| LLM token-by-token output | `stream.messages` |
+| Track state snapshots after each step | `stream.values` |
+| Final agent state | `stream.output` |
+| Nested subgraph/subagent discovery | `stream.subgraphs` |
+| Tool execution lifecycle | `stream.tool_calls` |
+| Custom transformer projections | `stream.extensions` |
+| Interrupt handling (HITL) | `stream.interrupts` / `stream.interrupted` |
 
-Combine: `stream_mode=["messages", "updates", "custom"]`
+Multiple projections are consumed concurrently via `asyncio.gather` (async) or `stream.interleave(...)` (sync).
 
-### Step 2: Consume the Stream
+### Step 2: Open the Event Stream
 
-Import the graph, call it, iterate with `stream()`/`astream()`.
+Import the graph, call `stream_events()` (sync) or `await graph.astream_events()` (async).
 
 ```python
 graph = {{ cookiecutter.cast_snake }}_graph()
-async for chunk in graph.astream(inputs, config, stream_mode=..., subgraphs=True, version="v2"):
-    ...
+stream = await graph.astream_events(inputs, config=config, version="v3")
 ```
 
-### Step 3: Handle Message Types
+### Step 3: Consume Typed Projections
 
-Dispatch based on message properties:
-- Token → `msg.content` with `node == "model"`
-- Tool call → `msg.tool_call_chunks`
-- Tool result → `msg.type == "tool"`
+Dispatch on projection properties:
+- Token → `message.text` (async iterator of text deltas)
+- Reasoning → `message.reasoning`
+- Tool-call argument chunks → `message.tool_calls`
+- Tool execution lifecycle → `stream.tool_calls` (`call.tool_name`, `call.input`, `call.output_deltas`, `call.output`, `call.error`)
+- Nested graphs/subagents → `stream.subgraphs` (each handle exposes `.messages`, `.tool_calls`, `.values`, `.output`)
 
 See [graph/message-handling.md](./resources/graph/message-handling.md).
 
-### Step 4: Parse Namespace (if subgraphs/subagents)
+### Step 4: Filter by Subgraph / Subagent
 
-Use `chunk["ns"]` to identify event source.
+`stream.subgraphs` yields a handle per nested graph execution. Filter by `subgraph.graph_name`. No namespace string parsing required.
 
 See [subgraph/nested-streaming.md](./resources/subgraph/nested-streaming.md).
 
@@ -115,9 +118,9 @@ See [patterns/integration.md](./resources/patterns/integration.md). SSE is the L
 
 | Use when | Resource |
 |----------|----------|
-| choosing which stream mode(s) to use | [core/stream-modes.md](./resources/core/stream-modes.md) |
-| understanding StreamPart format and type narrowing | [core/streampart-format.md](./resources/core/streampart-format.md) |
-| emitting custom events from nodes (get_stream_writer) | [core/stream-writer.md](./resources/core/stream-writer.md) |
+| choosing which projection(s) to use | [core/projections.md](./resources/core/projections.md) |
+| understanding ProtocolEvent envelope and channels (raw events) | [core/protocol-events.md](./resources/core/protocol-events.md) |
+| emitting custom events from nodes (get_stream_writer + StreamTransformer) | [core/stream-writer.md](./resources/core/stream-writer.md) |
 
 ### Stream Consumption
 
@@ -125,32 +128,32 @@ See [patterns/integration.md](./resources/patterns/integration.md). SSE is the L
 |----------|----------|
 | sync streaming (scripts, tests) | [graph/sync-streaming.md](./resources/graph/sync-streaming.md) |
 | async streaming (runtime, API endpoints) | [graph/async-streaming.md](./resources/graph/async-streaming.md) |
-| handling tokens, tool calls, tool results | [graph/message-handling.md](./resources/graph/message-handling.md) |
+| handling tokens, reasoning, tool calls, tool results | [graph/message-handling.md](./resources/graph/message-handling.md) |
 
-### Subgraph & Namespace
+### Subgraph & Subagent
 
 | Use when | Resource |
 |----------|----------|
-| streaming through subgraphs (subgraphs=True) | [subgraph/subgraph-streaming.md](./resources/subgraph/subgraph-streaming.md) |
-| parsing multi-level namespaces (_parse_source) | [subgraph/nested-streaming.md](./resources/subgraph/nested-streaming.md) |
-| streaming create_agent/create_deep_agent (node or subgraph) | [subgraph/agent-streaming.md](./resources/subgraph/agent-streaming.md) |
+| streaming through subgraphs (stream.subgraphs) | [subgraph/subgraph-streaming.md](./resources/subgraph/subgraph-streaming.md) |
+| filtering nested subgraphs by graph_name | [subgraph/nested-streaming.md](./resources/subgraph/nested-streaming.md) |
+| streaming create_agent/create_deep_agent (subagents projection) | [subgraph/agent-streaming.md](./resources/subgraph/agent-streaming.md) |
 
 ### Patterns
 
 | Use when | Resource |
 |----------|----------|
-| filtering by node name, tag, or namespace | [patterns/filtering.md](./resources/patterns/filtering.md) |
-| combining multiple stream modes | [patterns/multiple-modes.md](./resources/patterns/multiple-modes.md) |
+| filtering by node name, tag, or graph_name | [patterns/filtering.md](./resources/patterns/filtering.md) |
+| combining multiple projections (gather / interleave) | [patterns/multiple-modes.md](./resources/patterns/multiple-modes.md) |
 | SSE / WebSocket transport integration | [patterns/integration.md](./resources/patterns/integration.md) |
 
 ---
 
 ## Verification
 
-- [ ] Stream mode(s) chosen for use case
-- [ ] `version="v2"` passed to all `stream()`/`astream()` calls
-- [ ] `subgraphs=True` set when graph has internal subgraphs/subagents
-- [ ] Message types handled (token, tool_call, tool_result, done)
-- [ ] Namespace parsed correctly for source identification
-- [ ] Agent/DeepAgent streaming verified (subgraphs=True propagates through agents)
+- [ ] Projection(s) chosen for use case
+- [ ] `version="v3"` passed to `stream_events()`/`astream_events()` calls
+- [ ] Message text/reasoning/tool_calls iterated via projection properties (no manual namespace parsing)
+- [ ] Subgraphs consumed via `stream.subgraphs`, filtered by `graph_name`
+- [ ] Tool execution consumed via `stream.tool_calls`
+- [ ] Interrupts handled via `stream.interrupted` and `stream.interrupts`
 - [ ] Transport layer tested end-to-end (SSE / WebSocket)

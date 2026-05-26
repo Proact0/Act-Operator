@@ -1,6 +1,6 @@
 # Transport Integration
 
-Stream graph events to external consumers via SSE or WebSocket.
+Stream graph events to external consumers via SSE or WebSocket using v3 typed projections.
 
 ## Contents
 
@@ -13,28 +13,15 @@ Stream graph events to external consumers via SSE or WebSocket.
 Server-Sent Events — LangChain/LangGraph ecosystem recommended pattern for HTTP-based streaming:
 
 ```python
+import asyncio
 import json
 import logging
 
-from langchain_core.messages import AIMessageChunk, HumanMessage
+from langchain_core.messages import HumanMessage
 
 from casts.{{ cookiecutter.cast_snake }}.graph import {{ cookiecutter.cast_snake }}_graph
 
 logger = logging.getLogger(__name__)
-
-
-def _parse_source(ns: tuple[str, ...]) -> str:
-    if len(ns) <= 1:
-        return "{{ cookiecutter.cast_snake }}"
-    found_tools = False
-    for seg in ns[1:]:
-        name = seg.split(":")[0] if ":" in seg else seg
-        if name == "tools":
-            found_tools = True
-            continue
-        if found_tools:
-            return name
-    return "{{ cookiecutter.cast_snake }}"
 
 
 async def event_generator(query: str, config: dict):
@@ -42,31 +29,68 @@ async def event_generator(query: str, config: dict):
     graph = {{ cookiecutter.cast_snake }}_graph()
     inputs = {"messages": [HumanMessage(content=query)]}
 
-    async for chunk in graph.astream(
-        inputs, config=config,
-        stream_mode="messages",
-        subgraphs=True,
-        version="v2",
-    ):
-        if chunk["type"] != "messages":
-            continue
+    stream = await graph.astream_events(inputs, config=config, version="v3")
+    queue: asyncio.Queue = asyncio.Queue()
+    sentinel = object()
 
-        msg, metadata = chunk["data"]
-        source = _parse_source(chunk["ns"])
-        node = metadata.get("langgraph_node")
+    async def dispatch_messages():
+        async for message in stream.messages:
+            async for token in message.text:
+                await queue.put({
+                    "event": "token",
+                    "data": {"content": token, "node": message.node, "source": "{{ cookiecutter.cast_snake }}"},
+                })
 
-        if msg.content and node == "model":
-            yield f"event: token\ndata: {json.dumps({'content': msg.content, 'source': source})}\n\n"
+    async def dispatch_tool_calls():
+        async for call in stream.tool_calls:
+            await queue.put({
+                "event": "tool_call",
+                "data": {"name": call.tool_name, "args": call.input, "source": "{{ cookiecutter.cast_snake }}"},
+            })
+            async for delta in call.output_deltas:
+                await queue.put({
+                    "event": "tool_delta",
+                    "data": {"delta": delta, "name": call.tool_name},
+                })
+            await queue.put({
+                "event": "tool_result",
+                "data": {
+                    "name": call.tool_name,
+                    "content": str(call.output) if call.error is None else None,
+                    "error": str(call.error) if call.error else None,
+                },
+            })
 
-        if isinstance(msg, AIMessageChunk) and msg.tool_call_chunks:
-            for tc in msg.tool_call_chunks:
-                if tc.get("name"):
-                    yield f"event: tool_call\ndata: {json.dumps({'name': tc['name'], 'source': source})}\n\n"
+    async def dispatch_subagents():
+        async for subagent in stream.subagents:
+            async for message in subagent.messages:
+                async for token in message.text:
+                    await queue.put({
+                        "event": "token",
+                        "data": {"content": token, "node": message.node, "source": subagent.name},
+                    })
 
-        if msg.type == "tool":
-            yield f"event: tool_result\ndata: {json.dumps({'name': msg.name, 'content': str(msg.content), 'source': source})}\n\n"
+    async def run():
+        try:
+            await asyncio.gather(
+                dispatch_messages(),
+                dispatch_tool_calls(),
+                dispatch_subagents(),
+            )
+        finally:
+            await queue.put(sentinel)
 
-    yield "event: done\ndata: {}\n\n"
+    task = asyncio.create_task(run())
+
+    try:
+        while True:
+            item = await queue.get()
+            if item is sentinel:
+                break
+            yield f"event: {item['event']}\ndata: {json.dumps(item['data'])}\n\n"
+        yield "event: done\ndata: {}\n\n"
+    finally:
+        task.cancel()
 ```
 
 The `event_generator` is a plain async generator — integrate with any Python web framework (FastAPI, Starlette, aiohttp, Django Channels, etc.) by wiring it to an SSE response.
@@ -78,27 +102,14 @@ The `event_generator` is a plain async generator — integrate with any Python w
 WebSocket pattern — use when bidirectional communication or real-time push is required:
 
 ```python
+import asyncio
 import logging
 
-from langchain_core.messages import AIMessageChunk, HumanMessage
+from langchain_core.messages import HumanMessage
 
 from casts.{{ cookiecutter.cast_snake }}.graph import {{ cookiecutter.cast_snake }}_graph
 
 logger = logging.getLogger(__name__)
-
-
-def _parse_source(ns: tuple[str, ...]) -> str:
-    if len(ns) <= 1:
-        return "{{ cookiecutter.cast_snake }}"
-    found_tools = False
-    for seg in ns[1:]:
-        name = seg.split(":")[0] if ":" in seg else seg
-        if name == "tools":
-            found_tools = True
-            continue
-        if found_tools:
-            return name
-    return "{{ cookiecutter.cast_snake }}"
 
 
 async def handle_websocket_message(send_json, data: dict) -> None:
@@ -120,44 +131,47 @@ async def handle_websocket_message(send_json, data: dict) -> None:
         "recursion_limit": 2000,
     }
 
-    async for chunk in graph.astream(
-        inputs, config=config,
-        stream_mode="messages",
-        subgraphs=True,
-        version="v2",
-    ):
-        if chunk["type"] != "messages":
-            continue
+    stream = await graph.astream_events(inputs, config=config, version="v3")
 
-        msg, metadata = chunk["data"]
-        source = _parse_source(chunk["ns"])
-        node = metadata.get("langgraph_node")
+    async def messages_task():
+        async for message in stream.messages:
+            async for token in message.text:
+                await send_json({
+                    "type": "token",
+                    "content": token,
+                    "node": message.node,
+                    "source": "{{ cookiecutter.cast_snake }}",
+                })
 
-        if msg.content and node == "model":
-            await send_json(
-                {"type": "token", "content": msg.content, "source": source}
-            )
-
-        if isinstance(msg, AIMessageChunk) and msg.tool_call_chunks:
-            for tc in msg.tool_call_chunks:
-                if tc.get("name"):
-                    await send_json({
-                        "type": "tool_call",
-                        "name": tc["name"],
-                        "args": tc.get("args", ""),
-                        "id": tc.get("id", ""),
-                        "source": source,
-                    })
-
-        if msg.type == "tool":
+    async def tool_calls_task():
+        async for call in stream.tool_calls:
+            await send_json({
+                "type": "tool_call",
+                "name": call.tool_name,
+                "args": call.input,
+                "source": "{{ cookiecutter.cast_snake }}",
+            })
+            async for delta in call.output_deltas:
+                await send_json({"type": "tool_delta", "delta": delta, "name": call.tool_name})
             await send_json({
                 "type": "tool_result",
-                "name": msg.name,
-                "content": msg.content if isinstance(msg.content, str) else str(msg.content),
-                "tool_call_id": msg.tool_call_id,
-                "source": source,
+                "name": call.tool_name,
+                "content": str(call.output) if call.error is None else None,
+                "error": str(call.error) if call.error else None,
             })
 
+    async def subagents_task():
+        async for subagent in stream.subagents:
+            async for message in subagent.messages:
+                async for token in message.text:
+                    await send_json({
+                        "type": "token",
+                        "content": token,
+                        "node": message.node,
+                        "source": subagent.name,
+                    })
+
+    await asyncio.gather(messages_task(), tool_calls_task(), subagents_task())
     await send_json({"type": "done"})
 ```
 
@@ -167,7 +181,8 @@ async def handle_websocket_message(send_json, data: dict) -> None:
 
 | Direction | Event | Data |
 |-----------|-------|------|
-| S→C | `token` | `{content, source}` |
-| S→C | `tool_call` | `{name, source}` |
-| S→C | `tool_result` | `{name, content, source}` |
+| S→C | `token` | `{content, node, source}` |
+| S→C | `tool_call` | `{name, args, source}` |
+| S→C | `tool_delta` | `{delta, name}` |
+| S→C | `tool_result` | `{name, content, error}` |
 | S→C | `done` | `{}` |

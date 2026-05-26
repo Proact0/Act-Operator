@@ -1,87 +1,130 @@
 # Message Handling
 
-Handle LLM tokens, tool calls, and tool results from `stream_mode="messages"`.
+Handle text deltas, reasoning content, and tool calls from `stream.messages`.
 
 ## Contents
 
-- Message Types
-- Token Handling
-- Tool Call Handling
-- Tool Result Handling
+- ChatModelStream Fields
+- Text Tokens
+- Reasoning Tokens
+- Tool Call Argument Chunks (LLM-side)
+- Tool Execution Lifecycle (stream.tool_calls)
+- Final Message Object
 - Complete Dispatch Pattern
-- Detect Message Completion
-- Reasoning/Thinking Tokens
 
-## Message Types
+## ChatModelStream Fields
 
-With `stream_mode="messages"`, each chunk's data is a `(message_chunk, metadata)` tuple:
+`stream.messages` yields one `ChatModelStream` per LLM call. Each exposes:
 
-| `msg` type | Property | Description |
-|------------|----------|-------------|
-| `AIMessageChunk` | `msg.content` | LLM text token |
-| `AIMessageChunk` | `msg.tool_call_chunks` | LLM decided to call a tool |
-| Tool message | `msg.type == "tool"` | Tool execution result |
+| Field | Description |
+|-------|-------------|
+| `message.node` | The graph node that invoked the LLM (`"model"` for agent graphs) |
+| `message.text` | Text deltas (iterable for live streaming, `str(...)` for final text) |
+| `message.reasoning` | Reasoning deltas (only for models that emit reasoning blocks) |
+| `message.tool_calls` | Tool-call argument chunks (iterable); `.get()` returns finalized list |
+| `message.output` | Final `AIMessage` after the call completes |
+| `message.usage` (TS) / `message.output.usage_metadata` (Python) | Token counts |
 
 ---
 
-## Token Handling
+## Text Tokens
 
-> **Note:** `metadata["langgraph_node"]` returns the node name registered with `add_node()`.
-> For agent-based graphs (`create_agent`, `create_deep_agent`), the LLM node is named `"model"`.
-> For custom StateGraph, it matches your `add_node("YourNodeName", ...)` call.
+> **Note:** `message.node` returns the graph node that invoked the LLM. For agent-based graphs (`create_agent`, `create_deep_agent`), the LLM node is named `"model"`. For custom StateGraph, it matches your `add_node("YourNodeName", ...)` call. `stream.messages` already filters to chat-model output; you do not need to filter by node unless you have multiple LLM-emitting nodes.
 
 ```python
-from langchain_core.messages import AIMessageChunk
-
 graph = {{ cookiecutter.cast_snake }}_graph()
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", subgraphs=True, version="v2",
-):
-    if chunk["type"] != "messages":
-        continue
+stream = await graph.astream_events(inputs, config=config, version="v3")
 
-    msg, metadata = chunk["data"]
-    node = metadata.get("langgraph_node")
-
-    # Text tokens — filter by node name
-    # Agent graphs: node == "model"
-    # Custom graphs: node == "YourNodeName"
-    if msg.content and node == "model":
-        await send_token(msg.content)
+async for message in stream.messages:
+    print(f"[{message.node}] ", end="")
+    async for token in message.text:
+        await send_token(token)
 ```
 
 ---
 
-## Tool Call Handling
+## Reasoning Tokens
 
-When the model decides to call a tool, it emits `AIMessageChunk` with `tool_call_chunks`:
+Reasoning content uses the same shape as text content, but is only emitted by models that produce reasoning blocks (e.g. Claude with extended thinking).
 
 ```python
-    if isinstance(msg, AIMessageChunk) and msg.tool_call_chunks:
-        for tc in msg.tool_call_chunks:
-            if tc.get("name"):
-                await send_tool_call(
-                    name=tc["name"],
-                    args=tc.get("args", ""),
-                    id=tc.get("id", ""),
-                )
+stream = await graph.astream_events(inputs, config=config, version="v3")
+
+async for message in stream.messages:
+    async for delta in message.reasoning:
+        print(f"[thinking] {delta}", end="", flush=True)
+
+    async for delta in message.text:
+        print(delta, end="", flush=True)
 ```
 
 ---
 
-## Tool Result Handling
+## Tool Call Argument Chunks (LLM-side)
 
-After tool execution, the result comes back as a tool message:
+`message.tool_calls` streams tool-call argument chunks **while the model is producing the tool call**:
 
 ```python
-    if msg.type == "tool":
-        await send_tool_result(
-            name=msg.name,
-            content=msg.content if isinstance(msg.content, str) else str(msg.content),
-            tool_call_id=msg.tool_call_id,
-        )
+stream = await graph.astream_events(inputs, config=config, version="v3")
+
+async for message in stream.messages:
+    async for chunk in message.tool_calls:
+        # chunk while the model emits the tool call
+        await send_tool_call_chunk(chunk)
+
+    finalized = message.tool_calls.get()
+    if finalized:
+        # final tool call objects after message-finish
+        await send_finalized_tool_calls(finalized)
+```
+
+---
+
+## Tool Execution Lifecycle (stream.tool_calls)
+
+`stream.tool_calls` streams the lifecycle of tool execution **after the tool starts running**:
+
+```python
+stream = await graph.astream_events(inputs, config=config, version="v3")
+
+async for call in stream.tool_calls:
+    print(f"{call.tool_name}({call.input})")
+    async for delta in call.output_deltas:
+        print(delta, end="", flush=True)
+
+    if call.completed and call.error is None:
+        print(call.output)
+    elif call.error is not None:
+        print(call.error)
+```
+
+| Field | Description |
+|-------|-------------|
+| `call.tool_name` | Tool that was invoked |
+| `call.input` | Arguments passed to the tool |
+| `call.output_deltas` | Streaming tool output chunks |
+| `call.output` | Final tool output (after `completed`) |
+| `call.error` | Error if execution failed |
+| `call.completed` | Boolean, true after `tool-finished`/`tool-error` |
+
+---
+
+## Final Message Object
+
+`message.output` is the finalized `AIMessage` after the LLM call completes, including provider-specific content blocks:
+
+```python
+stream = await graph.astream_events(inputs, config=config, version="v3")
+
+async for message in stream.messages:
+    async for _ in message.text:
+        pass  # drain text deltas
+
+    full_message = message.output
+    usage = full_message.usage_metadata
+    if usage:
+        print(f"tokens: {usage.input_tokens}/{usage.output_tokens}")
 ```
 
 ---
@@ -91,99 +134,41 @@ After tool execution, the result comes back as a tool message:
 Full message dispatch as used in runtime endpoints. `send` is any async callable that delivers a dict to the client (SSE yield, WebSocket send, etc.):
 
 ```python
-from langchain_core.messages import AIMessageChunk
+import asyncio
 
 graph = {{ cookiecutter.cast_snake }}_graph()
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages",
-    subgraphs=True,
-    version="v2",
-):
-    if chunk["type"] != "messages":
-        continue
+stream = await graph.astream_events(inputs, config=config, version="v3")
 
-    msg, metadata = chunk["data"]
-    source = _parse_source(chunk["ns"])
-    node = metadata.get("langgraph_node")
+async def dispatch_messages():
+    async for message in stream.messages:
+        # Text tokens
+        async for token in message.text:
+            await send({"type": "token", "content": token, "node": message.node})
 
-    # 1. Text tokens (node == "model" for agent graphs, adjust for custom graphs)
-    if msg.content and node == "model":
-        await send({"type": "token", "content": msg.content, "source": source})
+        # Reasoning (if model emits)
+        async for delta in message.reasoning:
+            await send({"type": "reasoning", "content": delta, "node": message.node})
 
-    # 2. Tool calls
-    if isinstance(msg, AIMessageChunk) and msg.tool_call_chunks:
-        for tc in msg.tool_call_chunks:
-            if tc.get("name"):
-                await send({
-                    "type": "tool_call",
-                    "name": tc["name"],
-                    "args": tc.get("args", ""),
-                    "id": tc.get("id", ""),
-                    "source": source,
-                })
+        # Tool call argument chunks during model output
+        async for chunk in message.tool_calls:
+            await send({"type": "tool_call_chunk", "data": chunk})
 
-    # 3. Tool results
-    if msg.type == "tool":
+async def dispatch_tool_calls():
+    async for call in stream.tool_calls:
         await send({
-            "type": "tool_result",
-            "name": msg.name,
-            "content": msg.content if isinstance(msg.content, str) else str(msg.content),
-            "tool_call_id": msg.tool_call_id,
-            "source": source,
+            "type": "tool_call",
+            "name": call.tool_name,
+            "args": call.input,
         })
+        async for delta in call.output_deltas:
+            await send({"type": "tool_output_delta", "delta": delta})
 
-# 4. Done
+        if call.error is not None:
+            await send({"type": "tool_error", "error": str(call.error)})
+        elif call.completed:
+            await send({"type": "tool_result", "name": call.tool_name, "output": call.output})
+
+await asyncio.gather(dispatch_messages(), dispatch_tool_calls())
 await send({"type": "done"})
-```
-
----
-
-## Detect Message Completion
-
-Use `chunk_position` metadata:
-
-```python
-buffer = ""
-
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", version="v2",
-):
-    if chunk["type"] != "messages":
-        continue
-    msg, metadata = chunk["data"]
-
-    if msg.content:
-        buffer += msg.content
-
-    if metadata.get("chunk_position") == "last":
-        process_complete_message(buffer)
-        buffer = ""
-```
-
----
-
-## Reasoning/Thinking Tokens
-
-For models with extended thinking (e.g., Claude):
-
-```python
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", version="v2",
-):
-    if chunk["type"] != "messages":
-        continue
-    msg, metadata = chunk["data"]
-
-    if hasattr(msg, "content_blocks") and msg.content_blocks:
-        for block in msg.content_blocks:
-            if block["type"] == "reasoning":
-                pass  # thinking token — hide or show separately
-            elif block["type"] == "text":
-                print(block.get("text", ""), end="", flush=True)
-    elif msg.content:
-        print(msg.content, end="", flush=True)
 ```
