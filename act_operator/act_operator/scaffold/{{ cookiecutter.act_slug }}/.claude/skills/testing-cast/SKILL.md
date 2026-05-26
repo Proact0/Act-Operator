@@ -1,7 +1,7 @@
 ---
 name: testing-cast
-description: Guides pytest test writing for LangGraph casts with mocking patterns for LLM/API/Store calls. Use when writing tests, need mock strategies, setting up fixtures, testing nodes/graphs, or ask "write tests", "mock LLM", "test coverage".
-version: "2026.02.03"
+description: Guides pytest test writing for LangGraph casts with mocking patterns for LLM/API/Store calls. Use when writing tests, need mock strategies, setting up fixtures, testing nodes/graphs (v3 event streaming, timeouts, error handlers, graceful shutdown), or ask "write tests", "mock LLM", "test coverage".
+version: "2026.05.26"
 author: Proact0
 allowed-tools:
   - Bash(uv run pytest *)

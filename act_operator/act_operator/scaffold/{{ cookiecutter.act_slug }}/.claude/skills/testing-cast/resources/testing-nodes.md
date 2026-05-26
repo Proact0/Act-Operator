@@ -113,7 +113,7 @@ def test_logs_error(self, caplog):
 def test_returns_only_updates():
     node = MyNode()
     result = node.execute({"input": "test", "existing": "data"})
-    
+
     assert "existing" not in result  # Only updates returned
     assert "processed" in result
 ```
@@ -123,8 +123,35 @@ def test_returns_only_updates():
 def test_verbose_output(capsys):
     node = MyNode(verbose=True)
     node.execute({"input": "test"})
-    
+
     captured = capsys.readouterr()
     assert "Executing" in captured.out
+```
+
+## Testing Drain-Aware Nodes (langgraph v1.2+)
+
+`runtime.drain_requested` lets nodes skip expensive work when a graceful shutdown is requested.
+
+```python
+from types import SimpleNamespace
+
+@pytest.mark.asyncio
+async def test_skips_when_drain_requested():
+    runtime = SimpleNamespace(drain_requested=True, drain_reason="SIGTERM")
+    node = ExpensiveNode()
+
+    result = await node.execute({"input": "test"}, runtime=runtime)
+
+    assert result["status"].startswith("skipped:")
+    assert "SIGTERM" in result["status"]
+
+@pytest.mark.asyncio
+async def test_runs_when_no_drain():
+    runtime = SimpleNamespace(drain_requested=False, drain_reason=None)
+    node = ExpensiveNode()
+
+    result = await node.execute({"input": "test"}, runtime=runtime)
+
+    assert "result" in result
 ```
 
