@@ -1,7 +1,7 @@
 ---
 name: developing-deepagent
-description: Implements DeepAgent components using LangChain's deepagents SDK. Use when building deep agents with create_deep_agent, configuring backends/subagents/skills/memory, need DeepAgent patterns (sandbox, HITL interrupts, long-term memory, subagent spawning), or ask "implement deep agent", "add subagent", "configure backend".
-version: "2026.03.31"
+description: Implements DeepAgent components using LangChain's deepagents SDK. Use when building deep agents with create_deep_agent, configuring backends/subagents/skills/memory/interpreter, need DeepAgent patterns (sandbox, HITL interrupts, long-term memory, subagent spawning, subagent structured output, QuickJS code interpreter with programmatic tool calling), or ask "implement deep agent", "add subagent", "configure backend", "add interpreter".
+version: "2026.05.26"
 author: Proact0
 allowed-tools:
   - Bash(uv sync *)
@@ -158,13 +158,19 @@ ANTHROPIC_API_KEY=your_key
 | adding skill directories to deep agent | [skills/usage.md](./resources/skills/usage.md) |
 | configuring skills for subagents | [skills/subagent-skills.md](./resources/skills/subagent-skills.md) |
 
-### Sandbox (Code Execution)
+### Sandbox (Code Execution — OS-level)
 
 | Use when | Resource |
 |----------|----------|
 | understanding sandbox architecture | [sandbox/overview.md](./resources/sandbox/overview.md) |
 | running code in isolated environment (Modal/Daytona/Runloop) | [sandbox/providers.md](./resources/sandbox/providers.md) |
 | using local shell for dev/testing | [sandbox/local-shell.md](./resources/sandbox/local-shell.md) |
+
+### Interpreter (Code Execution — QuickJS, in-agent)
+
+| Use when | Resource |
+|----------|----------|
+| composing tools/orchestrating subagents from code (CodeInterpreterMiddleware) | [interpreter/code-interpreter.md](./resources/interpreter/code-interpreter.md) |
 
 ### Middleware
 
@@ -192,8 +198,11 @@ ANTHROPIC_API_KEY=your_key
 ## Verification
 
 - [ ] CLAUDE.md checked (root + agent spec if exists, skipped if not)
-- [ ] `deepagents` package installed
+- [ ] `deepagents` package installed (`deepagents[quickjs]` if using interpreter)
 - [ ] Implementation order: backend → tools → subagents → middleware → agent
 - [ ] Backend type matches requirements (State/Filesystem/Store/Composite)
+- [ ] Backends instantiated directly (`StateBackend()`, `StoreBackend()`) — no factory closures (v0.5+)
 - [ ] HITL configured for sensitive tools (if needed)
+- [ ] Subagent `response_format` set when parent needs structured output (v0.5.3+)
+- [ ] Interpreter PTC allowlist scoped only to required tools (if using `CodeInterpreterMiddleware`)
 - [ ] Agent compiles and invokes successfully
