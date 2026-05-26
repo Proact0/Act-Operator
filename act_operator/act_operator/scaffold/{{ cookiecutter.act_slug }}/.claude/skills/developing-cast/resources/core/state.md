@@ -7,6 +7,7 @@ State is defined in `casts/{cast_name}/modules/state.py` using `TypedDict`.
 - Basic State
 - With Messages (Most Common)
 - Reducers
+- DeltaChannel (long-running threads)
 - Input/Output Schemas
 - Private State
 - Complete Example
@@ -74,6 +75,54 @@ class State(TypedDict):
     count: int                              # Overwrite
     items: Annotated[list[str], add]        # Append
 ```
+
+---
+
+## DeltaChannel (long-running threads)
+
+**When to use:** A channel grows large over time (e.g., a multi-turn message list) and you see checkpoint sizes growing linearly with thread length.
+
+`DeltaChannel` (langgraph v1.2+, beta) stores only the **incremental delta** per step instead of re-serializing the full accumulated value. The reducer runs on **reconstruction**, not on write.
+
+```python
+# casts/{cast_name}/modules/state.py
+from typing import Annotated, Any, Sequence
+from typing_extensions import TypedDict
+from langgraph.channels import DeltaChannel
+
+
+# Bulk reducer: receives state + sequence of all writes from the current step
+def list_reducer(state: list[Any], writes: Sequence[list[Any]]) -> list[Any]:
+    result = list(state)
+    for write in writes:
+        result.extend(write)
+    return result
+
+
+class State(TypedDict):
+    # Standard reducer (per-write call)
+    count: int
+
+    # DeltaChannel — bulk reducer (per-step call on reconstruction)
+    history: Annotated[
+        list[str],
+        DeltaChannel(list_reducer, snapshot_frequency=5),
+    ]
+```
+
+### Rules
+
+- **Bulk reducer:** signature is `(state, writes: Sequence[Write]) -> NewState` — not pairwise per-write.
+- **Must be associative:** `reducer(reducer(s, [xs]), [ys]) == reducer(s, [xs, ys])`. Non-associative reducers cause replay inconsistency.
+- **Pure function:** no side effects, no `uuid.uuid4()`, no `datetime.now()` — the reducer runs on every reconstruction.
+- **Identity upstream:** if downstream code references items by stable ID, assign IDs **before writing**, not inside the reducer (mutations are not persisted).
+- **`snapshot_frequency=K`** writes a full snapshot every K pregel steps. Bounds read latency to ≤ K steps of replay; trade-off between storage and read latency. `None` (default) writes no snapshots — appropriate for short threads or rare reads.
+
+### When NOT to use
+
+- Short-lived threads (snapshot overhead exceeds delta savings)
+- Channels with non-associative reducers (replay produces inconsistent values)
+- Standard `add_messages` is already optimized — only switch when you measure pain
 
 ---
 

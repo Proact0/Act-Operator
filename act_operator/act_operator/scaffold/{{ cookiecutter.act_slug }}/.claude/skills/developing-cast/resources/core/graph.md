@@ -9,6 +9,9 @@ Graphs are implemented in `casts/{cast_name}/graph.py` by extending `BaseGraph`.
 - With Checkpointing (Persistence)
 - With Store (Cross-Thread Memory)
 - With Interrupts (Human-in-the-Loop)
+- Event Streaming v3 (langgraph v1.2+)
+- Typed Invoke v2 (langgraph v1.1+)
+- Graceful Shutdown (langgraph v1.2+)
 - Decision Framework
 - Common Mistakes
 
@@ -155,54 +158,27 @@ class InterruptibleGraph(BaseGraph):
 
 ---
 
-## Type-Safe Streaming v2 (langgraph v1.1+)
+## Event Streaming v3 (langgraph v1.2+)
 
-Pass `version="v2"` to `stream()`/`astream()` for unified `StreamPart` output. Every chunk has `type`, `ns`, and `data` keys:
+Pass `version="v3"` to `stream_events()`/`astream_events()` for a typed-projection event stream. The returned run object exposes `run.messages`, `run.values`, `run.subgraphs`, `run.tool_calls`, `run.output`, `run.interrupts`, and `run.extensions`.
 
 ```python
 graph = my_graph.build()
 
-# v2 streaming — unified StreamPart format
-for chunk in graph.stream(
-    {"topic": "ice cream"},
-    stream_mode=["updates", "custom"],
-    version="v2",
-):
-    if chunk["type"] == "updates":
-        for node_name, state in chunk["data"].items():
-            print(f"Node {node_name} updated: {state}")
-    elif chunk["type"] == "custom":
-        print(f"Status: {chunk['data']['status']}")
+stream = await graph.astream_events({"topic": "ice cream"}, version="v3")
+
+# Token-by-token output
+async for message in stream.messages:
+    async for token in message.text:
+        print(token, end="", flush=True)
+
+# Final state
+final_state = await stream.output
 ```
 
-### StreamPart Types
+See the `streaming-cast` skill for projections, custom transformers, subgraph/subagent filtering, and transport integration.
 
-Import from `langgraph.types`:
-
-| Type | Description |
-|------|-------------|
-| `ValuesStreamPart` | Full state snapshot after each step |
-| `UpdatesStreamPart` | Changed keys from each node |
-| `MessagesStreamPart` | LLM token chunks with metadata |
-| `CustomStreamPart` | User-defined data via `get_stream_writer()` |
-| `CheckpointStreamPart` | Checkpoint events (requires checkpointer) |
-| `TasksStreamPart` | Task start/finish events with results/errors |
-| `DebugStreamPart` | Combined checkpoint + task info |
-| `StreamPart` | Union type enabling full type narrowing |
-
-### Type Narrowing
-
-Filtering by `chunk["type"]` automatically narrows `chunk["data"]`:
-
-```python
-for part in graph.stream(inputs, stream_mode=["values", "messages"], version="v2"):
-    if part["type"] == "values":
-        topic = part["data"]["topic"]  # Full state access
-    elif part["type"] == "messages":
-        msg, metadata = part["data"]   # (token, metadata) tuple
-```
-
-## Type-Safe Invoke v2 (langgraph v1.1+)
+## Typed Invoke v2 (langgraph v1.1+)
 
 Pass `version="v2"` to `invoke()`/`ainvoke()` to get a `GraphOutput` with `.value` and `.interrupts`:
 
@@ -214,17 +190,50 @@ result.value       # dict, Pydantic model, or dataclass (auto-coerced)
 result.interrupts  # tuple of Interrupt objects (replaces v1's __interrupt__ key)
 ```
 
-### v1 vs v2 Differences
-
-| Aspect | v1 | v2 |
-|--------|----|----|
-| Single stream mode | Raw dict | `StreamPart` with `type`/`ns`/`data` |
-| Multiple stream modes | `(mode, data)` tuples | Single `StreamPart`, filter on `type` |
-| Subgraph events | `(namespace, data)` | Same `StreamPart`, check `ns` field |
-| Interrupts (invoke) | `__interrupt__` in result dict | `result.interrupts` attribute |
-| Output type | dict | `GraphOutput` (dict-style access supported for migration) |
-
 `version="v2"` is opt-in. `GraphOutput` supports dict-style access for gradual migration.
+
+## Graceful Shutdown (langgraph v1.2+)
+
+Stop an in-flight graph run cooperatively after the current superstep completes, saving a resumable checkpoint. Useful for handling SIGTERM signals or external supervisors that need to reclaim resources without losing work.
+
+Create a `RunControl` and pass it as `control=` to `invoke()` / `stream_events()` / `astream_events()`. Call `request_drain()` from any thread to signal that the run should stop:
+
+```python
+import signal
+from langgraph.types import Command, RunControl
+from langgraph.errors import GraphDrained
+
+control = RunControl()
+
+def on_sigterm(signum, frame):
+    control.request_drain(reason="SIGTERM received")
+
+signal.signal(signal.SIGTERM, on_sigterm)
+
+config = {"configurable": {"thread_id": "session-1"}}
+
+try:
+    stream = await graph.astream_events(
+        inputs,
+        config=config,
+        version="v3",
+        control=control,
+    )
+    async for message in stream.messages:
+        async for token in message.text:
+            print(token, end="", flush=True)
+except GraphDrained:
+    # Run paused after the current superstep, checkpoint saved
+    pass
+
+# Resume later with the same config
+stream = await graph.astream_events(Command(resume=None), config=config, version="v3")
+final_state = await stream.output
+```
+
+> **Requirements:** A checkpointer must be attached at compile time for the drained run to be resumable.
+
+Inside nodes, read `runtime.drain_requested` to skip expensive work before the next superstep boundary — see node.md § "Graceful Drain Inside Nodes".
 
 ---
 

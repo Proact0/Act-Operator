@@ -6,6 +6,7 @@ Return structured data from agents in predictable formats using Pydantic models.
 
 - Response Format
 - Basic Usage (Auto Strategy)
+- ProviderStrategy (Native, strict schema)
 - ToolStrategy (Explicit, Union Types, Custom Tool Message, Error Handling)
 - Node Usage
 
@@ -44,6 +45,40 @@ def set_structured_agent():
         response_format=ContactInfo,  # Auto-selects strategy
     )
 ```
+
+## ProviderStrategy (Native, strict schema)
+
+`ProviderStrategy` uses the provider's native structured output (OpenAI, Anthropic, Grok, Gemini). Pass `strict=True` (langchain v1.2+) for strict schema adherence on providers that support it (e.g., OpenAI, xAI):
+
+```python
+# casts.{cast_name}.modules.agents
+from pydantic import BaseModel, Field
+from langchain.agents import create_agent
+from langchain.agents.structured_output import ProviderStrategy
+from .models import get_sample_model
+
+
+class ContactInfo(BaseModel):
+    name: str = Field(description="Person's name")
+    email: str = Field(description="Email address")
+    phone: str = Field(description="Phone number")
+
+
+def set_native_strict_agent():
+    return create_agent(
+        model=get_sample_model(),
+        tools=[...],
+        response_format=ProviderStrategy(ContactInfo, strict=True),
+    )
+```
+
+> Without `strict=True`, native structured output enforces only the schema's surface — providers may still emit minor deviations. `strict=True` rejects responses that don't match exactly.
+
+### Provider support detection (langchain v1.1+)
+
+When you pass a schema directly to `response_format`, LangChain reads the model's `.profile` (sourced from models.dev) to decide between `ProviderStrategy` (native) and `ToolStrategy`. If profile data is missing, it falls back to `ToolStrategy` — pin manually via `ProviderStrategy(...)` when you need the native path explicitly.
+
+---
 
 ## ToolStrategy (Explicit)
 
