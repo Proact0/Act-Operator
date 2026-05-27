@@ -57,7 +57,12 @@ async def event_generator(query: str, config: dict):
                 "event": "tool_result",
                 "data": {
                     "name": call.tool_name,
-                    "content": str(call.output) if call.error is None else None,
+                    # success → stringify the output (None stays None, not "None"); failure → no content
+                    "content": (
+                        str(call.output)
+                        if call.error is None and call.output is not None
+                        else None
+                    ),
                     "error": str(call.error) if call.error else None,
                 },
             })
@@ -158,7 +163,12 @@ async def handle_websocket_message(send_json, data: dict) -> None:
             await send_json({
                 "type": "tool_result",
                 "name": call.tool_name,
-                "content": str(call.output) if call.error is None else None,
+                # success → stringify the output (None stays None, not "None"); failure → no content
+                "content": (
+                    str(call.output)
+                    if call.error is None and call.output is not None
+                    else None
+                ),
                 "error": str(call.error) if call.error else None,
             })
 
