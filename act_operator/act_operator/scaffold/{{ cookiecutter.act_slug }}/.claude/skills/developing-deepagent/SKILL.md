@@ -1,7 +1,7 @@
 ---
 name: developing-deepagent
 description: Implements DeepAgent components using LangChain's deepagents SDK. Use when building deep agents with create_deep_agent, configuring backends/subagents/skills/memory/interpreter, need DeepAgent patterns (sandbox, HITL interrupts, long-term memory, subagent spawning, subagent structured output, QuickJS code interpreter with programmatic tool calling), or ask "implement deep agent", "add subagent", "configure backend", "add interpreter".
-version: "2026.05.26"
+version: "2026.05.27"
 author: Proact0
 allowed-tools:
   - Bash(uv sync *)

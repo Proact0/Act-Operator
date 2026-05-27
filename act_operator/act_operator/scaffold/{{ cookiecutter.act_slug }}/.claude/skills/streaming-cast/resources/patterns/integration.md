@@ -57,12 +57,10 @@ async def event_generator(query: str, config: dict):
                 "event": "tool_result",
                 "data": {
                     "name": call.tool_name,
-                    # success → stringify the output (None stays None, not "None"); failure → no content
-                    "content": (
-                        str(call.output)
-                        if call.error is None and call.output is not None
-                        else None
-                    ),
+                    # Pass the raw output — the outer json.dumps handles str/dict/list/None
+                    # natively. Stringifying with str() would produce Python repr like
+                    # "{'k': 'v'}" (single quotes = invalid JSON for the client to re-parse).
+                    "content": call.output if call.error is None else None,
                     "error": str(call.error) if call.error else None,
                 },
             })
@@ -163,12 +161,10 @@ async def handle_websocket_message(send_json, data: dict) -> None:
             await send_json({
                 "type": "tool_result",
                 "name": call.tool_name,
-                # success → stringify the output (None stays None, not "None"); failure → no content
-                "content": (
-                    str(call.output)
-                    if call.error is None and call.output is not None
-                    else None
-                ),
+                # Pass the raw output — send_json's underlying json.dumps handles
+                # str/dict/list/None natively. Stringifying with str() would produce
+                # Python repr like "{'k': 'v'}" (single quotes = invalid JSON).
+                "content": call.output if call.error is None else None,
                 "error": str(call.error) if call.error else None,
             })
 

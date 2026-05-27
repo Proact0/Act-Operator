@@ -1,7 +1,7 @@
 ---
 name: streaming-cast
 description: Implements LangGraph v3 event streaming for graphs with subgraphs and agents. Use when adding streaming to runtime/API endpoint, need token streaming, custom stream projections, subagent streaming, or ask "add streaming", "stream tokens", "stream graph".
-version: "2026.05.26"
+version: "2026.05.27"
 author: Proact0
 allowed-tools:
   - Read
