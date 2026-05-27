@@ -369,8 +369,6 @@ graph LR
 
 LangGraph's `create_agent()` (from `langchain.agents`) returns a `CompiledGraph` — a self-contained agent subgraph with its own internal node/edge structure. This subgraph can be composed into a parent graph in multiple ways.
 
-> **Note:** `create_react_agent` is deprecated since LangGraph v1. Always use `create_agent`.
-
 ### Agent Type Selection
 
 | Criterion | `create_agent` | `create_deep_agent` |
