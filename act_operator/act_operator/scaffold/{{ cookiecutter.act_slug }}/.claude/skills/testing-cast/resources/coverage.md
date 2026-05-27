@@ -49,12 +49,12 @@ exclude_lines = [
 
 ## What to Cover
 
-Test code lives in `casts/{cast_name}/tests/test_*.py`.
+Test code lives in `tests/node_tests/test_*.py` (node-scope) and `tests/cast_tests/{cast_snake}_test.py` (cast-scope).
 
 **Priority 1: Core Logic**
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import ProcessNode
 
 
@@ -67,7 +67,7 @@ def test_business_logic():
 **Priority 2: Error Paths**
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import RobustNode
 
 
@@ -80,7 +80,7 @@ def test_error_handling():
 **Priority 3: Edge Cases**
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 import pytest
 
 from casts.{cast_name}.modules.nodes import MyNode

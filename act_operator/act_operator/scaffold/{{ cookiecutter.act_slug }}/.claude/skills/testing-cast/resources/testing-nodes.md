@@ -1,11 +1,11 @@
 # Testing Nodes
 
-All test code in this file lives in `casts/{cast_name}/tests/test_nodes.py`.
+All test code in this file lives at `tests/node_tests/test_{cast_snake}_nodes.py` (the scaffolded initial cast uses `tests/node_tests/test_node.py`; create a new file per cast as your project grows).
 
 ## Sync Node Test
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 import pytest
 from casts.{cast_name}.modules.nodes import ProcessNode
 
@@ -42,7 +42,7 @@ class TestProcessNode:
 ## Async Node Test
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 import asyncio
 
 import pytest
@@ -75,7 +75,7 @@ class TestAsyncNode:
 ## Testing with Config/Runtime
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import MyNode, MemoryNode
 
 
@@ -104,7 +104,7 @@ def test_with_store(mock_store):
 ## Testing Error Handling
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import RobustNode, MyNode
 
 
@@ -129,7 +129,7 @@ def test_logs_error(caplog):
 **State Updates:**
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import MyNode
 
 
@@ -144,7 +144,7 @@ def test_returns_only_updates():
 **Verbose Logging:**
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import MyNode
 
 
@@ -161,7 +161,7 @@ def test_verbose_output(capsys):
 `runtime.drain_requested` lets nodes skip expensive work when a graceful shutdown is requested.
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from types import SimpleNamespace
 
 import pytest

@@ -1,48 +1,65 @@
 # Testing Graphs
 
-All test code in this file lives in `casts/{cast_name}/tests/test_graph.py`.
+All test code in this file lives at `tests/cast_tests/{cast_snake}_test.py` (the scaffolded path created by `act cast`).
+
+The graph module exports a callable **instance** (`{cast_snake}_graph = {CastPascal}Graph()`); call it to compile and return a `CompiledStateGraph`.
 
 ## Basic Graph Test
 
 ```python
-# casts/{cast_name}/tests/test_graph.py
+# tests/cast_tests/{cast_snake}_test.py
+from __future__ import annotations
+
+import pytest
+
+from casts.{cast_name}.graph import {cast_snake}_graph
+
+
+@pytest.fixture
+def graph():
+    return {cast_snake}_graph()
+
+
+def test_compiles(graph):
+    assert graph is not None
+    assert hasattr(graph, "invoke")
+
+
+def test_invoke_basic(graph):
+    result = graph.invoke({"query": "test"})
+
+    assert result is not None
+    assert isinstance(result, dict)
+```
+
+### With Checkpointer
+
+When the graph subclass extends `__init__` to accept a checkpointer (see `developing-cast/core/graph.md`), instantiate the class directly in the fixture:
+
+```python
+# tests/cast_tests/{cast_snake}_test.py
 import pytest
 from langgraph.checkpoint.memory import MemorySaver
 
-from casts.{cast_name}.graph import MyGraph
+from casts.{cast_name}.graph import {CastPascal}Graph
 
 
-class TestMyGraph:
-    @pytest.fixture
-    def graph(self):
-        return MyGraph().build()
+@pytest.fixture
+def graph_with_memory():
+    return {CastPascal}Graph(checkpointer=MemorySaver()).build()
 
-    @pytest.fixture
-    def graph_with_memory(self):
-        checkpointer = MemorySaver()
-        return MyGraph(checkpointer=checkpointer).build()
 
-    def test_compiles(self, graph):
-        assert graph is not None
-        assert hasattr(graph, "invoke")
+def test_with_config(graph_with_memory):
+    config = {"configurable": {"thread_id": "test-123"}}
+    result = graph_with_memory.invoke({"query": "test"}, config=config)
 
-    def test_invoke_basic(self, graph):
-        result = graph.invoke({"input": "test"})
-
-        assert result is not None
-        assert isinstance(result, dict)
-
-    def test_with_config(self, graph_with_memory):
-        config = {"configurable": {"thread_id": "test-123"}}
-        result = graph_with_memory.invoke({"input": "test"}, config=config)
-
-        assert result is not None
+    assert result is not None
 ```
 
 ## Testing Routing
 
 ```python
-# casts/{cast_name}/tests/test_graph.py
+# tests/cast_tests/{cast_snake}_test.py
 import pytest
 
 
@@ -68,7 +85,7 @@ class TestGraphRouting:
 ## Testing with Checkpointer
 
 ```python
-# casts/{cast_name}/tests/test_graph.py
+# tests/cast_tests/{cast_snake}_test.py
 def test_multi_turn(graph_with_memory):
     config = {"configurable": {"thread_id": "test-123"}}
 
@@ -96,7 +113,7 @@ def test_threads_isolated(graph_with_memory):
 Tests consume the same typed-projection API used in production. See the `streaming-cast` skill for projection details.
 
 ```python
-# casts/{cast_name}/tests/test_graph.py
+# tests/cast_tests/{cast_snake}_test.py
 import pytest
 
 
@@ -145,7 +162,7 @@ async def test_astream_messages(graph):
 ## Testing Error Handling
 
 ```python
-# casts/{cast_name}/tests/test_graph.py
+# tests/cast_tests/{cast_snake}_test.py
 import pytest
 
 
@@ -163,7 +180,7 @@ def test_error_handled(graph):
 ## Testing Graph Structure
 
 ```python
-# casts/{cast_name}/tests/test_graph.py
+# tests/cast_tests/{cast_snake}_test.py
 def test_has_expected_nodes(graph):
     expected = ["input", "process", "output"]
 
@@ -176,7 +193,7 @@ def test_has_expected_nodes(graph):
 `timeout=` on `add_node` raises `NodeTimeoutError` (subclass of `TimeoutError`). Async nodes only.
 
 ```python
-# casts/{cast_name}/tests/test_graph.py
+# tests/cast_tests/{cast_snake}_test.py
 import pytest
 from langgraph.errors import NodeTimeoutError
 
@@ -196,7 +213,7 @@ async def test_node_timeout_raises(slow_graph):
 `error_handler=` runs after all retries are exhausted and returns a `Command` to update state and route to a compensation branch.
 
 ```python
-# casts/{cast_name}/tests/test_graph.py
+# tests/cast_tests/{cast_snake}_test.py
 def test_error_handler_routes_to_compensation(graph_with_handler):
     # Node raises ConnectionError; retry exhausts; error_handler routes to "finalize"
     result = graph_with_handler.invoke({"input": "trigger_payment_error"})
@@ -208,7 +225,7 @@ def test_error_handler_routes_to_compensation(graph_with_handler):
 ## Testing Graceful Shutdown (langgraph v1.2+)
 
 ```python
-# casts/{cast_name}/tests/test_graph.py
+# tests/cast_tests/{cast_snake}_test.py
 import asyncio
 
 import pytest

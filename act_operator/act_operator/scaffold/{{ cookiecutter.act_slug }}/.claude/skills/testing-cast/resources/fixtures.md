@@ -1,11 +1,11 @@
 # Fixtures
 
-Fixtures live in `casts/{cast_name}/tests/conftest.py` so they're auto-discovered by pytest for all test modules in the same package.
+Fixtures live in `tests/conftest.py` so they're auto-discovered by pytest for all test modules under `tests/` (both `cast_tests/` and `node_tests/`).
 
 ## conftest.py Template
 
 ```python
-# casts/{cast_name}/tests/conftest.py
+# tests/conftest.py
 import pytest
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -92,12 +92,12 @@ def make_config():
 
 ## Usage Examples
 
-All consumer tests below live in `casts/{cast_name}/tests/test_nodes.py` (or `test_graph.py`).
+Consumer tests below live in `tests/node_tests/test_{cast_snake}_nodes.py` (node-scope) or `tests/cast_tests/{cast_snake}_test.py` (cast-scope).
 
 ### State Fixtures
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import MyNode
 
 
@@ -116,7 +116,7 @@ def test_with_populated_state(populated_state):
 ### Mock Fixtures
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import LLMNode, MemoryNode
 
 
@@ -138,7 +138,7 @@ def test_with_runtime(mock_runtime):
 ### Factory Fixtures
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import MyNode
 
 
@@ -157,7 +157,7 @@ def test_with_custom_config(make_config):
 ## Fixture Scopes
 
 ```python
-# casts/{cast_name}/tests/conftest.py
+# tests/conftest.py
 import pytest
 
 

@@ -26,7 +26,8 @@ Write effective pytest tests for {{ cookiecutter.act_name }} Act's casts.
 ```bash
 # Run tests
 uv run pytest                              # All tests
-uv run pytest tests/test_nodes.py          # Specific file
+uv run pytest tests/node_tests/            # All node tests
+uv run pytest tests/cast_tests/            # All cast (graph) tests
 uv run pytest -k "test_my_function"        # Match name
 uv run pytest -v                           # Verbose
 uv run pytest -x                           # Stop on first failure
@@ -38,13 +39,27 @@ uv run pytest --cov=casts --cov-report=html
 
 ## Test Organization
 
+The scaffold places tests at the **project root** under `tests/`, organized by scope:
+
 ```
-casts/{cast_name}/
+{{ cookiecutter.act_slug }}/
+├── casts/
+│   └── {{ cookiecutter.cast_snake }}/        # cast implementation
 └── tests/
-    ├── conftest.py      # Fixtures
-    ├── test_nodes.py    # Node tests
-    └── test_graph.py    # Graph tests
+    ├── conftest.py                            # shared fixtures (create as needed)
+    ├── cast_tests/
+    │   └── {{ cookiecutter.cast_snake }}_test.py    # graph-level tests (suffix: *_test.py)
+    └── node_tests/
+        └── test_node.py                       # node tests for the initial cast (prefix: test_*.py)
 ```
+
+| Location | Naming | Scope |
+|----------|--------|-------|
+| `tests/cast_tests/{cast_snake}_test.py` | `<cast_snake>_test.py` **suffix** | Whole-graph invocation tests; `act cast` auto-creates one per cast |
+| `tests/node_tests/test_<something>.py` | `test_*.py` **prefix** | Per-node behavior tests |
+| `tests/conftest.py` | fixed | Shared fixtures across `cast_tests/` and `node_tests/` |
+
+> The `{cast_snake}_test.py` suffix naming for cast tests is what `act cast` generates — do not rename to `test_<cast>.py`.
 
 ## Resources
 

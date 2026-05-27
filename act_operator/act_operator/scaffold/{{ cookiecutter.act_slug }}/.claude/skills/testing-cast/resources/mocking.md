@@ -1,13 +1,13 @@
 # Mocking Strategies
 
-All test code in this file lives in `casts/{cast_name}/tests/test_nodes.py` (or another test module under the cast's `tests/`). Shared mock classes can be promoted to `casts/{cast_name}/tests/conftest.py` as fixtures — see fixtures.md.
+All test code in this file lives at `tests/node_tests/test_{cast_snake}_nodes.py` (the initial scaffolded cast uses `tests/node_tests/test_node.py`). Shared mock classes can be promoted to `tests/conftest.py` as fixtures — see fixtures.md.
 
 ## Mock LLM
 
 ### FakeListLLM
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from langchain_core.language_models.fake import FakeListLLM
 
 from casts.{cast_name}.modules.nodes import LLMNode
@@ -25,7 +25,7 @@ def test_with_fake_llm():
 ### Custom Mock
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import MyNode
 
 
@@ -52,7 +52,7 @@ def test_tracks_calls():
 ## Mock Tools
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import ToolNode
 
 
@@ -71,7 +71,7 @@ def test_mock_tool(monkeypatch):
 ## Mock External APIs
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 import responses
 
 from casts.{cast_name}.modules.nodes import APINode
@@ -95,7 +95,7 @@ def test_api_call():
 ## Mock Store
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 import pytest
 
 from casts.{cast_name}.modules.nodes import MemoryNode
@@ -134,7 +134,7 @@ def test_with_store(mock_store):
 ## Mock Files
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import FileNode
 
 
@@ -151,7 +151,7 @@ def test_file_read(tmp_path):
 ## Partial Mocking
 
 ```python
-# casts/{cast_name}/tests/test_nodes.py
+# tests/node_tests/test_{cast_snake}_nodes.py
 from casts.{cast_name}.modules.nodes import ComplexNode
 
 
