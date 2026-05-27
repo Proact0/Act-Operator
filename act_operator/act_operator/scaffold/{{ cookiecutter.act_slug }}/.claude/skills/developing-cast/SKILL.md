@@ -89,7 +89,13 @@ ANTHROPIC_API_KEY=your_key
 
 ### Optional Step 4: Install dependency packages (if needed)
 
+The `uv` workspace exposes each cast under `casts/*` as a member; install per-cast dependencies into the cast's own pyproject.toml:
+
 ```bash
+# Cast-scoped dependency (most common — the dep is used by one cast)
+uv add --package {{ cookiecutter.cast_slug }} <package-name>
+
+# Project-scoped dependency (rare — shared across all casts)
 uv add --package {{ cookiecutter.act_slug }} <package-name>
 ```
 
