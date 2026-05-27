@@ -14,7 +14,9 @@ Emit custom streaming events from inside nodes using `get_stream_writer()`. Cons
 ## Sync Nodes
 
 ```python
+# casts/{cast_name}/modules/nodes.py
 from langgraph.config import get_stream_writer
+
 
 def process_data(state):
     writer = get_stream_writer()
@@ -28,14 +30,16 @@ def process_data(state):
     return {"result": "done"}
 ```
 
-These writes flow on the `custom` channel. A consumer must register a `StreamTransformer` that drains the channel into a projection (see [Custom Transformer](#custom-transformer-consumer-side)).
+These writes flow on the `custom` channel. A consumer must register a `StreamTransformer` that drains the channel into a projection (see "Custom Transformer (consumer side)" below).
 
 ---
 
 ## Async Nodes (Python 3.11+)
 
 ```python
+# casts/{cast_name}/modules/nodes.py
 from langgraph.config import get_stream_writer
+
 
 async def async_process(state):
     writer = get_stream_writer()
@@ -52,7 +56,9 @@ async def async_process(state):
 `get_stream_writer()` is unavailable in async contexts pre-3.11. Use `StreamWriter` parameter injection:
 
 ```python
+# casts/{cast_name}/modules/nodes.py
 from langgraph.types import StreamWriter
+
 
 async def async_process(state, writer: StreamWriter):
     # LangGraph injects writer automatically when declared as parameter
@@ -69,7 +75,9 @@ async def async_process(state, writer: StreamWriter):
 Access the stream writer via the `runtime` parameter:
 
 ```python
+# casts/{cast_name}/modules/nodes.py
 from casts.base_node import BaseNode
+
 
 class ProcessNode(BaseNode):
     def execute(self, state, runtime):
@@ -83,7 +91,9 @@ class ProcessNode(BaseNode):
 Async:
 
 ```python
+# casts/{cast_name}/modules/nodes.py
 from casts.base_node import AsyncBaseNode
+
 
 class AsyncProcessNode(AsyncBaseNode):
     async def execute(self, state, runtime):
@@ -101,6 +111,7 @@ class AsyncProcessNode(AsyncBaseNode):
 To expose writer events on `stream.extensions["progress"]`, implement a `StreamTransformer`:
 
 ```python
+# casts/{cast_name}/modules/transformers.py
 from typing import TypedDict
 
 from langgraph.stream import ProtocolEvent, StreamChannel, StreamTransformer
@@ -131,17 +142,22 @@ class ProgressTransformer(StreamTransformer):
         return True
 ```
 
-Register at call time or compile time:
+Register at compile time so every run of the graph produces the projection:
 
 ```python
-# Call time
+# casts/{cast_name}/graph.py
+from .modules.transformers import ProgressTransformer
+
+graph = builder.compile(transformers=[ProgressTransformer])
+```
+
+Or register at call time (location-agnostic — runtime, script, or test):
+
+```python
 stream = graph.stream_events(inputs, config=config, version="v3", transformers=[ProgressTransformer])
 
 for activity in stream.extensions["progress"]:
     print(activity)
-
-# Compile time (every run produces the projection)
-graph = builder.compile(transformers=[ProgressTransformer])
 ```
 
 | `StreamChannel` form | Effect |
@@ -158,6 +174,10 @@ Use the named form when consumers need the projection on both the typed extensio
 ### Percentage Progress
 
 ```python
+# casts/{cast_name}/modules/nodes.py
+from casts.base_node import BaseNode
+
+
 class BatchProcessNode(BaseNode):
     def execute(self, state, runtime):
         writer = runtime.stream_writer
@@ -174,7 +194,9 @@ class BatchProcessNode(BaseNode):
 ### Streaming Non-LangChain Model Output
 
 ```python
+# casts/{cast_name}/modules/nodes.py
 from langgraph.config import get_stream_writer
+
 
 async def stream_external_llm(state):
     writer = get_stream_writer()

@@ -2,11 +2,12 @@
 
 LangGraph v3 event streaming returns a run stream object with typed projections. Pass `version="v3"` to `stream_events()` / `astream_events()`.
 
+All code in this file is **consumer-side** — `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; place this code anywhere else (an additional cast module, an external runtime/API module, a script, or a test). Custom transformers (which belong inside `casts/{cast_name}/modules/`) are covered by the stream-writer resource linked from SKILL.md.
+
 ## Contents
 
 - All Projections
 - Decision Framework
-- Multi-Projection Consumption
 
 ## All Projections
 
@@ -126,7 +127,7 @@ final_state = await stream.output
 
 ### `stream.extensions[<name>]` — Custom Transformer Projections
 
-User-defined transformer projections appear here. See [stream-writer.md](./stream-writer.md) for custom transformer authoring.
+User-defined transformer projections appear here. Authoring details are covered by the stream-writer resource linked from SKILL.md.
 
 ```python
 stream = await graph.astream_events(
@@ -146,7 +147,7 @@ for activity in stream.extensions["tool_activity"]:
 
 ### Iterating Raw Protocol Events
 
-Iterate the `stream` object directly to receive the underlying `ProtocolEvent` envelopes. Each event has `seq`, `method` (channel: `messages`, `values`, `updates`, `custom`, `tools`, `lifecycle`, `checkpoints`, `input`, `tasks`), `params.namespace`, `params.timestamp`, and `params.data`. See [protocol-events.md](./protocol-events.md).
+Iterate the `stream` object directly to receive the underlying `ProtocolEvent` envelopes. Each event has `seq`, `method` (channel: `messages`, `values`, `updates`, `custom`, `tools`, `lifecycle`, `checkpoints`, `input`, `tasks`), `params.namespace`, `params.timestamp`, and `params.data`. Envelope details and channel-payload shapes are covered by the protocol-events resource linked from SKILL.md.
 
 **Use when:** Application needs raw channel access (no projection covers the channel) or exact arrival order across sources.
 
@@ -177,40 +178,4 @@ What do you need?
 | `stream.interrupts` | interrupt payloads | Rare | HITL inspection |
 | `stream.extensions[name]` | custom payload | Variable | Application-specific |
 
----
-
-## Multi-Projection Consumption
-
-**Async (concurrent via `asyncio.gather`):**
-
-```python
-import asyncio
-
-stream = await graph.astream_events(inputs, config=config, version="v3")
-
-async def consume_messages():
-    async for message in stream.messages:
-        print(f"[llm] node={message.node}")
-
-async def consume_tool_calls():
-    async for call in stream.tool_calls:
-        print(f"[tool] {call.tool_name}({call.input})")
-
-await asyncio.gather(consume_messages(), consume_tool_calls())
-```
-
-**Sync (arrival order via `stream.interleave`):**
-
-```python
-stream = graph.stream_events(inputs, config=config, version="v3")
-
-for name, item in stream.interleave("messages", "tool_calls", "values"):
-    if name == "messages":
-        print(f"[llm] {item.node}")
-    elif name == "tool_calls":
-        print(f"[tool] {item.tool_name}")
-    elif name == "values":
-        print(f"[state] {list(item)}")
-```
-
-Multiple consumers can read projections concurrently — reading `stream.messages` does not consume events needed by `stream.values`, `stream.subgraphs`, or `stream.output`.
+Multiple projection iterators read from the same underlying event stream independently — consuming `stream.messages` does not consume events needed by `stream.values`, `stream.subgraphs`, or `stream.output`. Patterns for consuming multiple projections concurrently (`asyncio.gather`, `stream.interleave`) are covered by the multiple-modes resource linked from SKILL.md.

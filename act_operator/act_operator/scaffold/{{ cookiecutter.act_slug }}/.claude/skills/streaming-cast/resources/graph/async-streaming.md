@@ -1,43 +1,19 @@
 # Async Event Streaming
 
-Consume graph output asynchronously using `graph.astream_events(..., version="v3")`. Used in runtime endpoints and API handlers.
+Consume graph output asynchronously using `graph.astream_events(..., version="v3")`. `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; **stream consumer code lives anywhere else** — pick the entry point that fits the project (an additional cast module such as `runtime.py`, an external API endpoint module, or an async script).
 
 ## Contents
 
 - Basic Pattern
-- With Config
+- Parameters
 - Python < 3.11 Workaround
-- Parallel Streaming
 
 ## Basic Pattern
 
 ```python
+# stream consumer — location flexible
 from casts.{{ cookiecutter.cast_snake }}.graph import {{ cookiecutter.cast_snake }}_graph
 
-graph = {{ cookiecutter.cast_snake }}_graph()
-
-config = {"configurable": {"thread_id": "session-1"}}
-
-stream = await graph.astream_events(
-    {"messages": [HumanMessage(content="hello")]},
-    config=config,
-    version="v3",
-)
-
-async for message in stream.messages:
-    async for token in message.text:
-        print(token, end="", flush=True)
-
-final_state = await stream.output
-```
-
----
-
-## With Config
-
-Pass `config` with `configurable` for thread/actor scoping:
-
-```python
 graph = {{ cookiecutter.cast_snake }}_graph()
 
 config = {
@@ -52,11 +28,16 @@ stream = await graph.astream_events(inputs, config=config, version="v3")
 
 async for message in stream.messages:
     async for token in message.text:
-        # ... dispatch to transport
         await send_token(token)
+
+final_state = await stream.output
 ```
 
-### Parameters
+For projection-specific patterns, multi-projection concurrent consumption (`asyncio.gather`), and transport (SSE/WebSocket) integration, see the projections, multiple-modes, and integration resources linked from SKILL.md.
+
+---
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -68,6 +49,7 @@ async for message in stream.messages:
 | `durability` | `"sync"` \| `"async"` \| `"exit"` \| None | `None` | Checkpoint persistence timing. Requires checkpointer |
 | `interrupt_before` | list \| `"*"` \| None | `None` | Nodes to interrupt before execution |
 | `interrupt_after` | list \| `"*"` \| None | `None` | Nodes to interrupt after execution |
+| `control` | `RunControl` \| None | `None` | Graceful shutdown handle (langgraph v1.2+) |
 
 ---
 
@@ -86,60 +68,3 @@ class LLMNode(AsyncBaseNode):
 ```
 
 **Recommendation:** Upgrade to Python 3.11+.
-
----
-
-## Parallel Streaming
-
-Stream from multiple graphs concurrently:
-
-```python
-import asyncio
-from casts.{{ cookiecutter.cast_snake }}.graph import {{ cookiecutter.cast_snake }}_graph
-from casts.another_cast.graph import another_cast_graph
-
-async def stream_both(inputs, config):
-    async def consume(graph, name):
-        stream = await graph.astream_events(inputs, config=config, version="v3")
-        async for message in stream.messages:
-            async for token in message.text:
-                print(f"[{name}] {token}", end="")
-
-    await asyncio.gather(
-        consume({{ cookiecutter.cast_snake }}_graph(), "{{ cookiecutter.cast_snake }}"),
-        consume(another_cast_graph(), "another_cast"),
-    )
-```
-
----
-
-## Multiple Projections Concurrently
-
-Use `asyncio.gather` to consume independent projections concurrently:
-
-```python
-import asyncio
-
-stream = await graph.astream_events(inputs, config=config, version="v3")
-
-async def consume_messages():
-    async for message in stream.messages:
-        async for token in message.text:
-            await send_token(token)
-
-async def consume_tool_calls():
-    async for call in stream.tool_calls:
-        await send_tool_call(call.tool_name, call.input)
-
-async def consume_subagents():
-    async for subagent in stream.subgraphs:
-        async for message in subagent.messages:
-            async for token in message.text:
-                await send_token(token, source=subagent.graph_name)
-
-await asyncio.gather(
-    consume_messages(),
-    consume_tool_calls(),
-    consume_subagents(),
-)
-```

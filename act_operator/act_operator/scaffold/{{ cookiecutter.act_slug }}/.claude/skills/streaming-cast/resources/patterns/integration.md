@@ -10,9 +10,10 @@ Stream graph events to external consumers via SSE or WebSocket using v3 typed pr
 
 ## SSE (Recommended)
 
-Server-Sent Events — LangChain/LangGraph ecosystem recommended pattern for HTTP-based streaming:
+Server-Sent Events — LangChain/LangGraph ecosystem recommended pattern for HTTP-based streaming. This generator is **consumer-side** — `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; place this generator anywhere else (an additional cast module such as `runtime.py`, an external API endpoint module, etc.):
 
 ```python
+# stream consumer — location flexible
 import asyncio
 import json
 import logging
@@ -99,9 +100,10 @@ The `event_generator` is a plain async generator — integrate with any Python w
 
 ## WebSocket
 
-WebSocket pattern — use when bidirectional communication or real-time push is required:
+WebSocket pattern — use when bidirectional communication or real-time push is required. This handler is **consumer-side** — `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; place this handler anywhere else (an additional cast module such as `runtime.py`, an external WebSocket endpoint module, etc.):
 
 ```python
+# stream consumer — location flexible
 import asyncio
 import logging
 

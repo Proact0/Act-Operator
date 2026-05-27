@@ -1,17 +1,17 @@
 # Sync Event Streaming
 
-Consume graph output synchronously using `graph.stream_events(..., version="v3")`. Useful for scripts, CLI tools, and tests.
+Consume graph output synchronously using `graph.stream_events(..., version="v3")`. `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; **stream consumer code lives anywhere else** — pick the entry point that fits the project (an additional cast module such as `runtime.py`, an external script or CLI tool, or a test).
 
 ## Contents
 
 - Basic Pattern
+- Sync-Specific Behavior
 - Parameters
-- Single Projection
-- Multiple Projections (interleave)
 
 ## Basic Pattern
 
 ```python
+# stream consumer — location flexible
 from casts.{{ cookiecutter.cast_snake }}.graph import {{ cookiecutter.cast_snake }}_graph
 
 graph = {{ cookiecutter.cast_snake }}_graph()
@@ -31,7 +31,18 @@ for message in stream.messages:
 final_state = stream.output
 ```
 
-In sync code, `message.text` is iterable for token-by-token output, and `str(message.text)` drains the iterator and returns the full text. `stream.output` blocks until the run finishes.
+For projection-specific patterns (state snapshots, tool calls, subgraphs) and multi-projection consumption with `stream.interleave(...)`, see the projections and multiple-modes resources linked from SKILL.md.
+
+---
+
+## Sync-Specific Behavior
+
+| Aspect | Sync | Async equivalent |
+|--------|------|------------------|
+| Iteration | `for x in stream.messages:` | `async for x in stream.messages:` |
+| Text iteration | `for token in message.text:` | `async for token in message.text:` |
+| Drain to final text | `str(message.text)` | `await message.text.text()` |
+| Final state | `stream.output` (blocks until done) | `await stream.output` |
 
 ---
 
@@ -47,58 +58,4 @@ In sync code, `message.text` is iterable for token-by-token output, and `str(mes
 | `durability` | `"sync"` \| `"async"` \| `"exit"` \| None | `None` | Checkpoint persistence timing. Requires checkpointer |
 | `interrupt_before` | list \| `"*"` \| None | `None` | Nodes to interrupt before execution |
 | `interrupt_after` | list \| `"*"` \| None | `None` | Nodes to interrupt after execution |
-
----
-
-## Single Projection
-
-```python
-graph = {{ cookiecutter.cast_snake }}_graph()
-
-stream = graph.stream_events(inputs, config=config, version="v3")
-
-# Token-by-token
-for message in stream.messages:
-    for token in message.text:
-        print(token, end="", flush=True)
-```
-
-```python
-# State snapshots
-stream = graph.stream_events(inputs, config=config, version="v3")
-
-for snapshot in stream.values:
-    print(snapshot)
-```
-
-```python
-# Tool execution
-stream = graph.stream_events(inputs, config=config, version="v3")
-
-for call in stream.tool_calls:
-    print(f"{call.tool_name}({call.input})")
-    for delta in call.output_deltas:
-        print(delta, end="", flush=True)
-    print(call.output, call.error)
-```
-
----
-
-## Multiple Projections (interleave)
-
-For sync code, `stream.interleave(...)` returns `(projection_name, item)` tuples in strict arrival order:
-
-```python
-stream = graph.stream_events(inputs, config=config, version="v3")
-
-for name, item in stream.interleave("messages", "tool_calls", "values"):
-    if name == "messages":
-        for token in item.text:
-            print(token, end="", flush=True)
-    elif name == "tool_calls":
-        print(f"\n[tool] {item.tool_name}({item.input})")
-    elif name == "values":
-        print(f"\n[state] keys={list(item)}")
-```
-
-For concurrent (non-arrival-order) consumption in sync code, drain projections sequentially — each projection iterator independently reads from the underlying event stream.
+| `control` | `RunControl` \| None | `None` | Graceful shutdown handle (langgraph v1.2+) |

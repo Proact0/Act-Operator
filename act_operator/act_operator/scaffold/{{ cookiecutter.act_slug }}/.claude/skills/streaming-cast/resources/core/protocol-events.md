@@ -2,6 +2,8 @@
 
 Every raw event from `stream_events(..., version="v3")` is a `ProtocolEvent` dict. Iterate the run stream object directly to access raw events; use typed projections (`stream.messages`, etc.) for normal application code.
 
+All code in this file is **consumer-side** — `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; place this code anywhere else (an additional cast module, an external runtime/API module, a script, or a test).
+
 ## Contents
 
 - Structure

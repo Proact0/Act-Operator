@@ -2,6 +2,8 @@
 
 Filter v3 event streams by projection, graph_name, message.node, or LLM tag.
 
+`casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition. Stream consumption code is **consumer-side** — place it anywhere else (additional cast module, external runtime/API module, script, test). Model definitions with tag configuration live in `casts/{cast_name}/modules/models.py` — explicit paths shown on each block.
+
 ## Contents
 
 - Filter by Projection
@@ -80,15 +82,19 @@ async for subagent in stream.subagents:
 
 ## Filter by LLM Tag
 
-Tag models during initialization, then filter by tag on the finalized message output:
+Tag models during initialization (in the cast's model module), then filter by tag on the finalized message output (in the stream consumer):
 
 ```python
+# casts/{cast_name}/modules/models.py
 from langchain.chat_models import init_chat_model
 
-model = init_chat_model("openai:gpt-5.4", tags=["primary"])
+
+def get_primary_model():
+    return init_chat_model("openai:gpt-5.4", tags=["primary"])
 ```
 
 ```python
+# stream consumer — location flexible
 stream = await graph.astream_events(inputs, config=config, version="v3")
 
 async for message in stream.messages:
@@ -106,14 +112,19 @@ async for message in stream.messages:
 `langgraph.constants.TAG_NOSTREAM` excludes a model's tokens from `stream.messages` entirely. The model still runs and produces output; tokens are simply not emitted to the projection:
 
 ```python
+# casts/{cast_name}/modules/models.py
 from langchain.chat_models import init_chat_model
 from langgraph.constants import TAG_NOSTREAM, TAG_HIDDEN
 
-# TAG_NOSTREAM ("nostream") — suppresses message stream for this model
-background_model = init_chat_model("openai:gpt-5.4-mini", tags=[TAG_NOSTREAM])
 
-# TAG_HIDDEN ("langsmith:hidden") — hides the node from chain events entirely
-internal_node_model = init_chat_model("openai:gpt-5.4-mini", tags=[TAG_HIDDEN])
+def get_background_model():
+    # TAG_NOSTREAM ("nostream") — suppresses message stream for this model
+    return init_chat_model("openai:gpt-5.4-mini", tags=[TAG_NOSTREAM])
+
+
+def get_internal_node_model():
+    # TAG_HIDDEN ("langsmith:hidden") — hides the node from chain events entirely
+    return init_chat_model("openai:gpt-5.4-mini", tags=[TAG_HIDDEN])
 ```
 
 Use cases:

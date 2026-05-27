@@ -1,6 +1,6 @@
 # Multiple Projections
 
-Consume multiple projections from one event stream for comprehensive event coverage.
+Consume multiple projections from one event stream for comprehensive event coverage. All code in this file is **consumer-side** — `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; place this code anywhere else (an additional cast module, an external runtime/API module, a script, or a test).
 
 ## Contents
 
