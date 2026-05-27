@@ -134,18 +134,18 @@ def set_deep_agent():
     )
 ```
 
-### As Factory (When Runtime Access Needed)
+### As Factory (Legacy — Pre-v0.5 Runtime Injection)
+
+The factory form `backend=lambda rt: MyBackend(rt)` is **deprecated** as of deepagents v0.5+. The harness now provides runtime access through protocol methods on the backend instance. Keep the factory form only for backwards compatibility with custom backends that require constructor-time runtime injection:
 
 ```python
-# casts.{cast_name}.modules.utils
+# casts.{cast_name}.modules.utils — legacy factory pattern
 class RuntimeAwareBackend:
     def __init__(self, runtime):
         self.runtime = runtime
     # ... implement protocol methods
-```
 
-```python
-# casts.{cast_name}.modules.utils
+
 def create_runtime_backend(runtime):
     return RuntimeAwareBackend(runtime=runtime)
 ```
@@ -154,11 +154,14 @@ def create_runtime_backend(runtime):
 # casts.{cast_name}.modules.agents
 from .utils import create_runtime_backend
 
+
 def set_deep_agent():
     return create_deep_agent(
-        backend=create_runtime_backend,
+        backend=create_runtime_backend,  # deprecated; prefer direct instance
     )
 ```
+
+For new custom backends, refactor runtime access into protocol methods (which receive the harness runtime as a parameter) and instantiate the backend directly.
 
 ### As CompositeBackend Route
 
@@ -166,9 +169,10 @@ def set_deep_agent():
 # casts.{cast_name}.modules.utils
 from deepagents.backends import CompositeBackend, StateBackend
 
-def create_s3_composite_backend(runtime):
+
+def get_s3_composite_backend():
     return CompositeBackend(
-        default=StateBackend(runtime),
+        default=StateBackend(),
         routes={"/s3-data/": S3Backend(bucket="my-bucket")},
     )
 ```

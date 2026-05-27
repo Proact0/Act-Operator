@@ -165,7 +165,7 @@ def set_deep_agent():
 
 The subagent's final response is JSON-serialized and returned as the `ToolMessage.content` to the parent. Without `response_format`, the parent receives the subagent's last message text as-is. With it, the parent always gets valid JSON matching the schema — useful when the parent needs to process the result programmatically or pass it to downstream tools.
 
-For full strategy details (tool calling vs. provider-native), see `developing-cast/resources/agents/structured-output.md`.
+For full strategy details (tool calling vs. provider-native), see the `developing-cast` skill's structured-output resource.
 
 ---
 

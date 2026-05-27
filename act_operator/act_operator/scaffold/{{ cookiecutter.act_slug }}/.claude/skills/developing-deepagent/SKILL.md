@@ -29,7 +29,7 @@ Implement DeepAgent components using the `deepagents` SDK within {{ cookiecutter
 
 - LangGraph graph building (state/node/edge) → `developing-cast`
 - Architecture design → `architecting-act`
-- Project setup → `engineering-act`
+- Project / cast scaffolding → run `uv run act new` (project) or `uv run act cast` (new cast) directly
 - Testing → `testing-cast`
 
 ---
@@ -57,6 +57,8 @@ AskUserQuestion Format:
 ```json
 {
   "question": "CLAUDE.md not found. Create architecture first?",
+  "header": "Architecture",
+  "multiSelect": false,
   "options": [
     {"label": "Yes", "description": "Switch to architecting-act skill"},
     {"label": "No", "description": "Proceed without architecture specs"}
@@ -72,32 +74,21 @@ uv add --package {{ cookiecutter.act_slug }} deepagents
 
 ### Step 3: Implementation
 
-**Implement in order:** backend → tools → subagents → middleware → agent assembly
+**Implement in this order — each layer depends on the previous one:**
 
 ```
-Module File           → Component
-──────────────────    ──────────────────
-modules/utils.py      → Backend factory functions
-modules/tools.py      → Custom tools (tool/MCP)
-modules/agents.py     → create_deep_agent + subagent definitions
-modules/middlewares.py → Middleware configuration
-modules/models.py     → Model configuration
-modules/prompts.py    → System prompt content
+Step  Module File              Component
+────  ───────────────────────  ──────────────────────────────────────
+1.    modules/utils.py         Backend instances (StateBackend(), ...)
+2.    modules/tools.py         Custom tools (@tool / MCP)
+3.    modules/agents.py        Subagent definitions
+4.    modules/middlewares.py   Middleware configuration
+5.    modules/models.py        Model configuration
+6.    modules/prompts.py       System prompt content
+7.    modules/agents.py        create_deep_agent assembly
 ```
 
-```
-1. Backend (utils.py)              # Storage layer
-   ↓
-2. Tools (tools.py)                # Agent capabilities
-   ↓
-3. Subagents (agents.py)           # Specialized workers
-   ↓
-4. Middleware (middlewares.py)      # Hooks and control
-   ↓
-5. Agent (agents.py)               # create_deep_agent assembly
-```
-
-### Option Step 4: Environment Variables
+### Optional Step 4: Environment Variables
 
 Update `.env.example` (project root):
 

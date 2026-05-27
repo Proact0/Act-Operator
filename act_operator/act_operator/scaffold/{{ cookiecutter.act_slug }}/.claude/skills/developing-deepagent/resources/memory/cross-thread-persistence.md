@@ -20,12 +20,14 @@ Using `CompositeBackend` with `StoreBackend`, files stored under the persistent 
 from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
 from langgraph.store.memory import InMemoryStore
 
-def create_persistent_backend(runtime):
-    """Create backend with persistent /memories/ route."""
+
+def get_persistent_backend():
+    """Backend with persistent /memories/ route."""
     return CompositeBackend(
-        default=StateBackend(runtime),
-        routes={"/memories/": StoreBackend(runtime)},
+        default=StateBackend(),
+        routes={"/memories/": StoreBackend()},
     )
+
 
 def create_store():
     return InMemoryStore()
@@ -34,11 +36,13 @@ def create_store():
 ```python
 # casts.{cast_name}.modules.agents
 from deepagents import create_deep_agent
-from .utils import create_persistent_backend, create_store, create_checkpointer
+
+from .utils import get_persistent_backend, create_store, create_checkpointer
+
 
 def set_deep_agent():
     return create_deep_agent(
-        backend=create_persistent_backend,
+        backend=get_persistent_backend(),
         store=create_store(),
         checkpointer=create_checkpointer(),
     )
@@ -96,13 +100,14 @@ def create_seeded_store():
 # casts.{cast_name}.modules.utils
 from deepagents.backends import CompositeBackend, StateBackend, StoreBackend, FilesystemBackend
 
-def create_multi_route_backend(runtime):
+
+def get_multi_route_backend():
     """Route different data types to different backends."""
     return CompositeBackend(
-        default=StateBackend(runtime),
+        default=StateBackend(),
         routes={
-            "/memories/": StoreBackend(runtime),
-            "/knowledge/": StoreBackend(runtime),
+            "/memories/": StoreBackend(),
+            "/knowledge/": StoreBackend(),
             "/project/": FilesystemBackend(root_dir=".", virtual_mode=True),
         },
     )

@@ -34,7 +34,7 @@ Unlike other backends, sandbox backends give the agent:
 ```python
 # casts.{cast_name}.modules.utils
 def create_sandbox():
-    """Create sandbox (provider-specific). See providers.md for details."""
+    """Create sandbox (provider-specific — see the sandbox provider resource from SKILL.md)."""
     ...
 
 # casts.{cast_name}.modules.agents

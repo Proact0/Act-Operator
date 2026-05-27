@@ -118,4 +118,4 @@ def resume_with_reject(agent, config: dict):
     return agent.invoke(Command(resume=False), config=config)
 ```
 
-See [resume.md](./resume.md) for advanced resume patterns.
+For advanced resume patterns (multiple interrupts, edit/reject payloads), see the resume resource linked from SKILL.md.

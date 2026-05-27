@@ -24,7 +24,7 @@ create_deep_agent(
     system_prompt: str | SystemMessage | None = None,
     middleware: list[Middleware] | None = None,
     subagents: list[dict | CompiledSubAgent] | None = None,
-    backend: BackendProtocol | BackendFactory | None = None,
+    backend: BackendProtocol | None = None,
     interrupt_on: dict[str, bool | dict] | None = None,
     skills: list[str] | None = None,
     store: BaseStore | None = None,
@@ -42,7 +42,7 @@ create_deep_agent(
 | `system_prompt` | `str \| SystemMessage \| None` | `None` | Custom instructions prepended to built-in prompt |
 | `middleware` | `list[Middleware] \| None` | `None` | Middleware for retry, guardrails, limits, etc. |
 | `subagents` | `list[dict \| CompiledSubAgent]` | `None` | Custom subagents for task delegation |
-| `backend` | `BackendProtocol \| BackendFactory` | `StateBackend` | Virtual filesystem backend |
+| `backend` | `BackendProtocol \| None` | `StateBackend()` | Virtual filesystem backend instance (v0.5+ direct instantiation) |
 | `interrupt_on` | `dict[str, bool \| dict]` | `None` | HITL configuration per tool |
 | `skills` | `list[str]` | `None` | Skill source paths (relative to backend root) |
 | `store` | `BaseStore \| None` | `None` | LangGraph Store for persistent storage |
@@ -101,34 +101,41 @@ def set_deep_agent():
 
 ## Full Configuration
 
+Backends, store, and checkpointer are direct instances (deepagents v0.5+):
+
 ```python
 # casts.{cast_name}.modules.utils
 from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
 from langgraph.store.memory import InMemoryStore
 from langgraph.checkpoint.memory import MemorySaver
 
-def create_composite_backend(runtime):
-    """Create backend with ephemeral workspace + persistent memory."""
+
+def get_composite_backend():
+    """Backend with ephemeral workspace + persistent memory."""
     return CompositeBackend(
-        default=StateBackend(runtime),
-        routes={"/memories/": StoreBackend(runtime)},
+        default=StateBackend(),
+        routes={"/memories/": StoreBackend()},
     )
 
+
 def create_store():
-    """Create in-memory store. Use DB-backed store in production."""
+    """In-memory store. Use a DB-backed store in production."""
     return InMemoryStore()
 
+
 def create_checkpointer():
-    """Create checkpointer. Use PostgresSaver in production."""
+    """In-memory checkpointer. Use PostgresSaver in production."""
     return MemorySaver()
 ```
 
 ```python
 # casts.{cast_name}.modules.agents
 from deepagents import create_deep_agent
+
 from .models import get_deep_agent_model
 from .tools import get_tools
-from .utils import create_composite_backend, create_store, create_checkpointer
+from .utils import get_composite_backend, create_store, create_checkpointer
+
 
 def get_subagents():
     return [
@@ -140,6 +147,7 @@ def get_subagents():
         }
     ]
 
+
 def set_deep_agent():
     return create_deep_agent(
         name="{{ cookiecutter.cast_slug }}",
@@ -148,7 +156,7 @@ def set_deep_agent():
         system_prompt="You are an expert researcher.",
         middleware=[],
         subagents=get_subagents(),
-        backend=create_composite_backend,
+        backend=get_composite_backend(),
         interrupt_on={
             "write_file": True,
             "my_search_tool": {"allowed_decisions": ["approve", "reject"]},
@@ -162,7 +170,7 @@ def set_deep_agent():
 ## Key Constraints
 
 - `system_prompt` is prepended to the built-in deep agent prompt (planning, filesystem, subagent instructions)
-- `backend` accepts either an instance (`FilesystemBackend`) or a factory (`def make_backend(rt): ...`)
+- `backend` accepts a direct instance (`StateBackend()`, `StoreBackend()`, `CompositeBackend(...)`, `FilesystemBackend(...)`) since deepagents v0.5+. The legacy factory form `lambda rt: StateBackend(rt)` is deprecated.
 - `checkpointer` is **required** when using `interrupt_on` or when you need thread persistence
 - `store` is **required** when using `StoreBackend` for persistent cross-thread storage
 - When deploying to LangSmith Deployment, omit `store` — the platform provisions one automatically

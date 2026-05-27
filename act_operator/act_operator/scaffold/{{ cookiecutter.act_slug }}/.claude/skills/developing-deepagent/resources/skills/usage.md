@@ -125,18 +125,21 @@ def create_skill_store():
 # casts.{cast_name}.modules.utils
 from deepagents.backends import StoreBackend
 
-def create_store_backend(runtime):
-    return StoreBackend(runtime)
+
+def get_store_backend():
+    return StoreBackend()
 ```
 
 ```python
 # casts.{cast_name}.modules.agents
 from deepagents import create_deep_agent
-from .utils import create_skill_store, create_store_backend
+
+from .utils import create_skill_store, get_store_backend
+
 
 def set_deep_agent():
     return create_deep_agent(
-        backend=create_store_backend,
+        backend=get_store_backend(),
         store=create_skill_store(),
         skills=["/skills/"],
     )
