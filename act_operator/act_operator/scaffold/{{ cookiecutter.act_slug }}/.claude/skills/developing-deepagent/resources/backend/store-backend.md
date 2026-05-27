@@ -2,7 +2,9 @@
 
 Persistent filesystem backend that stores files in a LangGraph Store, enabling cross-thread persistence.
 
-## Usage
+## Usage (deepagents v0.5+)
+
+`StoreBackend()` is instantiated directly — no factory required.
 
 ```python
 # casts.{cast_name}.modules.utils
@@ -13,21 +15,21 @@ def create_store():
     """Create in-memory store. Use DB-backed store in production."""
     return InMemoryStore()
 
-def create_store_backend(runtime):
-    """Create StoreBackend from runtime."""
-    return StoreBackend(runtime)
+def get_store_backend():
+    """Direct StoreBackend instance."""
+    return StoreBackend()
 ```
 
 ```python
 # casts.{cast_name}.modules.agents
 from deepagents import create_deep_agent
 from .models import get_deep_agent_model
-from .utils import create_store, create_store_backend
+from .utils import create_store, get_store_backend
 
 def set_deep_agent():
     return create_deep_agent(
         model=get_deep_agent_model(),
-        backend=create_store_backend,
+        backend=get_store_backend(),
         store=create_store(),
     )
 ```
@@ -36,8 +38,7 @@ def set_deep_agent():
 
 - Files are stored in the LangGraph Store (key-value persistence layer)
 - Persists across threads — files survive when the conversation ends
-- Requires a `store` to be passed to `create_deep_agent`
-- Uses the factory pattern (receives runtime to access the store)
+- Requires a `store` to be passed to `create_deep_agent` (the harness injects it into the backend at runtime)
 
 ## Pre-seeding Files
 
@@ -76,21 +77,6 @@ def create_seeded_store_with_binary():
             value=create_file_data(f.read()),
         )
     return store
-```
-
-## BackendFactory Pattern
-
-StoreBackend requires runtime to access the store:
-
-```python
-# casts.{cast_name}.modules.utils
-
-# ✅ Factory pattern — receives runtime
-def create_store_backend(runtime):
-    return StoreBackend(runtime)
-
-# ❌ Instance — won't have access to store
-# backend = StoreBackend()  # Missing runtime
 ```
 
 ## When to Use

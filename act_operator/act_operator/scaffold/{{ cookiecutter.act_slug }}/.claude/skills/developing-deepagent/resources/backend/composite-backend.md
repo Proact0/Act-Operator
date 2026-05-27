@@ -10,18 +10,20 @@ A flexible router backend that maps different filesystem paths to different back
 - Common Patterns
 - When to Use / NOT to Use
 
-## Basic Usage
+## Basic Usage (deepagents v0.5+)
+
+`CompositeBackend` composes directly-instantiated child backends — no factory required.
 
 ```python
 # casts.{cast_name}.modules.utils
 from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
 from langgraph.store.memory import InMemoryStore
 
-def create_composite_backend(runtime):
+def get_composite_backend():
     """Create backend with ephemeral workspace + persistent memory."""
     return CompositeBackend(
-        default=StateBackend(runtime),
-        routes={"/memories/": StoreBackend(runtime)},
+        default=StateBackend(),
+        routes={"/memories/": StoreBackend()},
     )
 
 def create_store():
@@ -32,12 +34,12 @@ def create_store():
 # casts.{cast_name}.modules.agents
 from deepagents import create_deep_agent
 from .models import get_deep_agent_model
-from .utils import create_composite_backend, create_store
+from .utils import get_composite_backend, create_store
 
 def set_deep_agent():
     return create_deep_agent(
         model=get_deep_agent_model(),
-        backend=create_composite_backend,
+        backend=get_composite_backend(),
         store=create_store(),
     )
 ```
@@ -71,11 +73,11 @@ def set_deep_agent():
 # casts.{cast_name}.modules.utils
 from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
 
-def create_memory_backend(runtime):
+def get_memory_backend():
     """Working files ephemeral, memories persist across threads."""
     return CompositeBackend(
-        default=StateBackend(runtime),
-        routes={"/memories/": StoreBackend(runtime)},
+        default=StateBackend(),
+        routes={"/memories/": StoreBackend()},
     )
 ```
 
@@ -85,10 +87,10 @@ def create_memory_backend(runtime):
 # casts.{cast_name}.modules.utils
 from deepagents.backends import CompositeBackend, StateBackend, FilesystemBackend
 
-def create_project_backend(runtime):
+def get_project_backend():
     """Working files ephemeral, project files on local disk."""
     return CompositeBackend(
-        default=StateBackend(runtime),
+        default=StateBackend(),
         routes={
             "/project/": FilesystemBackend(root_dir="/path/to/project", virtual_mode=True),
         },
@@ -99,12 +101,12 @@ def create_project_backend(runtime):
 
 ```python
 # casts.{cast_name}.modules.utils
-def create_multi_route_backend(runtime):
+def get_multi_route_backend():
     """Different persistent stores for different purposes."""
     return CompositeBackend(
-        default=StateBackend(runtime),
+        default=StateBackend(),
         routes={
-            "/memories/": StoreBackend(runtime),
+            "/memories/": StoreBackend(),
             "/docs/": FilesystemBackend(root_dir="/path/to/docs", virtual_mode=True),
         },
     )

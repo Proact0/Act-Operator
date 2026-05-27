@@ -72,29 +72,32 @@ class MovieExtractorWithMetaNode(BaseNode):
             "movie": result["parsed"].model_dump(),
             "tokens": result["raw"].usage_metadata,
         }
-  ```
+```
 
 ## Nested Structures
 
 ```python
 # casts.{cast_name}.modules.models
-    from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field
 
-    class Actor(BaseModel):
-        name: str
-        role: str
 
-    class MovieDetails(BaseModel):
-        title: str
-        year: int
-        cast: list[Actor]
-        genres: list[str]
-        budget: float | None = Field(None, description="Budget in millions USD")
+class Actor(BaseModel):
+    name: str
+    role: str
+
+
+class MovieDetails(BaseModel):
+    title: str
+    year: int
+    cast: list[Actor]
+    genres: list[str]
+    budget: float | None = Field(None, description="Budget in millions USD")
+
 
 def get_detailed_movie_model():
     model = ChatOpenAI(model="gpt-4o")
     return model.with_structured_output(MovieDetails)
-    ```
+```
 
 ## Method Parameter
 

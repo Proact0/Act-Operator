@@ -113,7 +113,7 @@ class ValidationReport:
         if self.passed:
             print("\n[SUCCESS] Validation PASSED - Ready for implementation")
             print("\nNext steps:")
-            print("  1. engineering-act (scaffold casts)")
+            print('  1. uv run act cast -c "<Cast Name>"  (scaffold cast)')
             print("  2. developing-cast (implement)")
             print("  3. testing-cast (test)")
         else:

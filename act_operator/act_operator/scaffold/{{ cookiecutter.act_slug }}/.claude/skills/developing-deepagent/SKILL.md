@@ -1,7 +1,7 @@
 ---
 name: developing-deepagent
-description: Implements DeepAgent components using LangChain's deepagents SDK. Use when building deep agents with create_deep_agent, configuring backends/subagents/skills/memory, need DeepAgent patterns (sandbox, HITL interrupts, long-term memory, subagent spawning), or ask "implement deep agent", "add subagent", "configure backend".
-version: "2026.03.31"
+description: Implements DeepAgent components using LangChain's deepagents SDK. Use when building deep agents with create_deep_agent, configuring backends/subagents/skills/memory/interpreter, need DeepAgent patterns (sandbox, HITL interrupts, long-term memory, subagent spawning, subagent structured output, QuickJS code interpreter with programmatic tool calling), or ask "implement deep agent", "add subagent", "configure backend", "add interpreter".
+version: "2026.05.26"
 author: Proact0
 allowed-tools:
   - Bash(uv sync *)
@@ -29,7 +29,7 @@ Implement DeepAgent components using the `deepagents` SDK within {{ cookiecutter
 
 - LangGraph graph building (state/node/edge) → `developing-cast`
 - Architecture design → `architecting-act`
-- Project setup → `engineering-act`
+- Project / cast scaffolding → run `uv run act new` (project) or `uv run act cast` (new cast) directly
 - Testing → `testing-cast`
 
 ---
@@ -57,6 +57,8 @@ AskUserQuestion Format:
 ```json
 {
   "question": "CLAUDE.md not found. Create architecture first?",
+  "header": "Architecture",
+  "multiSelect": false,
   "options": [
     {"label": "Yes", "description": "Switch to architecting-act skill"},
     {"label": "No", "description": "Proceed without architecture specs"}
@@ -66,38 +68,32 @@ AskUserQuestion Format:
 
 ### Step 2: Install deepagents
 
+Add the SDK to the cast that uses it (each cast is a workspace member under `casts/*`):
+
 ```bash
-uv add --package {{ cookiecutter.act_slug }} deepagents
+uv add --package {{ cookiecutter.cast_slug }} deepagents
+
+# For the QuickJS code interpreter (Step §"Interpreter"):
+uv add --package {{ cookiecutter.cast_slug }} "deepagents[quickjs]"
 ```
 
 ### Step 3: Implementation
 
-**Implement in order:** backend → tools → subagents → middleware → agent assembly
+**Implement in this order — each layer depends on the previous one:**
 
 ```
-Module File           → Component
-──────────────────    ──────────────────
-modules/utils.py      → Backend factory functions
-modules/tools.py      → Custom tools (tool/MCP)
-modules/agents.py     → create_deep_agent + subagent definitions
-modules/middlewares.py → Middleware configuration
-modules/models.py     → Model configuration
-modules/prompts.py    → System prompt content
+Step  Module File              Component
+────  ───────────────────────  ──────────────────────────────────────
+1.    modules/utils.py         Backend instances (StateBackend(), ...)
+2.    modules/tools.py         Custom tools (@tool / MCP)
+3.    modules/agents.py        Subagent definitions
+4.    modules/middlewares.py   Middleware configuration
+5.    modules/models.py        Model configuration
+6.    modules/prompts.py       System prompt content
+7.    modules/agents.py        create_deep_agent assembly
 ```
 
-```
-1. Backend (utils.py)              # Storage layer
-   ↓
-2. Tools (tools.py)                # Agent capabilities
-   ↓
-3. Subagents (agents.py)           # Specialized workers
-   ↓
-4. Middleware (middlewares.py)      # Hooks and control
-   ↓
-5. Agent (agents.py)               # create_deep_agent assembly
-```
-
-### Option Step 4: Environment Variables
+### Optional Step 4: Environment Variables
 
 Update `.env.example` (project root):
 
@@ -158,13 +154,19 @@ ANTHROPIC_API_KEY=your_key
 | adding skill directories to deep agent | [skills/usage.md](./resources/skills/usage.md) |
 | configuring skills for subagents | [skills/subagent-skills.md](./resources/skills/subagent-skills.md) |
 
-### Sandbox (Code Execution)
+### Sandbox (Code Execution — OS-level)
 
 | Use when | Resource |
 |----------|----------|
 | understanding sandbox architecture | [sandbox/overview.md](./resources/sandbox/overview.md) |
 | running code in isolated environment (Modal/Daytona/Runloop) | [sandbox/providers.md](./resources/sandbox/providers.md) |
 | using local shell for dev/testing | [sandbox/local-shell.md](./resources/sandbox/local-shell.md) |
+
+### Interpreter (Code Execution — QuickJS, in-agent)
+
+| Use when | Resource |
+|----------|----------|
+| composing tools/orchestrating subagents from code (CodeInterpreterMiddleware) | [interpreter/code-interpreter.md](./resources/interpreter/code-interpreter.md) |
 
 ### Middleware
 
@@ -192,8 +194,11 @@ ANTHROPIC_API_KEY=your_key
 ## Verification
 
 - [ ] CLAUDE.md checked (root + agent spec if exists, skipped if not)
-- [ ] `deepagents` package installed
+- [ ] `deepagents` package installed (`deepagents[quickjs]` if using interpreter)
 - [ ] Implementation order: backend → tools → subagents → middleware → agent
 - [ ] Backend type matches requirements (State/Filesystem/Store/Composite)
+- [ ] Backends instantiated directly (`StateBackend()`, `StoreBackend()`) — no factory closures (v0.5+)
 - [ ] HITL configured for sensitive tools (if needed)
+- [ ] Subagent `response_format` set when parent needs structured output (v0.5.3+)
+- [ ] Interpreter PTC allowlist scoped only to required tools (if using `CodeInterpreterMiddleware`)
 - [ ] Agent compiles and invokes successfully

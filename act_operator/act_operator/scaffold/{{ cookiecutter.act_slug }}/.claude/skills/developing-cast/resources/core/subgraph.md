@@ -170,17 +170,20 @@ agent_subgraph = builder.compile(checkpointer=True)  # Own memory
 
 ---
 
-## Streaming Subgraph Outputs
+## Streaming Subgraph Outputs (v3)
+
+Subgraphs surface on the `stream.subgraphs` projection. Each handle exposes the inner graph's own `.messages`, `.values`, `.tool_calls`, and `.output` — no `subgraphs=True` flag or `stream_mode` argument is required.
 
 ```python
-# Include subgraph outputs in stream
-for chunk in graph.stream(
-    {"input": "data"},
-    subgraphs=True,  # Stream from subgraphs too
-    stream_mode="updates",
-):
-    print(chunk)
+stream = graph.stream_events({"input": "data"}, version="v3")
+
+for subgraph in stream.subgraphs:
+    print(f"[{subgraph.graph_name}] {subgraph.path}")
+    for snapshot in subgraph.values:
+        print(snapshot)
 ```
+
+For runtime/API endpoint patterns and DeepAgent `stream.subagents` projection, see the `streaming-cast` skill.
 
 ---
 

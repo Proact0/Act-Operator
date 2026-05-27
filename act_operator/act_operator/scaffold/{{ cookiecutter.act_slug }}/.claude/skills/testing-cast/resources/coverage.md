@@ -49,8 +49,15 @@ exclude_lines = [
 
 ## What to Cover
 
+Test code lives in `tests/node_tests/test_*.py` (node-scope) and `tests/cast_tests/{cast_snake}_test.py` (cast-scope).
+
 **Priority 1: Core Logic**
+
 ```python
+# tests/node_tests/test_{cast_snake}_nodes.py
+from casts.{cast_name}.modules.nodes import ProcessNode
+
+
 def test_business_logic():
     node = ProcessNode()
     result = node.execute({"input": "critical"})
@@ -58,7 +65,12 @@ def test_business_logic():
 ```
 
 **Priority 2: Error Paths**
+
 ```python
+# tests/node_tests/test_{cast_snake}_nodes.py
+from casts.{cast_name}.modules.nodes import RobustNode
+
+
 def test_error_handling():
     node = RobustNode()
     result = node.execute({"input": "invalid"})
@@ -66,8 +78,15 @@ def test_error_handling():
 ```
 
 **Priority 3: Edge Cases**
+
 ```python
-@pytest.mark.parametrize("input_val", ["", "x"*1000, None])
+# tests/node_tests/test_{cast_snake}_nodes.py
+import pytest
+
+from casts.{cast_name}.modules.nodes import MyNode
+
+
+@pytest.mark.parametrize("input_val", ["", "x" * 1000, None])
 def test_edge_cases(input_val):
     node = MyNode()
     result = node.execute({"input": input_val})
@@ -76,13 +95,20 @@ def test_edge_cases(input_val):
 
 ## Exclude from Coverage
 
+Apply `# pragma: no cover` to product code, not tests — keeps the coverage report honest:
+
 ```python
+# casts/{cast_name}/modules/<anywhere>.py
+from typing import TYPE_CHECKING
+
+
 def utility():  # pragma: no cover
     """Not critical."""
     pass
 
+
 if TYPE_CHECKING:  # pragma: no cover
-    from typing import TYPE_CHECKING
+    pass
 ```
 
 ## CI Integration

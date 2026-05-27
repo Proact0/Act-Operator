@@ -23,26 +23,28 @@ def set_deep_agent():
     )
 ```
 
-## Explicit Usage
+## Explicit Usage (deepagents v0.5+)
+
+`StateBackend()` is instantiated directly — no factory required.
 
 ```python
 # casts.{cast_name}.modules.utils
 from deepagents.backends import StateBackend
 
-def create_state_backend(runtime):
-    """Create explicit StateBackend from runtime."""
-    return StateBackend(runtime)
+def get_state_backend():
+    """Direct StateBackend instance."""
+    return StateBackend()
 ```
 
 ```python
 # casts.{cast_name}.modules.agents
 from deepagents import create_deep_agent
-from .utils import create_state_backend
+from .utils import get_state_backend
 
 def set_deep_agent():
     return create_deep_agent(
         model=get_deep_agent_model(),
-        backend=create_state_backend,
+        backend=get_state_backend(),
     )
 ```
 
@@ -80,22 +82,7 @@ def create_seed_files_with_binary():
     }
 ```
 
-> **Important**: Raw strings are not supported for `files`. Always use `create_file_data()`. Binary content (bytes) is supported as of v0.5.
-
-## BackendFactory Pattern
-
-StateBackend requires runtime access, so it uses the factory pattern:
-
-```python
-# casts.{cast_name}.modules.utils
-
-# ✅ Factory (callable that receives runtime)
-def create_state_backend(runtime):
-    return StateBackend(runtime)
-
-# ❌ Instance — this won't work:
-# backend = StateBackend()  # Missing runtime
-```
+> **Important**: Raw strings are not supported for `files`. Always use `create_file_data()`. Binary content (bytes) is supported.
 
 ## When to Use
 

@@ -20,16 +20,19 @@ from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
 from langgraph.store.memory import InMemoryStore
 from langgraph.checkpoint.memory import MemorySaver
 
-def create_memory_backend(runtime):
-    """Create backend with persistent /memories/ route."""
+
+def get_memory_backend():
+    """Backend with persistent /memories/ route."""
     return CompositeBackend(
-        default=StateBackend(runtime),
-        routes={"/memories/": StoreBackend(runtime)},
+        default=StateBackend(),
+        routes={"/memories/": StoreBackend()},
     )
 
+
 def create_store():
-    """Create in-memory store. Use DB-backed store in production."""
+    """In-memory store. Use a DB-backed store in production."""
     return InMemoryStore()
+
 
 def create_checkpointer():
     return MemorySaver()
@@ -38,13 +41,15 @@ def create_checkpointer():
 ```python
 # casts.{cast_name}.modules.agents
 from deepagents import create_deep_agent
+
 from .models import get_deep_agent_model
-from .utils import create_memory_backend, create_store, create_checkpointer
+from .utils import get_memory_backend, create_store, create_checkpointer
+
 
 def set_deep_agent():
     return create_deep_agent(
         model=get_deep_agent_model(),
-        backend=create_memory_backend,
+        backend=get_memory_backend(),
         store=create_store(),
         checkpointer=create_checkpointer(),
     )
