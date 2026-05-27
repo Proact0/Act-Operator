@@ -11,9 +11,9 @@ from casts.{{ cookiecutter.cast_snake }}.graph import {{ cookiecutter.cast_snake
 def test_graph_produces_message() -> None:
     graph = {{ cookiecutter.cast_snake }}_graph()
 
-    # 최소 상태로 그래프 실행
+    # Invoke with minimal state — OutputState filter exposes only the ``result`` key.
     result = graph.invoke({"query": "I'm joining Act"})
 
-    # SampleNode가 message 키를 생성하는지 확인
-    assert "messages" in result
-    assert result["messages"] == "Welcome to the Act!"
+    # Verify SampleNode populated ``result``.
+    assert "result" in result
+    assert result["result"] == "Welcome to the Act!"

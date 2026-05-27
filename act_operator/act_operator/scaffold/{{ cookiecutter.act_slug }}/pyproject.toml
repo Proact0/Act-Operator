@@ -12,6 +12,7 @@ dependencies = [
 [dependency-groups]
 test = [
     "pytest",
+    "pytest-asyncio",
     "langgraph-cli[inmem]",
 ]
 lint = [
@@ -27,10 +28,15 @@ dev = [
 [tool.pyright]
 include = ["casts", "tests"]
 exclude = [
-    "**/__pycache__/*", 
-    ".venv", 
+    "**/__pycache__/*",
+    ".venv",
     "**/.venv"
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_mode = "auto"
 
 [tool.uv.workspace]
 members = ["casts/*"]
