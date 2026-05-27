@@ -2,7 +2,7 @@
 
 Guide for Step 1b: Basic Pattern Selection for non-agentic workflows.
 
-> **Note:** If the workflow requires AI agent capabilities (tool access, autonomous decision-making, iterative reasoning, human oversight), use [agentic-design-patterns.md](agentic-design-patterns.md) instead.
+> **Note:** If the workflow requires AI agent capabilities (tool access, autonomous decision-making, iterative reasoning, human oversight), use the agentic-design-patterns resource linked from SKILL.md instead.
 
 ## Decision Matrix
 

@@ -28,7 +28,7 @@ Design and manage Act (project) and Cast (graph) architectures through dynamic, 
 
 - Implementing LangGraph cast code → use `developing-cast`
 - Implementing DeepAgent agent code → use `developing-deepagent`
-- Creating cast files → use `engineering-act`
+- Scaffolding cast directories → run `uv run act cast -c "<Cast Name>"` directly
 - Writing tests → use `testing-cast`
 
 ---
