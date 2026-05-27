@@ -120,7 +120,7 @@ await asyncio.gather(coordinator_task(), subagent_task())
 
 ## Dispatch Pattern
 
-Clean handler dispatch for multi-projection streams:
+Clean handler dispatch for multi-projection streams. Each projection consumer is a wrapper coroutine that iterates its async source and dispatches per item; `asyncio.gather` runs the three consumers concurrently:
 
 ```python
 import asyncio
@@ -144,12 +144,22 @@ async def dispatch_subagent(subagent):
         async for token in message.text:
             await send({"type": "token", "content": token, "source": subagent.name})
 
-await asyncio.gather(
-    *(dispatch_message(m) async for m in stream.messages),
-    *(dispatch_tool_call(c) async for c in stream.tool_calls),
-    *(dispatch_subagent(s) async for s in stream.subagents),
-)
+async def consume_messages():
+    async for message in stream.messages:
+        await dispatch_message(message)
+
+async def consume_tool_calls():
+    async for call in stream.tool_calls:
+        await dispatch_tool_call(call)
+
+async def consume_subagents():
+    async for subagent in stream.subagents:
+        await dispatch_subagent(subagent)
+
+await asyncio.gather(consume_messages(), consume_tool_calls(), consume_subagents())
 ```
+
+> **Why not `*(dispatch_x(x) async for x in stream.x)`?** Async generator expressions cannot be unpacked with `*` (raises `TypeError: 'async_generator' object is not iterable`). Wrapping each projection consumer in its own coroutine preserves streaming semantics: each handler dispatches items as they arrive, instead of buffering the entire stream before `gather` starts.
 
 ---
 

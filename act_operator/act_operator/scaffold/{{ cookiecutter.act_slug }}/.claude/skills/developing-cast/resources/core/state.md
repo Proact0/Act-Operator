@@ -91,9 +91,10 @@ from typing_extensions import TypedDict
 from langgraph.channels import DeltaChannel
 
 
-# Bulk reducer: receives state + sequence of all writes from the current step
-def list_reducer(state: list[Any], writes: Sequence[list[Any]]) -> list[Any]:
-    result = list(state)
+# Bulk reducer: receives state + sequence of all writes from the current step.
+# `state` may be `None` on the very first reconstruction — handle it defensively.
+def list_reducer(state: list[Any] | None, writes: Sequence[list[Any]]) -> list[Any]:
+    result = list(state) if state is not None else []
     for write in writes:
         result.extend(write)
     return result
