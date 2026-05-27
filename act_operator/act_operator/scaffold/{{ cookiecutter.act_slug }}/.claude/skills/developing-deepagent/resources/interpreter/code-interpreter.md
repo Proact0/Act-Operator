@@ -31,7 +31,7 @@ The interpreter is a code-first way to act **inside the agent loop** (composing 
 ## Installation
 
 ```bash
-uv add --package {{ cookiecutter.act_slug }} "deepagents[quickjs]"
+uv add --package {{ cookiecutter.cast_slug }} "deepagents[quickjs]"
 ```
 
 ---

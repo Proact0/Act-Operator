@@ -68,8 +68,13 @@ AskUserQuestion Format:
 
 ### Step 2: Install deepagents
 
+Add the SDK to the cast that uses it (each cast is a workspace member under `casts/*`):
+
 ```bash
-uv add --package {{ cookiecutter.act_slug }} deepagents
+uv add --package {{ cookiecutter.cast_slug }} deepagents
+
+# For the QuickJS code interpreter (Step §"Interpreter"):
+uv add --package {{ cookiecutter.cast_slug }} "deepagents[quickjs]"
 ```
 
 ### Step 3: Implementation
