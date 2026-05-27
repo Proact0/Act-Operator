@@ -120,9 +120,6 @@ target/
 cython_debug/
 
 # IDE settings — track team-shared VSCode config, ignore everything else
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
 .idea/
 .spyderproject
 .spyproject
