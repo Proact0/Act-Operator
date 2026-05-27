@@ -9,6 +9,7 @@ Define specialized subagents with their own tools, model, system prompt, and ski
 - With Custom Model
 - With Middleware
 - With Skills
+- With Structured Output (deepagents v0.5.3+)
 - Key Notes
 
 ## Parameters
@@ -22,6 +23,7 @@ Define specialized subagents with their own tools, model, system prompt, and ski
 | `model` | `str \| BaseChatModel` | No | Override model (defaults to main agent's model) |
 | `middleware` | `list[Middleware]` | No | Custom middleware for the subagent |
 | `skills` | `list[str]` | No | Subagent-specific skill paths |
+| `response_format` | schema \| `ToolStrategy` \| `ProviderStrategy` | No | Structured output schema (deepagents v0.5.3+) — final response is JSON-serialized into the parent's `ToolMessage` |
 
 ## Basic Definition
 
@@ -122,6 +124,50 @@ def set_deep_agent():
         subagents=get_subagents(),         # Researcher gets only its own skills
     )
 ```
+
+## With Structured Output (deepagents v0.5.3+)
+
+Pass `response_format` on the subagent config to make the parent receive JSON that conforms to a schema instead of free-form text. Accepts anything `create_agent` accepts — Pydantic models, `ToolStrategy(...)`, `ProviderStrategy(...)`, or a raw schema type.
+
+```python
+# casts.{cast_name}.modules.agents
+from pydantic import BaseModel, Field
+from deepagents import create_deep_agent
+from .models import get_deep_agent_model
+from .tools import web_search
+
+
+class ResearchReport(BaseModel):
+    """Structured research report returned by the researcher subagent."""
+    summary: str = Field(description="One-paragraph summary")
+    findings: list[str] = Field(description="Key findings, 3-5 bullets")
+    sources: list[str] = Field(description="URLs cited")
+
+
+def get_subagents():
+    return [
+        {
+            "name": "researcher",
+            "description": "Research a topic and return a structured report",
+            "system_prompt": "You are a research specialist.",
+            "tools": [web_search],
+            "response_format": ResearchReport,
+        },
+    ]
+
+
+def set_deep_agent():
+    return create_deep_agent(
+        model=get_deep_agent_model(),
+        subagents=get_subagents(),
+    )
+```
+
+The subagent's final response is JSON-serialized and returned as the `ToolMessage.content` to the parent. Without `response_format`, the parent receives the subagent's last message text as-is. With it, the parent always gets valid JSON matching the schema — useful when the parent needs to process the result programmatically or pass it to downstream tools.
+
+For full strategy details (tool calling vs. provider-native), see the `developing-cast` skill's structured-output resource.
+
+---
 
 ## Key Notes
 

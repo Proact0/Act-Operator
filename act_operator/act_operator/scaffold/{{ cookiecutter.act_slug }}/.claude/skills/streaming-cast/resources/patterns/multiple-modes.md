@@ -1,145 +1,166 @@
-# Multiple Stream Modes
+# Multiple Projections
 
-Combine stream modes for comprehensive event coverage.
+Consume multiple projections from one event stream for comprehensive event coverage. All code in this file is **consumer-side** — `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; place this code anywhere else (an additional cast module, an external runtime/API module, a script, or a test).
 
 ## Contents
 
-- Combining Modes
+- Async: asyncio.gather
+- Sync: stream.interleave
 - Common Combinations
 - Dispatch Pattern
 - Performance
 
-## Combining Modes
+## Async: asyncio.gather
 
-Pass a list to `stream_mode`:
+Each projection iterator independently drains from the underlying event stream — multiple consumers do not interfere:
 
 ```python
+import asyncio
+
 graph = {{ cookiecutter.cast_snake }}_graph()
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode=["messages", "updates", "custom"],
-    subgraphs=True,
-    version="v2",
-):
-    # All chunks share the same StreamPart format
-    # Differentiate by chunk["type"]
-    print(f"[{chunk['type']}] {chunk['data']}")
+stream = await graph.astream_events(inputs, config=config, version="v3")
+
+async def consume_messages():
+    async for message in stream.messages:
+        async for token in message.text:
+            print(token, end="", flush=True)
+
+async def consume_tool_calls():
+    async for call in stream.tool_calls:
+        print(f"\n[tool] {call.tool_name}({call.input})")
+
+async def consume_subagents():
+    async for subagent in stream.subagents:
+        print(f"\n[subagent] {subagent.name}")
+
+await asyncio.gather(
+    consume_messages(),
+    consume_tool_calls(),
+    consume_subagents(),
+)
+```
+
+---
+
+## Sync: stream.interleave
+
+For synchronous code, `stream.interleave(...)` returns `(projection_name, item)` tuples in strict arrival order:
+
+```python
+stream = graph.stream_events(inputs, config=config, version="v3")
+
+for name, item in stream.interleave("messages", "tool_calls", "values"):
+    if name == "messages":
+        for token in item.text:
+            print(token, end="", flush=True)
+    elif name == "tool_calls":
+        print(f"\n[tool] {item.tool_name}")
+    elif name == "values":
+        print(f"\n[state] keys={list(item)}")
 ```
 
 ---
 
 ## Common Combinations
 
-### Messages + Updates (Most Common)
+### Messages + Tool Calls (Most Common)
 
-Token streaming + node execution tracking:
+Token streaming + tool execution visibility:
 
 ```python
-stream_mode = ["messages", "updates"]
+import asyncio
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode=stream_mode, subgraphs=True, version="v2",
-):
-    if chunk["type"] == "updates":
-        for node, state in chunk["data"].items():
-            print(f"\n--- {node} ---")
-    elif chunk["type"] == "messages":
-        msg, _ = chunk["data"]
-        if msg.content:
-            print(msg.content, end="", flush=True)
+stream = await graph.astream_events(inputs, config=config, version="v3")
+
+async def messages_task():
+    async for message in stream.messages:
+        async for token in message.text:
+            print(token, end="", flush=True)
+
+async def tools_task():
+    async for call in stream.tool_calls:
+        print(f"\n--- {call.tool_name} ---")
+        async for delta in call.output_deltas:
+            print(delta, end="", flush=True)
+
+await asyncio.gather(messages_task(), tools_task())
 ```
 
-### Messages + Custom (Progress + Tokens)
+### Messages + Values (Progress + Tokens)
 
-Token streaming + custom progress events:
+Token streaming + per-step state visibility:
 
 ```python
-stream_mode = ["messages", "custom"]
+async def values_task():
+    async for snapshot in stream.values:
+        print(f"\n[state] {list(snapshot)}")
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode=stream_mode, subgraphs=True, version="v2",
-):
-    if chunk["type"] == "messages":
-        msg, metadata = chunk["data"]
-        if msg.content and metadata.get("langgraph_node") == "model":
-            print(msg.content, end="", flush=True)
-    elif chunk["type"] == "custom":
-        if "progress" in chunk["data"]:
-            print(f"\nProgress: {chunk['data']['progress']}%")
+await asyncio.gather(messages_task(), values_task())
 ```
 
-### Messages + Updates + Custom (Full Visibility)
-
-Everything — recommended for debugging and monitoring:
+### Messages + Subagents (Full Visibility — DeepAgent)
 
 ```python
-stream_mode = ["messages", "updates", "custom"]
+async def coordinator_task():
+    async for message in stream.messages:
+        async for token in message.text:
+            print(f"[coordinator] {token}", end="")
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode=stream_mode, subgraphs=True, version="v2",
-):
-    source = _parse_source(chunk["ns"])
+async def subagent_task():
+    async for subagent in stream.subagents:
+        async for message in subagent.messages:
+            async for token in message.text:
+                print(f"[{subagent.name}] {token}", end="")
 
-    if chunk["type"] == "messages":
-        msg, metadata = chunk["data"]
-        if msg.content and metadata.get("langgraph_node") == "model":
-            print(f"[{source}] {msg.content}", end="")
-
-    elif chunk["type"] == "updates":
-        for node, state in chunk["data"].items():
-            print(f"[{source}/{node}] {list(state.keys())}")
-
-    elif chunk["type"] == "custom":
-        print(f"[{source}] custom: {chunk['data']}")
+await asyncio.gather(coordinator_task(), subagent_task())
 ```
 
 ---
 
 ## Dispatch Pattern
 
-Clean handler dispatch for multi-mode streams:
+Clean handler dispatch for multi-projection streams:
 
 ```python
-def handle_messages(data, ns):
-    msg, metadata = data
-    if msg.content and metadata.get("langgraph_node") == "model":
-        print(msg.content, end="", flush=True)
+import asyncio
 
-def handle_updates(data, ns):
-    for node, state in data.items():
-        print(f"[{node}] {state}")
+stream = await graph.astream_events(inputs, config=config, version="v3")
 
-def handle_custom(data, ns):
-    print(f"Event: {data}")
+async def dispatch_message(message):
+    async for token in message.text:
+        await send({"type": "token", "content": token, "node": message.node})
 
-HANDLERS = {
-    "messages": handle_messages,
-    "updates": handle_updates,
-    "custom": handle_custom,
-}
+async def dispatch_tool_call(call):
+    await send({"type": "tool_call", "name": call.tool_name, "args": call.input})
+    async for delta in call.output_deltas:
+        await send({"type": "tool_delta", "delta": delta})
+    if call.completed:
+        await send({"type": "tool_result", "name": call.tool_name, "output": call.output})
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode=["messages", "updates", "custom"],
-    subgraphs=True, version="v2",
-):
-    handler = HANDLERS.get(chunk["type"])
-    if handler:
-        handler(chunk["data"], chunk["ns"])
+async def dispatch_subagent(subagent):
+    await send({"type": "subagent_started", "name": subagent.name})
+    async for message in subagent.messages:
+        async for token in message.text:
+            await send({"type": "token", "content": token, "source": subagent.name})
+
+await asyncio.gather(
+    *(dispatch_message(m) async for m in stream.messages),
+    *(dispatch_tool_call(c) async for c in stream.tool_calls),
+    *(dispatch_subagent(s) async for s in stream.subagents),
+)
 ```
 
 ---
 
 ## Performance
 
-| Modes | Volume | Use Case |
-|-------|--------|----------|
-| `["messages"]` | High | Token display (production) |
-| `["messages", "updates"]` | Medium-High | Interactive UI |
-| `["messages", "custom"]` | Medium-High | Progress + tokens |
-| `["messages", "updates", "custom"]` | High | Full monitoring |
-| `["updates"]` | Low | Backend monitoring |
+| Projection Set | Volume | Use Case |
+|----------------|--------|----------|
+| `stream.messages` | High | Token display (production) |
+| `stream.messages + stream.tool_calls` | High | Interactive UI with tool calls |
+| `stream.messages + stream.subagents` | Medium-High | DeepAgent UI with subagent attribution |
+| `stream.messages + stream.values` | Medium | Token display + state debugging |
+| `stream.output` alone | Low | Final result only |
+
+Multiple consumers reading the same projections concurrently is safe — reading `stream.messages` does not consume events needed by `stream.values`, `stream.subgraphs`, or `stream.output`.

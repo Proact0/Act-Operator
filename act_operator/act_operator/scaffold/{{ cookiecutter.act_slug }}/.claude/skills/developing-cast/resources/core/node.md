@@ -13,6 +13,9 @@ Nodes are implemented in `casts/{cast_name}/modules/nodes.py` by extending `Base
 - verbose Mode
 - Helper Methods
 - Node with Agent
+- Node Timeouts (langgraph v1.2+)
+- Node Error Handlers (langgraph v1.2+)
+- Graceful Drain Inside Nodes (langgraph v1.2+)
 - Recursion Handling
 
 ## Import
@@ -139,7 +142,7 @@ class DebugNode(BaseNode):
 
 Invoke a `create_agent` subgraph inside a custom node. Use this when the parent and subgraph have **different state schemas** or when custom pre/post-processing is needed around the agent call.
 
-For adding a compiled agent **directly as a graph node** (shared state), see subgraph.md § "Method 2: Add as Node".
+For adding a compiled agent **directly as a graph node** (shared state), use `builder.add_node("name", agent_instance)` — covered by the subgraph resource linked from SKILL.md.
 
 ```python
 # casts/{cast_name}/modules/nodes.py
@@ -162,6 +165,131 @@ class AgentNode(BaseNode):
 
 ---
 
+## Node Timeouts
+
+Cap how long a single async attempt may run. **Async nodes only** — sync nodes raise at compile time.
+
+Pass `timeout=` to `add_node`. Either pass seconds / `datetime.timedelta` for a wall-clock limit, or a `TimeoutPolicy` for fine-grained control:
+
+```python
+# casts/{cast_name}/graph.py
+from datetime import timedelta
+from langgraph.types import TimeoutPolicy
+
+builder.add_node("fetch", FetchNode(), timeout=30)                  # 30s wall-clock
+builder.add_node("fetch", FetchNode(), timeout=timedelta(minutes=2))
+
+builder.add_node(
+    "fetch",
+    FetchNode(),
+    timeout=TimeoutPolicy(
+        run_timeout=120,     # hard wall-clock limit (seconds)
+        idle_timeout=20,     # resets on each progress signal
+    ),
+)
+```
+
+### Behavior
+
+- On timeout, LangGraph raises `NodeTimeoutError` (subclass of `TimeoutError`).
+- Buffered writes from the timed-out attempt are cleared — no state leakage.
+- If the node has a `retry_policy` that retries `TimeoutError`/`NodeTimeoutError`, it retries with the timer reset per attempt.
+
+### NodeTimeoutError fields
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `node` | `str` | Name of the node that timed out |
+| `elapsed` | `float` | Seconds before timeout fired |
+| `kind` | `Literal["idle", "run"]` | Which timer fired |
+| `idle_timeout` | `float \| None` | Configured idle timeout |
+| `run_timeout` | `float \| None` | Configured run timeout |
+
+### Idle timeout refresh
+
+When using `idle_timeout`, signal progress from inside the node to reset the timer:
+
+```python
+# casts/{cast_name}/modules/nodes.py
+from langgraph.runtime import Runtime
+from casts.base_node import AsyncBaseNode
+
+class StreamingNode(AsyncBaseNode):
+    async def execute(self, state, runtime: Runtime):
+        async for chunk in long_stream():
+            await process_chunk(chunk)
+            runtime.heartbeat()  # resets idle_timeout
+        return {"result": "done"}
+```
+
+---
+
+## Node Error Handlers
+
+Run a recovery function **after all retries are exhausted** to update state and route to a compensation branch. Useful for Saga / compensation patterns.
+
+Pass `error_handler=` to `add_node`:
+
+```python
+# casts/{cast_name}/modules/conditions.py
+from langgraph.errors import NodeError
+from langgraph.types import Command, RetryPolicy
+
+from .state import State
+
+
+def payment_error_handler(state: State, error: NodeError) -> Command:
+    return Command(
+        update={"status": f"compensated: {error.error}"},
+        goto="finalize",
+    )
+```
+
+```python
+# casts/{cast_name}/graph.py
+from langgraph.types import RetryPolicy
+
+from .modules.nodes import ChargePaymentNode
+from .modules.conditions import payment_error_handler
+
+builder.add_node(
+    "charge_payment",
+    ChargePaymentNode(),
+    retry_policy=RetryPolicy(max_attempts=3, retry_on=ConnectionError),
+    error_handler=payment_error_handler,
+)
+```
+
+The handler receives a typed `NodeError` and returns a `Command` to update state and route execution.
+
+---
+
+## Graceful Drain Inside Nodes (langgraph v1.2+)
+
+When a graceful shutdown is requested (via `RunControl.request_drain()` from outside the graph — covered by the graph resource linked from SKILL.md), nodes can read drain state from `runtime.drain_requested` and skip expensive work before the next superstep boundary:
+
+```python
+# casts/{cast_name}/modules/nodes.py
+from langgraph.runtime import Runtime
+from casts.base_node import AsyncBaseNode
+
+class ExpensiveNode(AsyncBaseNode):
+    async def execute(self, state, runtime: Runtime):
+        if runtime.drain_requested:
+            # Skip the heavy work — return early so the run can drain
+            return {"status": f"skipped: {runtime.drain_reason}"}
+
+        result = await expensive_operation(state)
+        return {"result": result}
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `runtime.drain_requested` | `bool` | True if `RunControl.request_drain()` was called |
+| `runtime.drain_reason` | `str \| None` | Reason passed to `request_drain()`, or `None` |
+
+---
+
 ## Recursion Handling
 
 Check step counter to handle limits proactively:
@@ -174,7 +302,7 @@ class SafeNode(BaseNode):
     def execute(self, state, config):
         step = config["metadata"]["langgraph_step"]
         limit = config["recursion_limit"]  # default: 25
-        
+
         if step >= limit * 0.8:
             return {"route_to": "fallback"}
         return {"result": "ok"}

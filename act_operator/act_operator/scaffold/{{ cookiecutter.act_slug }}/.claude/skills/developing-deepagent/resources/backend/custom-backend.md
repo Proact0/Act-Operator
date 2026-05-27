@@ -134,41 +134,16 @@ def set_deep_agent():
     )
 ```
 
-### As Factory (When Runtime Access Needed)
-
-```python
-# casts.{cast_name}.modules.utils
-class RuntimeAwareBackend:
-    def __init__(self, runtime):
-        self.runtime = runtime
-    # ... implement protocol methods
-```
-
-```python
-# casts.{cast_name}.modules.utils
-def create_runtime_backend(runtime):
-    return RuntimeAwareBackend(runtime=runtime)
-```
-
-```python
-# casts.{cast_name}.modules.agents
-from .utils import create_runtime_backend
-
-def set_deep_agent():
-    return create_deep_agent(
-        backend=create_runtime_backend,
-    )
-```
-
 ### As CompositeBackend Route
 
 ```python
 # casts.{cast_name}.modules.utils
 from deepagents.backends import CompositeBackend, StateBackend
 
-def create_s3_composite_backend(runtime):
+
+def get_s3_composite_backend():
     return CompositeBackend(
-        default=StateBackend(runtime),
+        default=StateBackend(),
         routes={"/s3-data/": S3Backend(bucket="my-bucket")},
     )
 ```

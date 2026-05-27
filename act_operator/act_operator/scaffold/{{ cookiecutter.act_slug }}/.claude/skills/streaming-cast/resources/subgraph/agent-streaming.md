@@ -1,351 +1,168 @@
 # Agent & DeepAgent Streaming
 
-Stream through `create_agent` and `create_deep_agent` that run as subgraphs within a parent graph.
+`create_agent` and `create_deep_agent` are `CompiledStateGraph` instances — they appear on `stream.subgraphs`. Deep Agent **delegated task calls** additionally surface on `stream.subagents`.
+
+Code blocks below show explicit file paths for reserved locations: agent definitions live in `casts/{cast_name}/modules/agents.py`, graph wiring lives in `casts/{cast_name}/graph.py`. Stream consumption code is **consumer-side** — place it anywhere outside those reserved locations (additional cast module, external runtime/API module, script, test).
 
 ## Contents
 
-- Graph Topology Patterns
-- create_agent as Node Subgraph
-- create_agent Inside a Node
-- create_deep_agent as Node Subgraph
-- create_deep_agent Inside a Node
-- create_deep_agent with Subagents (as Node Subgraph)
-- create_deep_agent with Subagents (Inside a Node)
-- Namespace Structure by Pattern
+- Topology Variants
+- Stream Consumption (create_agent / create_deep_agent)
+- Stream Consumption (create_deep_agent with subagents)
+- Subagent Handle Fields
+- Subagents vs Subgraphs
 
-## Graph Topology Patterns
+## Topology Variants
 
-Agents compiled by `create_agent` and `create_deep_agent` are `CompiledStateGraph` instances — they are subgraphs. When added to a parent graph, `subgraphs=True` automatically streams their internal events.
+Two ways to embed an agent in a parent graph:
 
-```
-Pattern 1: graph → create_agent (node = subgraph)
-Pattern 2: graph → node containing create_agent (node invokes subgraph internally)
-Pattern 3: graph → create_deep_agent (node = subgraph)
-Pattern 4: graph → node containing create_deep_agent (node invokes subgraph internally)
-Pattern 5: graph → create_deep_agent → subagent (nested subgraph)
-Pattern 6: graph → node containing create_deep_agent → subagent (nested subgraph)
-```
-
----
-
-## create_agent as Node Subgraph
-
-When `create_agent` is added directly as a node, it runs as a subgraph. Its internal `model` and `tools` nodes emit streaming events automatically.
+### A. As a node (compiled agent directly)
 
 ```python
-# casts/{cast_name}/graph.py
-from langgraph.graph import StateGraph, START, END
+# casts/{cast_name}/modules/agents.py — agent definitions
 from langchain.agents import create_agent
-from casts.base_graph import BaseGraph
+from deepagents import create_deep_agent
 
-class AgentGraph(BaseGraph):
-    def build(self):
-        agent = create_agent(
-            model="anthropic:claude-sonnet-4-5-20250929",
-            tools=[search_tool],
-        )
+def set_search_agent():
+    return create_agent(model="...", tools=[search_tool], name="search_agent")
 
-        builder = StateGraph(State)
-        builder.add_node("preprocess", PreprocessNode())
-        builder.add_node("agent", agent)  # subgraph node
-        builder.add_node("postprocess", PostprocessNode())
-
-        builder.add_edge(START, "preprocess")
-        builder.add_edge("preprocess", "agent")
-        builder.add_edge("agent", "postprocess")
-        builder.add_edge("postprocess", END)
-
-        graph = builder.compile()
-        graph.name = self.name
-        return graph
+def set_deep_agent():
+    agent = create_deep_agent(model="...", tools=[search_tool])
+    agent.name = "deep_agent"
+    return agent
 ```
-
-Stream consumption:
 
 ```python
-graph = agent_graph()
+# casts/{cast_name}/graph.py — wire agents as subgraph nodes
+from .modules.agents import set_search_agent, set_deep_agent
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", subgraphs=True, version="v2",
-):
-    if chunk["type"] != "messages":
-        continue
-
-    msg, metadata = chunk["data"]
-    node = metadata.get("langgraph_node")
-
-    # Agent's internal model node emits tokens
-    # ns: ("agent:<task_id>",) for the subgraph
-    # node: "model" for the LLM call inside create_agent
-    if msg.content and node == "model":
-        print(f"[{_parse_source(chunk['ns'])}] {msg.content}", end="")
+builder.add_node("agent", set_search_agent())
+builder.add_node("deep_agent", set_deep_agent())
 ```
 
----
-
-## create_agent Inside a Node
-
-When a node internally invokes a `create_agent` graph, the agent runs as a nested subgraph. Streaming works the same way — the parent node wraps the agent call.
+### B. Invoked inside a custom node
 
 ```python
 # casts/{cast_name}/modules/nodes.py
 from casts.base_node import AsyncBaseNode
-from .agents import set_sample_agent
 
 class AgentNode(AsyncBaseNode):
     def __init__(self):
         super().__init__()
-        self.agent = set_sample_agent()
-
-    async def execute(self, state, config):
-        # invoke propagates streaming context automatically
-        result = await self.agent.ainvoke(
-            {"messages": state["messages"]}, config
-        )
-        return {"messages": result["messages"]}
-```
-
-> **Key:** Pass `config` to `ainvoke()` so the streaming callback chain propagates. Without config propagation, `stream_mode="messages"` won't capture inner LLM tokens.
-
-```python
-# casts/{cast_name}/graph.py
-builder.add_node("agent_node", AgentNode())  # node wrapping agent
-```
-
-Stream consumption is identical — the namespace reflects the nesting:
-
-```python
-# ns: ("agent_node:<task_id>",) for the wrapping node
-# The agent's internal LLM calls are captured via callback propagation
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", subgraphs=True, version="v2",
-):
-    if chunk["type"] == "messages":
-        msg, metadata = chunk["data"]
-        if msg.content and metadata.get("langgraph_node") == "model":
-            print(msg.content, end="")
-```
-
----
-
-## create_deep_agent as Node Subgraph
-
-`create_deep_agent` returns a `CompiledStateGraph`. Add it as a node for automatic subgraph streaming:
-
-```python
-# casts/{cast_name}/graph.py
-from deepagents import create_deep_agent
-
-class DeepAgentGraph(BaseGraph):
-    def build(self):
-        deep_agent = create_deep_agent(
-            model="anthropic:claude-sonnet-4-5-20250929",
-            tools=[search_tool],
-            system_prompt="You are a research assistant.",
-        )
-
-        builder = StateGraph(State)
-        builder.add_node("deep_agent", deep_agent)  # subgraph node
-        builder.add_edge(START, "deep_agent")
-        builder.add_edge("deep_agent", END)
-
-        graph = builder.compile()
-        graph.name = self.name
-        return graph
-```
-
-Stream consumption:
-
-```python
-graph = deep_agent_graph()
-
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", subgraphs=True, version="v2",
-):
-    if chunk["type"] != "messages":
-        continue
-
-    msg, metadata = chunk["data"]
-    source = _parse_source(chunk["ns"])
-    node = metadata.get("langgraph_node")
-
-    # deep_agent's internal model node
-    if msg.content and node == "model":
-        print(f"[{source}] {msg.content}", end="")
-```
-
----
-
-## create_deep_agent Inside a Node
-
-When a node internally invokes a `create_deep_agent` graph, streaming works the same way as `create_agent` inside a node — pass `config` to propagate the streaming callback chain.
-
-```python
-# casts/{cast_name}/modules/nodes.py
-from casts.base_node import AsyncBaseNode
-from .agents import set_deep_agent
-
-class DeepAgentNode(AsyncBaseNode):
-    def __init__(self):
-        super().__init__()
-        self.agent = set_deep_agent()
+        self.agent = set_sample_agent()  # create_agent(..., name="search_agent")
 
     async def execute(self, state, config):
         # config propagation is critical for streaming
-        result = await self.agent.ainvoke(
-            {"messages": state["messages"]}, config
-        )
+        result = await self.agent.ainvoke({"messages": state["messages"]}, config)
         return {"messages": result["messages"]}
 ```
 
-> **Key:** Pass `config` to `ainvoke()` so the streaming callback chain propagates. Without config propagation, `stream_mode="messages"` won't capture inner LLM tokens.
+> **Key:** When invoking an agent inside a node, pass `config` to `ainvoke()` so the streaming callback chain propagates. Without it, inner LLM tokens are not captured.
+
+Both topologies surface on `stream.subgraphs` with the same `graph_name`. Pick the topology based on whether you need custom pre/post-processing around the agent (B) or a clean black-box subgraph (A).
+
+---
+
+## Stream Consumption (create_agent / create_deep_agent)
+
+For both topology A and B, filter by `graph_name`:
 
 ```python
-# casts/{cast_name}/graph.py
-builder.add_node("deep_agent_node", DeepAgentNode())  # node wrapping deep_agent
-```
+stream = await graph.astream_events(inputs, config=config, version="v3")
 
-Stream consumption is identical — the namespace reflects the wrapping node:
-
-```python
-# ns: ("deep_agent_node:<task_id>",) for the wrapping node
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", subgraphs=True, version="v2",
-):
-    if chunk["type"] == "messages":
-        msg, metadata = chunk["data"]
-        if msg.content and metadata.get("langgraph_node") == "model":
-            print(msg.content, end="")
+async for subgraph in stream.subgraphs:
+    if subgraph.graph_name != "search_agent":
+        continue
+    async for message in subgraph.messages:
+        async for token in message.text:
+            print(f"[{subgraph.graph_name}] {token}", end="")
 ```
 
 ---
 
-## create_deep_agent with Subagents (as Node Subgraph)
+## Stream Consumption (create_deep_agent with subagents)
 
-When `create_deep_agent` has subagents, they run as nested subgraphs within the deep agent. The namespace grows deeper:
-
-```
-graph → deep_agent → subagent
-                 ns: ("deep_agent:<id>", "tools:<id>", "researcher:<id>")
-```
+When `create_deep_agent` has `subagents=[...]`, each delegated task call appears on `stream.subagents`. Use this projection for user-facing UI — it hides internal graph nodes and exposes only the delegated-task concept.
 
 ```python
-# casts/{cast_name}/graph.py
+# casts/{cast_name}/modules/agents.py — deep agent + subagent definitions
 from deepagents import create_deep_agent
 
-class OrchestratorGraph(BaseGraph):
-    def build(self):
-        deep_agent = create_deep_agent(
-            model="anthropic:claude-sonnet-4-5-20250929",
-            tools=[search_tool],
-            subagents=[
-                {
-                    "name": "researcher",
-                    "description": "Research specialist",
-                    "system_prompt": "You are a researcher.",
-                    "tools": [web_search],
-                },
-                {
-                    "name": "writer",
-                    "description": "Report writer",
-                    "system_prompt": "You write reports.",
-                    "tools": [],
-                },
-            ],
-        )
-
-        builder = StateGraph(State)
-        builder.add_node("orchestrator", deep_agent)
-        builder.add_edge(START, "orchestrator")
-        builder.add_edge("orchestrator", END)
-
-        graph = builder.compile()
-        graph.name = self.name
-        return graph
+def set_orchestrator_agent():
+    agent = create_deep_agent(
+        model="anthropic:claude-sonnet-4-5-20250929",
+        tools=[search_tool],
+        subagents=[
+            {
+                "name": "researcher",
+                "description": "Research specialist",
+                "system_prompt": "You are a researcher.",
+                "tools": [web_search],
+            },
+            {
+                "name": "writer",
+                "description": "Report writer",
+                "system_prompt": "You write reports.",
+                "tools": [],
+            },
+        ],
+    )
+    agent.name = "orchestrator"
+    return agent
 ```
 
-Stream with subagent source separation:
+```python
+# casts/{cast_name}/graph.py — wire as subgraph node
+from .modules.agents import set_orchestrator_agent
+
+builder.add_node("orchestrator", set_orchestrator_agent())
+```
+
+Consume coordinator and subagent messages concurrently:
 
 ```python
-graph = orchestrator_graph()
+import asyncio
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", subgraphs=True, version="v2",
-):
-    if chunk["type"] != "messages":
-        continue
+stream = await graph.astream_events(inputs, config=config, version="v3")
 
-    msg, metadata = chunk["data"]
-    source = _parse_source(chunk["ns"])
-    node = metadata.get("langgraph_node")
+async def consume_coordinator():
+    async for message in stream.messages:
+        async for token in message.text:
+            print(f"[coordinator] {token}", end="")
 
-    if msg.content and node == "model":
-        # source identifies: "{{ cookiecutter.cast_snake }}" (main), "researcher", "writer"
-        print(f"[{source}] {msg.content}", end="")
+async def consume_subagents():
+    async for subagent in stream.subagents:
+        async for message in subagent.messages:
+            async for token in message.text:
+                print(f"[{subagent.name}] {token}", end="")
+
+await asyncio.gather(consume_coordinator(), consume_subagents())
 ```
 
 ---
 
-## create_deep_agent with Subagents (Inside a Node)
+## Subagent Handle Fields
 
-When a node internally invokes a `create_deep_agent` that has subagents, the streaming behavior combines Pattern 4 and Pattern 5. The wrapping node's namespace replaces the direct subgraph namespace.
+Each handle in `stream.subagents` exposes:
 
-```python
-# casts/{cast_name}/modules/nodes.py
-from casts.base_node import AsyncBaseNode
-from .agents import set_orchestrator_agent
-
-class OrchestratorNode(AsyncBaseNode):
-    def __init__(self):
-        super().__init__()
-        self.agent = set_orchestrator_agent()  # create_deep_agent with subagents
-
-    async def execute(self, state, config):
-        result = await self.agent.ainvoke(
-            {"messages": state["messages"]}, config
-        )
-        return {"messages": result["messages"]}
-```
-
-```python
-# casts/{cast_name}/graph.py
-builder.add_node("orchestrator_node", OrchestratorNode())
-```
-
-Stream consumption:
-
-```python
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages", subgraphs=True, version="v2",
-):
-    if chunk["type"] == "messages":
-        msg, metadata = chunk["data"]
-        source = _parse_source(chunk["ns"])
-        if msg.content and metadata.get("langgraph_node") == "model":
-            # source: "{{ cookiecutter.cast_snake }}" (main), "researcher", "writer"
-            print(f"[{source}] {msg.content}", end="")
-```
+| Field | Description |
+|-------|-------------|
+| `subagent.name` | Subagent name (`"researcher"`, `"writer"`, ...) |
+| `subagent.path` | Namespace path |
+| `subagent.status` | Lifecycle (`started`, `completed`, `failed`, `interrupted`) |
+| `subagent.messages` | Subagent's chat-model messages |
+| `subagent.tool_calls` | Tool calls within the subagent |
+| `subagent.values` | Subagent state snapshots |
+| `subagent.subagents` | Nested subagent delegations |
+| `subagent.output` | Final subagent state / delegated-task result |
 
 ---
 
-## Namespace Structure by Pattern
+## Subagents vs Subgraphs
 
-| Pattern | `ns` value | `_parse_source` result |
-|---------|-----------|----------------------|
-| graph (root) | `()` | `"{{ cookiecutter.cast_snake }}"` |
-| graph → create_agent | `("agent:<id>",)` | `"{{ cookiecutter.cast_snake }}"` |
-| graph → create_agent → tool | `("agent:<id>", "tools:<id>")` | `"{{ cookiecutter.cast_snake }}"` |
-| graph → node(create_agent) | `("agent_node:<id>",)` | `"{{ cookiecutter.cast_snake }}"` |
-| graph → create_deep_agent | `("deep_agent:<id>",)` | `"{{ cookiecutter.cast_snake }}"` |
-| graph → node(create_deep_agent) | `("deep_agent_node:<id>",)` | `"{{ cookiecutter.cast_snake }}"` |
-| graph → deep_agent → tool | `("deep_agent:<id>", "tools:<id>")` | `"{{ cookiecutter.cast_snake }}"` |
-| graph → deep_agent → subagent | `("deep_agent:<id>", "tools:<id>", "researcher:<id>")` | `"researcher"` |
-| graph → deep_agent → subagent → tool | `("deep_agent:<id>", "tools:<id>", "researcher:<id>", "tools:<id2>")` | `"researcher"` |
-| graph → node(deep_agent) → subagent | `("orchestrator_node:<id>", "tools:<id>", "researcher:<id>")` | `"researcher"` |
-| graph → node(deep_agent) → subagent → tool | `("orchestrator_node:<id>", "tools:<id>", "researcher:<id>", "tools:<id2>")` | `"researcher"` |
+| Projection | Shows | Use For |
+|------------|-------|---------|
+| `stream.subgraphs` | Every nested `CompiledStateGraph` execution | Generic graph nesting (`create_agent`, plain subgraphs) |
+| `stream.subagents` | Deep Agents delegated task calls only | User-facing UI; hides internal graph nodes |
+
+For Deep Agents with subagent delegation, prefer `stream.subagents`. Use `stream.subgraphs` when working with plain `create_agent` or custom subgraphs.

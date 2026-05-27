@@ -1,43 +1,19 @@
-# Async Streaming
+# Async Event Streaming
 
-Consume graph output asynchronously using `graph.astream()`. Used in runtime endpoints and API handlers.
+Consume graph output asynchronously using `graph.astream_events(..., version="v3")`. `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; **stream consumer code lives anywhere else** — pick the entry point that fits the project (an additional cast module such as `runtime.py`, an external API endpoint module, or an async script).
 
 ## Contents
 
 - Basic Pattern
-- With Config
+- Parameters
 - Python < 3.11 Workaround
-- Parallel Streaming
 
 ## Basic Pattern
 
 ```python
+# stream consumer — location flexible
 from casts.{{ cookiecutter.cast_snake }}.graph import {{ cookiecutter.cast_snake }}_graph
 
-graph = {{ cookiecutter.cast_snake }}_graph()
-
-config = {"configurable": {"thread_id": "session-1"}}
-
-async for chunk in graph.astream(
-    {"messages": [HumanMessage(content="hello")]},
-    config=config,
-    stream_mode="messages",
-    subgraphs=True,
-    version="v2",
-):
-    if chunk["type"] == "messages":
-        msg, metadata = chunk["data"]
-        if msg.content:
-            print(msg.content, end="", flush=True)
-```
-
----
-
-## With Config
-
-Pass `config` with `configurable` for thread/actor scoping:
-
-```python
 graph = {{ cookiecutter.cast_snake }}_graph()
 
 config = {
@@ -48,45 +24,38 @@ config = {
     "recursion_limit": 2000,
 }
 
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages",
-    subgraphs=True,
-    version="v2",
-):
-    if chunk["type"] != "messages":
-        continue
-    msg, metadata = chunk["data"]
-    source = _parse_source(chunk["ns"])
-    # ... dispatch to transport
+stream = await graph.astream_events(inputs, config=config, version="v3")
+
+async for message in stream.messages:
+    async for token in message.text:
+        await send_token(token)
+
+final_state = await stream.output
 ```
+
+For projection-specific patterns, multi-projection concurrent consumption (`asyncio.gather`), and transport (SSE/WebSocket) integration, see the projections, multiple-modes, and integration resources linked from SKILL.md.
 
 ---
 
-## print_mode (Debug Output)
+## Parameters
 
-`print_mode` accepts the same values as `stream_mode`, but only prints to console — does not affect the stream output. Useful for debugging without modifying consumer code:
-
-```python
-async for chunk in graph.astream(
-    inputs, config=config,
-    stream_mode="messages",
-    print_mode=["updates", "values"],  # prints to console only
-    subgraphs=True,
-    version="v2",
-):
-    # chunk only contains "messages" events
-    # "updates" and "values" are printed to console for debugging
-    ...
-```
-
-Also automatically enabled when `debug=True` (prints `["updates", "values"]`).
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `input` | dict \| Command \| None | — | Input state (or `Command` for resume) |
+| `config` | dict \| None | `None` | Execution config (thread_id, actor_id, recursion_limit) |
+| `version` | `"v3"` | required | Always pass `"v3"` for the typed-projection event stream |
+| `transformers` | list | `[]` | Custom `StreamTransformer` classes for `stream.extensions` projections |
+| `context` | ContextT \| None | `None` | Static context for the run |
+| `durability` | `"sync"` \| `"async"` \| `"exit"` \| None | `None` | Checkpoint persistence timing. Requires checkpointer |
+| `interrupt_before` | list \| `"*"` \| None | `None` | Nodes to interrupt before execution |
+| `interrupt_after` | list \| `"*"` \| None | `None` | Nodes to interrupt after execution |
+| `control` | `RunControl` \| None | `None` | Graceful shutdown handle (langgraph v1.2+) |
 
 ---
 
 ## Python < 3.11 Workaround
 
-Python < 3.11 asyncio doesn't propagate context automatically. Pass `config` explicitly to `astream()` **and** to LLM calls inside async nodes:
+Python < 3.11 asyncio doesn't propagate context automatically. Pass `config` explicitly to `astream_events()` **and** to LLM calls inside async nodes:
 
 ```python
 from casts.base_node import AsyncBaseNode
@@ -99,31 +68,3 @@ class LLMNode(AsyncBaseNode):
 ```
 
 **Recommendation:** Upgrade to Python 3.11+.
-
----
-
-## Parallel Streaming
-
-Stream from multiple graphs concurrently:
-
-```python
-import asyncio
-from casts.{{ cookiecutter.cast_snake }}.graph import {{ cookiecutter.cast_snake }}_graph
-from casts.another_cast.graph import another_cast_graph
-
-async def stream_both(inputs, config):
-    async def consume(graph, name):
-        async for chunk in graph.astream(
-            inputs, config=config,
-            stream_mode="messages", subgraphs=True, version="v2",
-        ):
-            if chunk["type"] == "messages":
-                msg, _ = chunk["data"]
-                if msg.content:
-                    print(f"[{name}] {msg.content}", end="")
-
-    await asyncio.gather(
-        consume({{ cookiecutter.cast_snake }}_graph(), "{{ cookiecutter.cast_snake }}"),
-        consume(another_cast_graph(), "another_cast"),
-    )
-```
