@@ -4,7 +4,10 @@
     "charliermarsh.ruff",
     "tamasfe.even-better-toml",
     "redhat.vscode-yaml",
-    "bierner.markdown-mermaid"
+    "bierner.markdown-mermaid",
+    "hediet.vscode-drawio",
+    "github.vscode-github-actions",
+    "mikestead.dotenv"
   ],
   "unwantedRecommendations": [
     "ms-python.black-formatter",
