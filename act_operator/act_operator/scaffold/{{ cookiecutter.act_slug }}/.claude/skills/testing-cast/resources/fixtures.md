@@ -1,9 +1,11 @@
 # Fixtures
 
+Fixtures live in `casts/{cast_name}/tests/conftest.py` so they're auto-discovered by pytest for all test modules in the same package.
+
 ## conftest.py Template
 
 ```python
-# tests/conftest.py
+# casts/{cast_name}/tests/conftest.py
 import pytest
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -90,12 +92,20 @@ def make_config():
 
 ## Usage Examples
 
+All consumer tests below live in `casts/{cast_name}/tests/test_nodes.py` (or `test_graph.py`).
+
 ### State Fixtures
+
 ```python
+# casts/{cast_name}/tests/test_nodes.py
+from casts.{cast_name}.modules.nodes import MyNode
+
+
 def test_with_empty_state(empty_state):
     node = MyNode()
     result = node.execute(empty_state)
     assert result is not None
+
 
 def test_with_populated_state(populated_state):
     node = MyNode()
@@ -104,14 +114,20 @@ def test_with_populated_state(populated_state):
 ```
 
 ### Mock Fixtures
+
 ```python
+# casts/{cast_name}/tests/test_nodes.py
+from casts.{cast_name}.modules.nodes import LLMNode, MemoryNode
+
+
 def test_with_mock_llm(mock_llm):
     node = LLMNode()
     node.llm = mock_llm
-    
+
     node.execute({"messages": []})
-    
+
     assert len(mock_llm.calls) == 1
+
 
 def test_with_runtime(mock_runtime):
     node = MemoryNode()
@@ -120,12 +136,18 @@ def test_with_runtime(mock_runtime):
 ```
 
 ### Factory Fixtures
+
 ```python
+# casts/{cast_name}/tests/test_nodes.py
+from casts.{cast_name}.modules.nodes import MyNode
+
+
 def test_with_custom_state(make_state):
     state = make_state(input="custom", extra="data")
     node = MyNode()
     result = node.execute(state)
     assert result is not None
+
 
 def test_with_custom_config(make_config):
     config = make_config(thread_id="custom-123", user_id="alice")
@@ -135,6 +157,10 @@ def test_with_custom_config(make_config):
 ## Fixture Scopes
 
 ```python
+# casts/{cast_name}/tests/conftest.py
+import pytest
+
+
 @pytest.fixture(scope="session")
 def expensive_resource():
     """Setup once per test session."""
@@ -142,10 +168,12 @@ def expensive_resource():
     yield resource
     teardown(resource)
 
+
 @pytest.fixture(scope="module")
 def module_resource():
     """Setup once per module."""
     return create_resource()
+
 
 @pytest.fixture  # scope="function" is default
 def test_resource():

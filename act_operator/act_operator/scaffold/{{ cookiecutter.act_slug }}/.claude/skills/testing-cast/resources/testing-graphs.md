@@ -1,12 +1,16 @@
 # Testing Graphs
 
+All test code in this file lives in `casts/{cast_name}/tests/test_graph.py`.
+
 ## Basic Graph Test
 
 ```python
-# tests/test_graph.py
+# casts/{cast_name}/tests/test_graph.py
 import pytest
 from langgraph.checkpoint.memory import MemorySaver
+
 from casts.{cast_name}.graph import MyGraph
+
 
 class TestMyGraph:
     @pytest.fixture
@@ -16,7 +20,7 @@ class TestMyGraph:
     @pytest.fixture
     def graph_with_memory(self):
         checkpointer = MemorySaver()
-        return MyGraph().build(checkpointer=checkpointer)
+        return MyGraph(checkpointer=checkpointer).build()
 
     def test_compiles(self, graph):
         assert graph is not None
@@ -24,20 +28,24 @@ class TestMyGraph:
 
     def test_invoke_basic(self, graph):
         result = graph.invoke({"input": "test"})
-        
+
         assert result is not None
         assert isinstance(result, dict)
 
     def test_with_config(self, graph_with_memory):
         config = {"configurable": {"thread_id": "test-123"}}
         result = graph_with_memory.invoke({"input": "test"}, config=config)
-        
+
         assert result is not None
 ```
 
 ## Testing Routing
 
 ```python
+# casts/{cast_name}/tests/test_graph.py
+import pytest
+
+
 class TestGraphRouting:
     def test_conditional_true(self, graph):
         result = graph.invoke({"input": "test", "condition": True})
@@ -60,33 +68,39 @@ class TestGraphRouting:
 ## Testing with Checkpointer
 
 ```python
-def test_multi_turn(self, graph_with_memory):
+# casts/{cast_name}/tests/test_graph.py
+def test_multi_turn(graph_with_memory):
     config = {"configurable": {"thread_id": "test-123"}}
-    
+
     # First turn
     result1 = graph_with_memory.invoke({"input": "Hello"}, config=config)
-    
+
     # Second turn - should remember
     result2 = graph_with_memory.invoke({"input": "What did I say?"}, config=config)
-    
+
     assert len(result2["messages"]) > 1
 
-def test_threads_isolated(self, graph_with_memory):
+
+def test_threads_isolated(graph_with_memory):
     config1 = {"configurable": {"thread_id": "user-1"}}
     config2 = {"configurable": {"thread_id": "user-2"}}
-    
+
     graph_with_memory.invoke({"input": "User 1"}, config=config1)
     result = graph_with_memory.invoke({"input": "test"}, config=config2)
-    
+
     assert "User 1" not in str(result)
 ```
 
 ## Testing Event Streaming (v3)
 
-Tests consume the same typed-projection API used in production. See `streaming-cast` for projection details.
+Tests consume the same typed-projection API used in production. See the `streaming-cast` skill for projection details.
 
 ```python
-def test_stream_values(self, graph):
+# casts/{cast_name}/tests/test_graph.py
+import pytest
+
+
+def test_stream_values(graph):
     stream = graph.stream_events({"input": "test"}, version="v3")
     snapshots = list(stream.values)
 
@@ -94,7 +108,8 @@ def test_stream_values(self, graph):
     for snapshot in snapshots:
         assert "input" in snapshot
 
-def test_stream_messages_tokens(self, graph):
+
+def test_stream_messages_tokens(graph):
     stream = graph.stream_events(
         {"messages": [{"role": "user", "content": "hi"}]},
         version="v3",
@@ -107,14 +122,16 @@ def test_stream_messages_tokens(self, graph):
 
     assert collected_text
 
-def test_stream_tool_calls(self, graph):
+
+def test_stream_tool_calls(graph):
     stream = graph.stream_events({"input": "use a tool"}, version="v3")
 
     tool_names = [call.tool_name for call in stream.tool_calls]
     assert "expected_tool" in tool_names
 
+
 @pytest.mark.asyncio
-async def test_astream_messages(self, graph):
+async def test_astream_messages(graph):
     stream = await graph.astream_events({"input": "test"}, version="v3")
 
     text = ""
@@ -128,20 +145,26 @@ async def test_astream_messages(self, graph):
 ## Testing Error Handling
 
 ```python
-def test_error_propagates(self, graph):
+# casts/{cast_name}/tests/test_graph.py
+import pytest
+
+
+def test_error_propagates(graph):
     with pytest.raises(ValueError):
         graph.invoke({"input": "trigger_error"})
 
-def test_error_handled(self, graph):
+
+def test_error_handled(graph):
     result = graph.invoke({"input": "error_input"})
-    
+
     assert "error" in result
 ```
 
 ## Testing Graph Structure
 
 ```python
-def test_has_expected_nodes(self, graph):
+# casts/{cast_name}/tests/test_graph.py
+def test_has_expected_nodes(graph):
     expected = ["input", "process", "output"]
 
     for node_name in expected:
@@ -153,11 +176,13 @@ def test_has_expected_nodes(self, graph):
 `timeout=` on `add_node` raises `NodeTimeoutError` (subclass of `TimeoutError`). Async nodes only.
 
 ```python
+# casts/{cast_name}/tests/test_graph.py
 import pytest
 from langgraph.errors import NodeTimeoutError
 
+
 @pytest.mark.asyncio
-async def test_node_timeout_raises(self, slow_graph):
+async def test_node_timeout_raises(slow_graph):
     # slow_graph builds a graph with timeout=1 on a node that sleeps 5s
     with pytest.raises(NodeTimeoutError) as exc_info:
         await slow_graph.ainvoke({"input": "test"})
@@ -171,7 +196,8 @@ async def test_node_timeout_raises(self, slow_graph):
 `error_handler=` runs after all retries are exhausted and returns a `Command` to update state and route to a compensation branch.
 
 ```python
-def test_error_handler_routes_to_compensation(self, graph_with_handler):
+# casts/{cast_name}/tests/test_graph.py
+def test_error_handler_routes_to_compensation(graph_with_handler):
     # Node raises ConnectionError; retry exhausts; error_handler routes to "finalize"
     result = graph_with_handler.invoke({"input": "trigger_payment_error"})
 
@@ -182,12 +208,16 @@ def test_error_handler_routes_to_compensation(self, graph_with_handler):
 ## Testing Graceful Shutdown (langgraph v1.2+)
 
 ```python
+# casts/{cast_name}/tests/test_graph.py
+import asyncio
+
 import pytest
 from langgraph.errors import GraphDrained
 from langgraph.types import Command, RunControl
 
+
 @pytest.mark.asyncio
-async def test_graceful_drain_resumes(self, graph_with_checkpointer):
+async def test_graceful_drain_resumes(graph_with_checkpointer):
     control = RunControl()
     config = {"configurable": {"thread_id": "drain-test"}}
 
@@ -214,4 +244,3 @@ async def test_graceful_drain_resumes(self, graph_with_checkpointer):
     final = await stream.output
     assert final is not None
 ```
-

@@ -19,7 +19,7 @@ Write effective pytest tests for {{ cookiecutter.act_name }} Act's casts.
 
 - Writing implementation → `developing-cast`
 - Designing architectures → `architecting-act`
-- Project setup → `engineering-act`
+- Project / cast scaffolding → run `uv run act new` (project) or `uv run act cast` (new cast) directly
 
 ## Quick Reference
 
@@ -36,55 +36,6 @@ uv run pytest --lf                         # Last failed only
 uv run pytest --cov=casts --cov-report=html
 ```
 
-## Resources
-
-| Task | Resource |
-|------|----------|
-| Test nodes (sync/async) | `./resources/testing-nodes.md` |
-| Test graphs | `./resources/testing-graphs.md` |
-| Mock LLMs, APIs, Store | `./resources/mocking.md` |
-| Reusable fixtures | `./resources/fixtures.md` |
-| Coverage strategies | `./resources/coverage.md` |
-
-## Test Patterns
-
-### Node Test
-```python
-class TestMyNode:
-    def test_execute(self):
-        node = MyNode()
-        result = node.execute({"input": "test"})
-        assert "output" in result
-```
-
-### Async Node Test
-```python
-@pytest.mark.asyncio
-async def test_async_node():
-    node = AsyncNode()
-    result = await node.execute({"query": "test"})
-    assert "data" in result
-```
-
-### Graph Test
-```python
-def test_graph_invoke(graph):
-    result = graph.invoke({"input": "test"})
-    assert result is not None
-```
-
-### Mock LLM
-```python
-def test_with_mock(monkeypatch):
-    class MockLLM:
-        def invoke(self, messages):
-            return {"content": "mocked"}
-    
-    node = LLMNode()
-    monkeypatch.setattr(node, "llm", MockLLM())
-    result = node.execute({"messages": []})
-```
-
 ## Test Organization
 
 ```
@@ -94,6 +45,16 @@ casts/{cast_name}/
     ├── test_nodes.py    # Node tests
     └── test_graph.py    # Graph tests
 ```
+
+## Resources
+
+| Use when | Resource |
+|----------|----------|
+| testing sync/async nodes, drain-aware nodes | [testing-nodes.md](./resources/testing-nodes.md) |
+| testing graphs (invoke, routing, streaming v3, timeouts, error handlers, graceful shutdown) | [testing-graphs.md](./resources/testing-graphs.md) |
+| mocking LLM / API / Store calls | [mocking.md](./resources/mocking.md) |
+| reusable fixtures (graph, mock model, mock store) | [fixtures.md](./resources/fixtures.md) |
+| coverage targeting and reporting | [coverage.md](./resources/coverage.md) |
 
 ## Best Practices
 
