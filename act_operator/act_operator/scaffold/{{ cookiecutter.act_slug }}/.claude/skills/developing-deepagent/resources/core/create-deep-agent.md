@@ -170,7 +170,7 @@ def set_deep_agent():
 ## Key Constraints
 
 - `system_prompt` is prepended to the built-in deep agent prompt (planning, filesystem, subagent instructions)
-- `backend` accepts a direct instance (`StateBackend()`, `StoreBackend()`, `CompositeBackend(...)`, `FilesystemBackend(...)`) since deepagents v0.5+. The legacy factory form `lambda rt: StateBackend(rt)` is deprecated.
+- `backend` accepts a direct instance: `StateBackend()`, `StoreBackend()`, `CompositeBackend(...)`, `FilesystemBackend(...)`, or a custom backend instance.
 - `checkpointer` is **required** when using `interrupt_on` or when you need thread persistence
 - `store` is **required** when using `StoreBackend` for persistent cross-thread storage
 - When deploying to LangSmith Deployment, omit `store` — the platform provisions one automatically

@@ -79,10 +79,6 @@ def create_seeded_store_with_binary():
     return store
 ```
 
-## Factory Pattern (deprecated)
-
-> Direct instantiation of `StoreBackend()` is the supported form since deepagents v0.5.0. The factory form `backend=(lambda rt: StoreBackend(rt))` is **deprecated** — keep only for code that still targets pre-0.5 releases.
-
 ## When to Use
 
 - Files need to persist across multiple threads/conversations

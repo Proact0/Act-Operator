@@ -82,11 +82,7 @@ def create_seed_files_with_binary():
     }
 ```
 
-> **Important**: Raw strings are not supported for `files`. Always use `create_file_data()`. Binary content (bytes) is supported as of v0.5.
-
-## Factory Pattern (deprecated)
-
-> Direct instantiation of `StateBackend()` is the supported form since deepagents v0.5.0. The factory form `backend=(lambda rt: StateBackend(rt))` is **deprecated** — keep only for code that still targets pre-0.5 releases.
+> **Important**: Raw strings are not supported for `files`. Always use `create_file_data()`. Binary content (bytes) is supported.
 
 ## When to Use
 
