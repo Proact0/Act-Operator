@@ -9,7 +9,6 @@ Graphs are implemented in `casts/{cast_name}/graph.py` by extending `BaseGraph`.
 - With Checkpointing (Persistence)
 - With Store (Cross-Thread Memory)
 - With Interrupts (Human-in-the-Loop)
-- Event Streaming v3 (langgraph v1.2+)
 - Typed Invoke v2 (langgraph v1.1+)
 - Graceful Shutdown (langgraph v1.2+)
 - Decision Framework
@@ -158,26 +157,6 @@ class InterruptibleGraph(BaseGraph):
 
 ---
 
-## Event Streaming v3 (langgraph v1.2+)
-
-Pass `version="v3"` to `stream_events()`/`astream_events()` for a typed-projection event stream. The returned run object exposes `run.messages`, `run.values`, `run.subgraphs`, `run.tool_calls`, `run.output`, `run.interrupts`, and `run.extensions`.
-
-```python
-graph = my_graph.build()
-
-stream = await graph.astream_events({"topic": "ice cream"}, version="v3")
-
-# Token-by-token output
-async for message in stream.messages:
-    async for token in message.text:
-        print(token, end="", flush=True)
-
-# Final state
-final_state = await stream.output
-```
-
-See the `streaming-cast` skill for projections, custom transformers, subgraph/subagent filtering, and transport integration.
-
 ## Typed Invoke v2 (langgraph v1.1+)
 
 Pass `version="v2"` to `invoke()`/`ainvoke()` to get a `GraphOutput` with `.value` and `.interrupts`:
@@ -196,17 +175,23 @@ result.interrupts  # tuple of Interrupt objects (replaces v1's __interrupt__ key
 
 Stop an in-flight graph run cooperatively after the current superstep completes, saving a resumable checkpoint. Useful for handling SIGTERM signals or external supervisors that need to reclaim resources without losing work.
 
-Create a `RunControl` and pass it as `control=` to `invoke()` / `stream_events()` / `astream_events()`. Call `request_drain()` from any thread to signal that the run should stop:
+Create a `RunControl` and pass it as `control=` to `invoke()` / `stream_events()` / `astream_events()`. Call `request_drain()` from any thread to signal that the run should stop. This is **consumer-side code** — `casts/{cast_name}/modules/` and `casts/{cast_name}/graph.py` are reserved for graph definition; place this driver anywhere else (an additional cast module such as `runtime.py`, an external supervisor script, an API endpoint, etc.):
 
 ```python
+# stream consumer — location flexible
 import signal
 from langgraph.types import Command, RunControl
 from langgraph.errors import GraphDrained
 
+from casts.{cast_snake}.graph import {cast_snake}_graph
+
+graph = {cast_snake}_graph()
 control = RunControl()
+
 
 def on_sigterm(signum, frame):
     control.request_drain(reason="SIGTERM received")
+
 
 signal.signal(signal.SIGTERM, on_sigterm)
 
@@ -233,7 +218,7 @@ final_state = await stream.output
 
 > **Requirements:** A checkpointer must be attached at compile time for the drained run to be resumable.
 
-Inside nodes, read `runtime.drain_requested` to skip expensive work before the next superstep boundary — see node.md § "Graceful Drain Inside Nodes".
+Inside nodes, read `runtime.drain_requested` to skip expensive work before the next superstep boundary — covered by the node resource linked from SKILL.md.
 
 ---
 

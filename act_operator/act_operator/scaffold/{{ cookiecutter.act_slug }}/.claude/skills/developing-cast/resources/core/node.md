@@ -142,7 +142,7 @@ class DebugNode(BaseNode):
 
 Invoke a `create_agent` subgraph inside a custom node. Use this when the parent and subgraph have **different state schemas** or when custom pre/post-processing is needed around the agent call.
 
-For adding a compiled agent **directly as a graph node** (shared state), see subgraph.md § "Method 2: Add as Node".
+For adding a compiled agent **directly as a graph node** (shared state), use `builder.add_node("name", agent_instance)` — covered by the subgraph resource linked from SKILL.md.
 
 ```python
 # casts/{cast_name}/modules/nodes.py
@@ -165,7 +165,7 @@ class AgentNode(BaseNode):
 
 ---
 
-## Node Timeouts (langgraph v1.2+)
+## Node Timeouts
 
 Cap how long a single async attempt may run. **Async nodes only** — sync nodes raise at compile time.
 
@@ -224,16 +224,19 @@ class StreamingNode(AsyncBaseNode):
 
 ---
 
-## Node Error Handlers (langgraph v1.2+)
+## Node Error Handlers
 
 Run a recovery function **after all retries are exhausted** to update state and route to a compensation branch. Useful for Saga / compensation patterns.
 
 Pass `error_handler=` to `add_node`:
 
 ```python
-# casts/{cast_name}/modules/nodes.py
+# casts/{cast_name}/modules/conditions.py
 from langgraph.errors import NodeError
 from langgraph.types import Command, RetryPolicy
+
+from .state import State
+
 
 def payment_error_handler(state: State, error: NodeError) -> Command:
     return Command(
@@ -244,6 +247,11 @@ def payment_error_handler(state: State, error: NodeError) -> Command:
 
 ```python
 # casts/{cast_name}/graph.py
+from langgraph.types import RetryPolicy
+
+from .modules.nodes import ChargePaymentNode
+from .modules.conditions import payment_error_handler
+
 builder.add_node(
     "charge_payment",
     ChargePaymentNode(),
@@ -258,7 +266,7 @@ The handler receives a typed `NodeError` and returns a `Command` to update state
 
 ## Graceful Drain Inside Nodes (langgraph v1.2+)
 
-When a graceful shutdown is requested (see graph.md § "Graceful Shutdown"), nodes can read drain state from `runtime.drain_requested` and skip expensive work before the next superstep boundary:
+When a graceful shutdown is requested (via `RunControl.request_drain()` from outside the graph — covered by the graph resource linked from SKILL.md), nodes can read drain state from `runtime.drain_requested` and skip expensive work before the next superstep boundary:
 
 ```python
 # casts/{cast_name}/modules/nodes.py

@@ -28,7 +28,7 @@ Implement LangGraph casts following Backend Act patterns.
 
 - Architecture design → `architecting-act`
 - DeepAgent harness (create_deep_agent, backends, subagents) → `developing-deepagent`
-- Project setup → `engineering-act`
+- Project / cast scaffolding → run `uv run act new` (project) or `uv run act cast` (new cast) directly
 - Testing → `testing-cast`
 
 ---
@@ -49,6 +49,8 @@ AskUserQuestion Format:
 ```json
 {
   "question": "CLAUDE.md not found. Create architecture first?",
+  "header": "Architecture",
+  "multiSelect": false,
   "options": [
     {"label": "Yes", "description": "Switch to architecting-act skill"},
     {"label": "No", "description": "Proceed without architecture specs"}
@@ -76,18 +78,20 @@ AskUserQuestion Format:
 5. Graph (graph.py)           # Assembly
 ```
 
-### Option Step 3: Create required environment variables (if needed)
+### Optional Step 3: Create required environment variables (if needed)
 
-Update to `.env.example` (project root)
+Update `.env.example` (project root):
 
 ```bash
 OPENAI_API_KEY=your_key
 ANTHROPIC_API_KEY=your_key
 ```
 
-### Option Step 4: Install dpendency packages (if needed)
+### Optional Step 4: Install dependency packages (if needed)
 
-Use `engineering-act`
+```bash
+uv add --package {{ cookiecutter.act_slug }} <package-name>
+```
 
 ---
 
@@ -188,7 +192,7 @@ Use `engineering-act`
 |-------------|----------|
 | converting text to embedding vectors | [integrations/embedding.md](./resources/integrations/embedding.md) |
 | using FAISS/Pinecone/Chroma stores | [integrations/vector-stores.md](./resources/integrations/vector-stores.md) |
-| splitting long documents into chunks | [integrations/text-spliter.md](./resources/integrations/text-spliter.md) |
+| splitting long documents into chunks | [integrations/text-splitter.md](./resources/integrations/text-splitter.md) |
 
 ---
 

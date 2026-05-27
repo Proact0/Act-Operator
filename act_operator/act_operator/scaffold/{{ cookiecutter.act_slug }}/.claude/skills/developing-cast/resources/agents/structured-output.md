@@ -28,15 +28,17 @@ When schema is passed directly, LangChain automatically chooses:
 
 ```python
 # casts.{cast_name}.modules.agents
-  from pydantic import BaseModel, Field
-  from langchain.agents import create_agent
+from pydantic import BaseModel, Field
+from langchain.agents import create_agent
 from .models import get_sample_model
 
-  class ContactInfo(BaseModel):
-      """Contact information for a person."""
+
+class ContactInfo(BaseModel):
+    """Contact information for a person."""
     name: str = Field(description="Person's name")
     email: str = Field(description="Email address")
     phone: str = Field(description="Phone number")
+
 
 def set_structured_agent():
     return create_agent(
@@ -78,6 +80,8 @@ def set_native_strict_agent():
 
 When you pass a schema directly to `response_format`, LangChain reads the model's `.profile` (sourced from models.dev) to decide between `ProviderStrategy` (native) and `ToolStrategy`. If profile data is missing, it falls back to `ToolStrategy` — pin manually via `ProviderStrategy(...)` when you need the native path explicitly.
 
+The "Basic Usage (Auto Strategy)" section above shows the auto-selected form.
+
 ---
 
 ## ToolStrategy (Explicit)
@@ -86,17 +90,19 @@ Use `ToolStrategy` explicitly for additional options like error handling and cus
 
 ```python
 # casts.{cast_name}.modules.agents
-  from pydantic import BaseModel, Field
-  from typing import Literal
-  from langchain.agents import create_agent
-  from langchain.agents.structured_output import ToolStrategy
+from typing import Literal
+from pydantic import BaseModel, Field
+from langchain.agents import create_agent
+from langchain.agents.structured_output import ToolStrategy
 from .models import get_sample_model
 
-  class ProductReview(BaseModel):
-      """Analysis of a product review."""
+
+class ProductReview(BaseModel):
+    """Analysis of a product review."""
     rating: int | None = Field(description="Rating 1-5", ge=1, le=5)
     sentiment: Literal["positive", "negative"] = Field(description="Review sentiment")
     key_points: list[str] = Field(description="Key points, 1-3 words each")
+
 
 def set_tool_strategy_agent():
     return create_agent(
@@ -147,7 +153,7 @@ from .models import get_sample_model
 def set_custom_message_agent():
     return create_agent(
         model=get_sample_model(),
-    tools=[],
+        tools=[],
         response_format=ToolStrategy(
             schema=ContactInfo,
             tool_message_content="Contact info extracted successfully!",
@@ -179,15 +185,16 @@ from .models import get_sample_model
 def custom_error_handler(error: Exception) -> str:
     if isinstance(error, StructuredOutputValidationError):
         return "Invalid format. Please try again."
-    elif isinstance(error, MultipleStructuredOutputsError):
+    if isinstance(error, MultipleStructuredOutputsError):
         return "Return only one response."
-        return f"Error: {str(error)}"
+    return f"Error: {str(error)}"
+
 
 def set_error_handling_agent():
     return create_agent(
         model=get_sample_model(),
-    tools=[],
-    response_format=ToolStrategy(
+        tools=[],
+        response_format=ToolStrategy(
             schema=ProductReview,
             handle_errors=custom_error_handler,
         ),
