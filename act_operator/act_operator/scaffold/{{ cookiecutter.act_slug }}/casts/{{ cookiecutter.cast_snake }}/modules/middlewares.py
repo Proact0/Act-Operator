@@ -1,4 +1,4 @@
-"""[Optional] Middleware Classes for Sam graphs.
+"""[Optional] Middleware Classes for the {{ cookiecutter.cast_name }} graph.
 
 Guidelines:
     - Use built-in middleware (e.g., PIIMiddleware) for common use cases.

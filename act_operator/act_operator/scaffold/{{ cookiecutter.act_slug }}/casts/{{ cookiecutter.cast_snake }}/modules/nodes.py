@@ -37,9 +37,15 @@ class SampleNode(BaseNode):
             state: Current graph state.
 
         Returns:
-            dict: State updates (must be a dict)
+            dict: State updates (must be a dict). Writes both ``result``
+            (exposed by OutputState) and ``messages`` (accumulated via
+            MessagesState's ``add_messages`` reducer).
         """
-        return {"messages": [AIMessage(content="Welcome to the Act! by Sync Node")]}
+        welcome = "Welcome to the Act!"
+        return {
+            "result": welcome,
+            "messages": [AIMessage(content=f"{welcome} by Sync Node")],
+        }
 
 
 class AsyncSampleNode(AsyncBaseNode):
@@ -60,6 +66,12 @@ class AsyncSampleNode(AsyncBaseNode):
             state: Current graph state.
 
         Returns:
-            dict: State updates (must be a dict)
+            dict: State updates (must be a dict). Writes both ``result``
+            (exposed by OutputState) and ``messages`` (accumulated via
+            MessagesState's ``add_messages`` reducer).
         """
-        return {"messages": [AIMessage(content="Welcome to the Act! by Async Node")]}
+        welcome = "Welcome to the Act!"
+        return {
+            "result": welcome,
+            "messages": [AIMessage(content=f"{welcome} by Async Node")],
+        }

@@ -1,4 +1,4 @@
-"""[Optional] Construct agents required by the Sample Cast graph.
+"""[Optional] Construct agents required by the {{ cookiecutter.cast_name }} graph.
 
 Guidelines:
     - Create agents using the `langchain.agents` module.

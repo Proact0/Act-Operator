@@ -1,4 +1,4 @@
-"""[Required] State definition shared across sam graphs.
+"""[Required] State definition for the {{ cookiecutter.cast_name }} graph.
 
 Guidelines:
     - Create TypedDict classes for input, output, overall state, and any other state you need.
